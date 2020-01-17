@@ -39,27 +39,6 @@
 #      caption: MotionEye
 #    service: telegram_bot.send_photo
 
-#- id: '1578085983261'
-#  alias: Camera motion webhook
-#  description: 'to use for facebox recognition'
-#  trigger:
-#  - platform: webhook
-#    webhook_id: cam1motion   #use this webhook name in MotionEye notification settings
-#  condition: []
-#  action:
-#  - data:
-#      entity_id: image_processing.cam_1_facebox  #name of service defined in image_processing: of configuration.yaml
-#    service: image_processing.scan
-#  - data:
-#      message: cam 1 motion trigger
-#    service: notify.telegram_direct_mega
-#  - data_template:
-#      target: !secret telegram_bot_chat_id_megafon  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
-#      file: "www/recordings/cam1face.jpg"
-#      url: https://192.168.192.25:8123/local/recordings/cam1face.jpg
-#      verify_ssl: false
-#      caption: MotionEye
-#    service: telegram_bot.send_photo
     
 - alias: Pavel recognized
   description: 'Pavel recognized via Dafang camera'
