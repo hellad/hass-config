@@ -1,0 +1,46 @@
+# ---- ФАЙЛЫ ----
+# Игнорирование по типу файла, будут игнорироваться в АБСОЛЮТНО всех директориях
+# Например /files/data.zip, /server.log, /uploads/users/data/info.xls
+#*.zip
+#*.pdf
+#*.xls
+*.jpg
+*.mp3
+*.bak
+*.log
+*.save
+*.old
+
+# You can whitelist files/folders with !, these will not be ignored.
+!*.yaml
+!.gitignore
+!*.md
+
+# Ignore folders.
+.storage/
+.cloud/
+.google.token/
+certificate/
+www/
+esphome/.esphome/
+**/.pioenvs/
+**/.piolibdeps/
+**/lib/
+**/src/
+**/platformio.ini
+esphome/esp32sensors.yaml
+sensors/yandex_maps.yaml
+sensors/yandex_transport.yaml
+
+# Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
+ip_bans.yaml
+secrets.yaml
+known_devices.yaml
+.google_maps_location_sharing.cookies.ad6170epson_gmail_com
+options.xml
+plex.conf
+settings.conf.bak
+OZW_Log.txt
+home-assistant.log
+custom_components/sonoff/devices.json
+pyozw.sqlite

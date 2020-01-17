@@ -1,0 +1,86 @@
+# https://community.home-assistant.io/t/strava-sensors/5506
+
+#- platform: rest
+#  name: strava_ride_last_miles
+#  resource: https://www.strava.com/api/v3/athlete/activities
+#  method: GET
+#  headers:
+#    Authorization:9c31cf312d9610b4e818707c50af39fca27d02ba
+#  value_template: '{{ value_json[0].distance | multiply(0.000621371) | round(1) }}'
+#  unit_of_measurement: mi
+#  scan_interval: 300
+
+
+# 		automation
+#- alias: Notify Last Team Ride
+#  trigger:
+#    - platform: state
+#      entity_id: sensor.strava_last_team_ride_profile
+#  condition:
+#    condition: template
+#    value_template: "{{ states('sensor.strava_last_team_ride_profile') != 'unknown' }}"
+#  action:
+#    - service: notify.ios_myiphone
+#      data_template:
+#        message: "{{ states('sensor.strava_last_team_ride_name') }} just uploaded a ride titled: {{ states('sensor.strava_last_team_ride_title') }} to Strava traveling {{ states('sensor.strava_last_team_ride_distance') }} miles at an average of {{ states('sensor.strava_last_team_ride_avg_speed') }}mph at {{ states('sensor.strava_last_team_ride_avg_watts') }} watts and an average HR of {{ states('sensor.strava_last_team_ride_avg_hr') }}bpm"
+#        data:
+#          subtitle: "via Strava"
+#          attachment:
+#            url: "{{ states('sensor.strava_last_team_ride_profile') }}"
+#            content-type: jpeg
+#            hide-thumbnail: false
+
+# http://strava.github.io/api/v3/oauth/
+# request example
+#$ curl -G https://www.strava.com/api/v3/athlete -H "Authorization: Bearer 9c31cf312d9610b4e818707c50af39fca27d02ba"
+
+
+
+- platform: rest
+  name: strava_last_distance
+  resource:  https://www.strava.com/api/v3/activities
+  method: GET
+  headers:
+    Authorization: Bearer 9c31cf312d9610b4e818707c50af39fca27d02ba  # keep it secret!
+  value_template: '{{ value_json[0].distance }}'
+  unit_of_measurement: м
+  scan_interval: 6000
+
+- platform: rest
+  name: strava_last_elevation
+  resource:  https://www.strava.com/api/v3/activities
+  method: GET
+  headers:
+    Authorization: Bearer 9c31cf312d9610b4e818707c50af39fca27d02ba  # keep it secret!
+  value_template: '{{ value_json[0].total_elevation_gain }}'
+  unit_of_measurement: м
+  scan_interval: 6000
+
+- platform: rest
+  name: strava_last_name
+  resource:  https://www.strava.com/api/v3/activities
+  method: GET
+  headers:
+    Authorization: Bearer 9c31cf312d9610b4e818707c50af39fca27d02ba   # keep it secret!
+  value_template: '{{ value_json[0].name }}'
+  scan_interval: 6000
+
+- platform: rest
+  name: strava_last_moving_time
+  resource:  https://www.strava.com/api/v3/activities
+  method: GET
+  headers:
+    Authorization: Bearer 9c31cf312d9610b4e818707c50af39fca27d02ba   # keep it secret!
+  value_template: '{{ value_json[0].moving_time| multiply(0.016666666666) | round(1) }}'
+  unit_of_measurement: мин.
+  scan_interval: 6000
+
+- platform: rest
+  name: strava_last_date
+  resource:  https://www.strava.com/api/v3/activities
+  method: GET
+  headers:
+    Authorization: Bearer 9c31cf312d9610b4e818707c50af39fca27d02ba   # keep it secret!
+  value_template: '{{ value_json[0].start_date_local }}'
+#  unit_of_measurement: мин.
+  scan_interval: 6000

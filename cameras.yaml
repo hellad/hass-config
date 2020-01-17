@@ -11,7 +11,7 @@
 #    entity_picture: /api/camera_proxy/camera.hls_dafang?token=9c6f97d719662cfe0b9872e1243913e945a6c0be5c7aa29bab851453bbebccac
   - platform: generic
     name: HLS Dafang
-    still_image_url: https://root:ismart12@192.168.192.44/cgi-bin/currentpic.cgi
+    still_image_url: !secret HLS_dafang_still_url
     stream_source: rtsp://192.168.192.44:8554/unicast 
 #    stream_source: http://192.168.192.44:8554/unicast.m3u8
     verify_ssl: false
@@ -19,8 +19,8 @@
 
   - platform: generic
     name: Xiaomi
-    username: root
-    password: ismart12
+    username: !secret dafang_user
+    password: !secret dafang_password
     authentication: basic
     still_image_url: https://192.168.192.44/cgi-bin/currentpic.cgi
     verify_ssl: false
@@ -82,10 +82,10 @@
 
   - platform: generic
     name: MotionEye
-    username: motioneye
-    password: user2461
+    username: !secret MotionEye_user
+    password: !secret MotionEye_password
     authentication: basic
-    still_image_url: http://192.168.192.25:8765/picture/1/current/?_username=admin&_signature=782667b86c96474479c6ace97ffab0700daa3c23
+    still_image_url: !secret MotionEye_still_image_url
     verify_ssl: false
     
 # motion detected file for face recognition
