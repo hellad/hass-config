@@ -1,0 +1,37 @@
+# Internet HASS Module
+#
+# Provides external IP address.
+
+sensor:
+
+  # Grab external IP address
+  - platform: command_line
+    name: External IP
+    command: "curl -m 10 -s checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//'"
+    unit_of_measurement: ""
+    scan_interval: 900
+    #value_template: '{{ value }}'
+
+#### this server can be overloaded and does not reply.that's why sensor became "unknown"
+#  - platform: rest
+#    resource: http://ip.jsontest.com
+#    name: External IP
+#    scan_interval: 900
+#    value_template: '{{ value_json.ip }}'
+
+
+# Report IP changes
+automation:
+
+  - alias: IP Changed
+    trigger:
+      - platform: state
+        entity_id: sensor.external_ip
+    action:
+      - service: notify.telegram_group
+        data_template:
+          notify_text: "Произошла смена внешнего IP адреса на: '{{ states.sensor.external_ip.state }}'"
+#          notify_mobile: True
+#          is_warning: True
+
+

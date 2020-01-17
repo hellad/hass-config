@@ -1,0 +1,27 @@
+#### see https://home-assistant.io/components/media_player.sonos/
+#### https://home-assistant.io/cookbook/sonos_say/
+#### https://community.home-assistant.io/t/sonos-tts-script/8896/47
+
+
+################################################################################
+#	 
+#	 Testing TTS to Sonos
+#	
+################################################################################
+  - alias: 'Testing TTS to Sonos'
+    initial_state: true
+    trigger:
+      platform: state
+      entity_id: input_boolean.test_tts
+      from: 'off'
+      to: 'on'
+    action:
+      - service: script.turn_on
+        entity_id: script.sonos_tts
+        data:
+          variables:
+            where: 'kitchen'
+            what: >
+              Привет! Проверка синтеза речи с независимой громкостью {{  states('input_number.volume_radio')  }}
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.test_tts

@@ -1,0 +1,5 @@
+#### https://home-assistant.io/components/sensor.command_line/
+#sensor:
+#  - platform: command_line
+#    name: badlogin
+#    command: grep -c 'Login attempt' /home/homeassistant/.homeassistant/home-assistant.log

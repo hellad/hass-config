@@ -1,0 +1,11 @@
+- id: '1578737297287'
+  alias: MotionEye webhook
+  description: Automation to recognize face  from cam1motion
+  trigger:
+  - platform: webhook
+    webhook_id: cam1motion
+  condition: []
+  action:
+  - data:
+      entity_id: all
+    service: image_processing.scan

@@ -1,0 +1,54 @@
+# media_player: section to be included in configuration
+- platform: lg_netcast
+  host: 192.168.192.15
+  name: LG TV50 remote
+  access_token: 318905
+
+- platform: dunehd
+  host: 192.168.192.3
+  name: Dune HD 3D player
+
+- platform: dunehd
+  host: 192.168.192.10
+  name: Dune 101W player
+
+#- platform: kodi
+#  host: 127.0.0.1
+#  port: 8080
+#  name: adkodi
+#  turn_off_action: hibernate
+  #username: 
+  #password: 
+  #turn_on_action:
+#  turn_off_action:
+#  service: media_player.kodi_call_method 
+#  data_template: 
+#    entity_id: '{{ entity_id }}' 
+#    method: System.Hibernate
+#  enable_websocket: true
+
+#2017-08-02 21:58:12 WARNING (MainThread) [homeassistant.components.media_player.kodi] The 'hibernate' action for turn off Kodi is deprecated and will cease to function in a #future release. You need to change it for a generic Home Assistant script sequence, which is, for this turn_off action, like this: 
+#turn_off_action: 
+#  service: media_player.kodi_call_method 
+#  data_template: 
+#    entity_id: '{{ entity_id }}' 
+#    method: System.Hibernate
+
+#### Sonos One wireless speaker
+# By default it supports auto-discovery provided by Home Assistant, 
+# and you don’t need to add anything to your configuration.yaml
+# https://www.home-assistant.io/components/sonos/
+#media_player:
+#- platform: sonos  
+#  hosts: 192.168.192.36
+
+#### https://home-assistant.io/components/media_player.vlc/
+#### This service will control a background VLC instance, 
+#### therefore you cannot use this to control a VLC instance launched on your desktop, unlike the Kodi media player for example.
+#- platform: vlc
+#  name: vlcmp # название нашего плеера VLC
+#  arguments: '--alsa-audio-device=plughw:0,1'
+
+#### https://www.home-assistant.io/components/media_player.plex/
+#### changed in 0.99 version. https://www.home-assistant.io/blog/2019/09/18/release-99/ see configuration.yaml https://www.home-assistant.io/components/plex/
+#- platform: plex

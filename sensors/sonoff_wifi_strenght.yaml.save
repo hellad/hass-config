@@ -1,0 +1,29 @@
+#### https://github.com/arendst/Sonoff-Tasmota/wiki/Home-Assistant-%E2%80%90-Manual-Config
+# sensor:
+  - platform: mqtt
+    state_topic: "mirror/tele/STATE"
+    name: "BathRoom Relay Wifi Signal"                #### sensor.bathroom_relay_wifi_signal
+    unit_of_measurement: "%"
+    value_template: "{{value_json['Wifi'].RSSI }}"
+    availability_topic: "sonoff/tele/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+
+
+  - platform: mqtt
+    state_topic: "mirror/tele/SENSOR"
+    name: "BathRoom relay touch sensor"              #### sensor.bathroom_relay_touch_sensor
+    value_template: '{{ value_json.Switch1 }}'  
+    initial_state: off
+
+  - platform: mqtt
+    state_topic: "mirror/tele/STATE"
+    name: "BathRoom relay uptime"                    #### sensor.bathroom_relay_uptime
+    value_template: '{{ value_json.Uptime }}'  
+#    initial_state: off
+
+
+  - platform: mqtt
+    state_topic: "mirror/stat/RESULT"
+    name: "BathRoom relay last result"               #### sensor.bathroom_relay_last_result
+    value_template: '{{ value_json.POWER }}'

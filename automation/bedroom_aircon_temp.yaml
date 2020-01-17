@@ -1,0 +1,135 @@
+################################################################################
+# Automation rules to be used with HASS UI items in AirConditioner Group       #
+################################################################################
+# https://community.home-assistant.io/t/pass-value-to-command-line/587/19
+# In your shell_command, just use:
+
+#shell_command:
+#  light_dim: '/usr/local/bin/light_dim.sh {{ value }}'
+# Then, in your automation,
+
+#  action: 
+#    - service: shell_command.light_dim
+#      data_template:
+#        value: >
+#          {% template logic to determine value to send %}
+# “value” is passed as an argument to the shell_command.
+################################################################################
+
+################################################################################
+#### turn on/off air conditioner with given ONLY power value  ##################
+################################################################################
+- alias: Bedroom AirCon Power On
+  trigger:
+    platform: state
+    entity_id: input_select.bedroom_aircon_power
+    to: turn-on
+  action:
+#### try to change status of dedicated switch to turn on aircon
+    - service: switch.turn_on
+      data: 
+        entity_id: switch.fujitsu
+
+#    - service: shell_command.set_ac_on
+#    - service: shell_command.debug_cmd
+
+#### debug message
+    - service: telegram_bot.send_message
+      data_template:
+        target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+        message: >
+          {{now().strftime("%H:%M:%S %Y-%m-%d")}} Power command sent to Air conditioner from homeassistant GUI  input_select.bedroom_aircon_power: {{ states.input_select.bedroom_aircon_power.state }}.    
+
+################################################################################
+#### turn on/off air conditioner with given power value ########################
+################################################################################
+- alias: Bedroom AirCon Power Off
+  trigger:
+    platform: state
+    entity_id: input_select.bedroom_aircon_power
+    to: turn-off
+  action:
+    - service: switch.turn_off
+      data: 
+        entity_id: switch.fujitsu
+
+#    - service: shell_command.set_ac_off
+#    - service: shell_command.debug_cmd
+#### debug message
+    - service: telegram_bot.send_message
+      data_template:
+        target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+        message: >
+          {{now().strftime("%H:%M:%S %Y-%m-%d")}} Power command sent to Air conditioner from homeassistant GUI  input_select.bedroom_aircon_power: {{ states.input_select.bedroom_aircon_power.state }}.    
+
+################################################################################
+####  turn on air conditioner with given TEMPERATURE value #####################
+################################################################################
+- alias: Bedroom AirCon Temperature
+  trigger:
+    platform: state
+    entity_id: input_number.bedroom_aircon_temperature
+  action:
+    - service: switch.turn_on
+      data: 
+        entity_id: switch.fujitsu
+
+#    - service: shell_command.set_ac_on
+    - delay: 0:0:2
+    - service: shell_command.set_ac_to_slider
+      data_template:
+        power: '{% if states.input_select.bedroom_aircon_power.state %}{{ states.input_select.bedroom_aircon_power.state }} {% endif %}'
+        mode: '{% if states.input_select.bedroom_aircon_mode.state %}{{ states.input_select.bedroom_aircon_mode.state }}{% endif %}'
+        fan: '{% if states.input_select.bedroom_aircon_fan.state %}{{ states.input_select.bedroom_aircon_fan.state }}{% endif %}'
+        temp: '{% if states.input_slider.bedroom_aircon_temperature.state|int %}{{ states.input_slider.bedroom_aircon_temperature.state|int }}{% endif %}'
+#        mode: '{{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_slider.bedroom_aircon_temperature.state|int }}'
+#### debug message
+    - service: telegram_bot.send_message
+      data_template:
+        target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+        message: >
+          {{now().strftime("%H:%M:%S %Y-%m-%d")}} New temperature command sent to Air conditioner from homeassistant GUI  input_number.bedroom_aircon_temperature: {{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_slider.bedroom_aircon_temperature.state|int }}.    
+#          {{now().strftime("%H:%M:%S %Y-%m-%d")}} New temperature command sent to Air conditioner from homeassistant GUI  input_number.bedroom_aircon_temperature: {{ states.input_number.bedroom_aircon_temperature.state }}.    
+
+
+################################################################################
+####  turn on air conditioner with given mode value ############################
+################################################################################
+- alias: Bedroom AirCon Mode
+  trigger:
+    platform: state
+    entity_id: input_select.bedroom_aircon_mode
+    to: CUSTOM
+  action:
+#### debug message
+    - service: telegram_bot.send_message
+      data_template:
+        target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+        message: >
+          {{now().strftime("%H:%M:%S %Y-%m-%d")}} New mode command sent to Air conditioner from homeassistant GUI input_select.bedroom_aircon_mode: {{ states.input_number.bedroom_aircon_mode.state }}.    
+#    - service: shell_command.set_ac_on
+#    - delay: 0:0:2
+    - service: shell_command.set_ac_to_slider
+      data_template:
+        mode: "{{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_slider.bedroom_aircon_temperature.state|int }}"
+ 
+################################################################################
+####   turn on air conditioner with given fan mode value #######################
+################################################################################
+- alias: Bedroom AirCon Fan
+  trigger:
+    platform: state
+    entity_id: input_select.bedroom_aircon_fan
+    to: CUSTOM
+  action:
+#    - service: shell_command.set_ac_on
+#    - delay: 0:0:2
+    - service: shell_command.set_ac_to_slider
+      data_template:
+        mode: "{{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_slider.bedroom_aircon_temperature.state|int }}"
+#### debug message
+    - service: telegram_bot.send_message
+      data_template:
+        target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+        message: >
+          {{now().strftime("%H:%M:%S %Y-%m-%d")}} New fan command sent to Air conditioner from homeassistant GUI input_number.bedroom_aircon_fan: {{ states.input_number.bedroom_aircon_fan.state }}.    

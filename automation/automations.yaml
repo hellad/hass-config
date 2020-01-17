@@ -1,0 +1,319 @@
+#### https://home-assistant.io/getting-started/automation-2/
+#automation:
+################################################################################
+#	Check mqtt.temp sensor value and show notification
+#
+################################################################################
+  - alias: Check aeon.temp sensor value and show notification
+    initial_state: True  # To set an automation to be disabled when Home Assistant starts set initial_state: to False.
+    hide_entity: False   # when a rule is finished and you don’t want to see that rule in your frontend, you can set hide_entity: to True.
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.aeon_labs_zw100_multisensor_6_temperature    # topic home/temperature
+      above: 26
+#      below: 22
+
+    action:
+      - service: persistent_notification.create
+        data:
+          message: "Home temperature AEON sensor value is higher than 26C. Температура дома выше 26С."
+#          message: "Home temperature MQTT sensor value is lower than 22C. Температура дома ниже 22С."
+
+      - service: notify.telegram_group
+        data_template:
+          message: "Home temperature AEON sensor value is higher than 26C. Температура дома выше 26С."
+#          message: "Home temperature MQTT sensor value is lower than 22C. Температура дома ниже 22С."
+      - condition: and
+        conditions:
+          - condition: time
+      # At least one of the following is required.
+            after: '8:30:00'
+          - condition: time
+            before: '23:30:00'
+            
+      - service: tts.google_translate_say
+        entity_id: media_player.kitchen   # Say to the sonos media_player device 
+#        entity_id: media_player.vlcmp   # Say to the media_player.vlcmp device entity
+        data_template:
+          message: > 
+            Внимание. Температура в доме превысила 26 градусов Цельсия.
+#            Внимание. Температура в доме стала ниже 22 градусов Цельсия.
+ 
+
+################################################################################
+#	Check bath.mqtt.humidity sensor value and show notification
+#
+################################################################################
+  - alias: Check bath.mqtt.humidity sensor value and show notification
+    initial_state: True  # To set an automation to be disabled when Home Assistant starts set initial_state: to False.
+    hide_entity: False   # when a rule is finished and you don’t want to see that rule in your frontend, you can set hide_entity: to True.
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.bathroom_mqtt_humidity_sensor    # topic bathroom/humidity
+      above: 55
+#    condition:
+#      condition: time
+      # At least one of the following is required.
+#      after: '8:00:00'
+#      before: '23:30:00'
+    action:
+      - service: persistent_notification.create
+        data:
+          message: "Bathroom humidity MQTT sensor value is higher than 55%. Влажность в ванной выше 55%."
+      - service: notify.telegram_group
+        data_template:
+          message: "Bathroom humidity MQTT sensor value is higher than 55%. Влажность в ванной выше 55%."
+      - service: notify.telegram_group
+        data_template:
+#          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+          message: "Влажность в ванной превысила 55 процентов."
+
+      - condition: and
+        conditions:
+          - condition: time
+      # At least one of the following is required.
+            after: '8:30:00'
+          - condition: time
+            before: '23:30:00'
+
+      - service: tts.google_translate_say
+        entity_id: media_player.kitchen   # Say to the sonos media_player device 
+#        entity_id: media_player.vlcmp   # Say to the media_player.vlcmp device entity
+        data_template:
+          message: > 
+            Внимание.  Влажность в ванной превысила 55 процентов.
+
+################################################################################
+#	 Save timestamps of last motion detected by sensors
+#	 https://community.home-assistant.io/t/time-last-seen-motion/18095/6
+#
+#	Store Motion in MultiSensor  kitchen
+################################################################################
+  - alias: Store Motion in MultiSensor
+    trigger:
+      - platform: state
+        entity_id: sensor.sn1_pir                   #### Kitchen
+#        from: 'off'                                 #### Uppercase does matter!!!
+        to: 'on'                                    #### In GUI - On Off statuses
+    action:
+#### debug message
+#      - service: telegram_bot.send_message
+#        data_template:
+#          target: [!secret telegram_bot_chat_id_beeline]
+#          message: >
+#            {{now().strftime("%H:%M:%S %Y-%m-%d")}} {{ as_timestamp(states.sensor.sn1_pir.last_changed) | timestamp_custom("%Y-%m-%d %X") }} Should Store Motion of Kitchen MultiSensor
+            
+      - service: mqtt.publish
+        alias: MQTT store kitchen multisensor ON time
+        data:
+            topic: 'kitchen/sensornode1/on_time'
+            payload_template: '{{ as_timestamp(states.sensor.sn1_pir.last_changed) | timestamp_custom("%Y-%m-%d %X") }}'
+            retain: 'false'
+
+            
+            
+################################################################################
+#	 Save timestamps of last motion detected by sensors
+#	 https://community.home-assistant.io/t/time-last-seen-motion/18095/6
+#	Store timestamp for Motion Sensor bathroom
+################################################################################
+  - alias: Store Bathroom Motion Sensor
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bathroom_motion_sensor
+        from: 'off'
+        to: 'on'
+    action:
+      - service: mqtt.publish
+        alias: MQTT store nodemcu PIR sensor ON time
+        data:
+            topic: 'bathroom/motion/on_time'
+            payload_template: '{{ as_timestamp(states.binary_sensor.bathroom_motion_sensor.last_changed) | timestamp_custom("%Y-%m-%d %X") }}'
+            retain: 'false'
+#### debug message
+#      - service: telegram_bot.send_message
+#        data_template:
+#          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+#          message: >
+#            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  MQTT store Bathroom nodemcu PIR sensor ON time
+            
+
+
+################################################################################
+#	 Save timestamps of last motion detected by sensors
+#	 https://community.home-assistant.io/t/time-last-seen-motion/18095/6
+#	Store timestamp for IPcamera Motion Sensor
+################################################################################
+#  - alias: Store IPcamera Motion Sensor
+#    trigger:
+#      - platform: state
+#        entity_id: binary_sensor.ip_camera_motion
+#        from: 'off'
+#        to: 'on'
+#    action:
+#      - service: mqtt.publish
+#        alias: MQTT store ip_camera_motion binary_sensor ON time
+#        data:
+#            topic: 'kitchen/motion/on_time'
+#            payload_template: '{{ as_timestamp(states.binary_sensor.ip_camera_motion.last_changed) | timestamp_custom("%Y-%m-%d %X") }}'
+#            retain: 'true'
+ 
+################################################################################
+#	 
+#	 Yandex TTS Speak
+#	
+################################################################################
+#### Yandex TTS does not work since HASS version 0.48
+#  - alias: 'Yandex TTS Speak'
+#    trigger:
+#      platform: event
+#      event_type: telegram_command
+#      event_data:
+#        command: '/speaky'
+#    action:
+#      - service: tts.yandextts_say # Вызываем Яндекс
+#        entity_id: media_player.vlcmp   # Say to the media_player.vlcmp device entity
+#        data_template:
+#          message: "Любезный сударь! Извольте выслушать краткую сводку новостей о погоде. За окном сейчас {{ states('sensor.owm_temperature')|int }} градусов." # Указываем какой текст нам необходимо синтезировать
+#          entity_id: media_player.adosmc # Указываем, какой медиа плеер должен воспроизвести поток
+#          language: 'ru-RU'       
+#      - service: telegram_bot.send_message
+#        data_template:
+#          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+#          message: >
+#            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Try to call yandex tts to reply message from {{ trigger.event.data["user_id"] }}.
+
+
+################################################################################
+#	 
+#	 Google TTS Speak weather forecast to mediaplayer Sonos tonight
+#	
+################################################################################
+#  - alias: 'google tts weather forecast'
+#    initial_state: true
+#    trigger:
+#      - platform: time
+#        at: '20:55:00'
+#    action:
+#      - service: tts.google_translate_say
+#        entity_id: media_player.kitchen                #### Say it on Sonos speaker
+#        data_template:
+#          language: ru
+#          message: "Внимание.Прослушайте информацию о погоде. {{ states('sensor.dark_sky_summary_0d') }}"
+#          cache: false
+
+################################################################################
+#	 
+#	 notify Pavel came home
+#	
+################################################################################
+  - alias: 'notify Pavel came home'          
+    trigger:
+      platform: state
+      entity_id: device_tracker.iphone7
+      from: 'not_home'
+      to: 'home'
+    action:
+      service: notify.telegram_group
+      data:
+        message: 'Pavel connected to home WiFi'
+
+################################################################################
+#	 
+#	 notify Prokhor came home
+#	
+################################################################################
+  - alias: 'notify Prohor came home'          
+    trigger:
+      platform: state
+      entity_id: device_tracker.prohor
+      from: 'not_home'
+      to: 'home'
+    action:
+      service: notify.telegram_group
+      data:
+        message: 'Prohor connected to home WiFi'
+
+################################################################################
+#	 
+#	 notify Irina came home
+#	
+################################################################################
+  - alias: 'notify Irina came home'          
+    trigger:
+      platform: state
+      entity_id: device_tracker.irina
+      from: 'not_home'
+      to: 'home'
+    action:
+      service: notify.telegram_group
+      data:
+        message: 'Irina connected to home WiFi'
+
+################################################################################
+#	 
+#	 HASS Update Available Notifications
+#	
+################################################################################
+  - alias: 'HASS Update Available Notifications'
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.updater
+        from: 'off'
+        to: 'on'       
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+#          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+          target: 
+            - !secret telegram_bot_chat_id_beeline 
+            - !secret telegram_bot_chat_id_megafon
+          title: '{{ as_timestamp (now()) | timestamp_custom("%d/%b/%Y %T") }}'
+          message: >
+              New Home Assistant  {{ state_attr('binary_sensor.updater', 'newest_version') }}  is now available.
+
+################################################################################
+#	 
+#	 AD enter home zone Notifications
+#	
+################################################################################
+  - alias: 'AD enter home zone notification'
+    initial_state: true
+    trigger:
+      platform: zone
+      entity_id: device_tracker.adhtc_u12
+      zone: zone.home
+      # Event is either enter or leave
+      event: enter  # or "leave"
+    action:
+      - service: notify.telegram_group
+        data_template:
+          message: >
+              You enter home zone.
+
+################################################################################
+#	 
+#	 AD enter office zone Notifications
+#	
+################################################################################
+  - alias: 'AD enter office zone notification'
+    initial_state: true
+    trigger:
+      platform: zone
+      entity_id: device_tracker.adhtc_u12
+      zone: zone.office
+      # Event is either enter or leave
+      event: enter  # or "leave"
+    action:
+      - service: notify.telegram_group
+        data_template:
+          message: >
+              You enter office zone.
+
+################################################################################
+#	 
+#	 Testing TTS to Sonos see in sonos_test.yaml
+#	
+################################################################################

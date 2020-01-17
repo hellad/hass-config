@@ -1,0 +1,181 @@
+################################################################################
+#### The dht sensor platform allows you to get the current temperature and humidity from a DHT11, DHT22, or AM2302 device.
+#### https://home-assistant.io/components/sensor.dht/
+#sensor:  used for test with BRUH multisensor
+################################################################################
+#  - platform: dht
+#    sensor: DHT11
+#    pin: 21
+#    name: Hall_DHT11
+#    monitored_conditions:
+#      - temperature
+#      - humidity
+#    polling_interval: 10000
+#    scan_interval: 300        # scan every 5 minutes
+#    interval_seconds: 10
+
+################################################################################
+#### 1wire sensor DS18B20
+#### https://www.home-assistant.io/components/sensor.onewire/
+#### https://datasheets.maximintegrated.com/en/ds/DS18B20.pdf
+################################################################################
+#  - platform: onewire
+#    names:
+#      28-000008a43272: bedroom
+#    mount_dir: "/mnt/1wire"
+
+################################################################################
+#sensor1820:           #### try to use DS18B20 1wire sensor as mqtt with thingspeak_cpuram.py programm
+# local topic is 'home/temperature'
+# command in /etc/rc.local run the programm thingspeak_cpuram.py
+# !!!!!!!!!  Isn't used on NAS in Docker !!!!!!!!!!!
+################################################################################
+  - platform: mqtt
+    scan_interval: 300
+    state_topic: 'home/temperature'
+    name: 'mqtt Temp sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: '°C'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 900
+#    value_template: '{{ value_json.temperature }}'
+
+################################################################################
+#sensorBME280_Wemos:           #### try to use BME280 sensor on Wemos D1mini as mqtt in bathroom!
+# local topic is 'bathroom/temperature'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'bathroom/temperature'
+    name: 'bathroom mqtt temp sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: '°C'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+#    value_template: '{{ value_json.temperature }}'
+
+################################################################################
+#sensorBME280_Wemos:           #### try to use BME280 sensor on Wemos D1mini as mqtt 
+# local topic is 'bathroom/humidity'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'bathroom/humidity'
+    name: 'bathroom mqtt humidity sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: '%'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+#    value_template: '{{ value_json.temperature }}'
+
+################################################################################
+# local topic is 'bathroom/analog'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'bathroom/analog'
+    name: 'bathroom mqtt analog sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: 'V'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+#    value_template: '{{ value_json.temperature }}'
+
+################################################################################
+# local topic is 'bathroom/pressure'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'bathroom/pressure'
+    name: 'bathroom mqtt pressure sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: 'mmHg'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+#    value_template: '{{ value_json.temperature }}'
+
+################################################################################
+#### multisensor example from BRUH 
+#### https://github.com/bruhautomation/ESP-MQTT-JSON-Multisensor
+#### #define light_state_topic "bruh/sensornode1"
+#### #define light_set_topic "bruh/sensornode1/set"
+#### const char* on_cmd = "ON";
+#### const char* off_cmd = "OFF";
+#### root["state"] = (stateOn) ? on_cmd : off_cmd 
+#### Client mosqsub|11536-hassbian received PUBLISH (d0, q0, r1, m0, 'bathroom/sensornode1', ... (157 bytes))
+#### {"state":"OFF","color":{"r":255,"g":255,"b":255},"brightness":255,"humidity":"23.00","motion":"standby","ldr":"388","temperature":"16.00","heatIndex":"8.38"}
+#### Command to turn On or Off
+#### Client mosqsub|11732-hassbian received PUBLISH (d0, q0, r0, m0, 'bathroom/sensornode1/set', ... (15 bytes))
+#### {"state": "ON"}     
+#### {"state": "OFF"}
+
+
+  - platform: mqtt  
+    state_topic: "kitchen/sensornode1"  
+    name: "SN1 Humidity"  
+    unit_of_measurement: "%"  
+    value_template: '{{ value_json.humidity | round(1) }}'  
+  
+  - platform: mqtt  
+    state_topic: "kitchen/sensornode1"  
+    name: "SN1 LDR"
+    ##This sensor is not calibrated to actual LUX. Rather, this a map of the input voltage ranging from 0 - 1023.
+    unit_of_measurement: "NUM"  
+    value_template: '{{ value_json.ldr }}'  
+  
+  - platform: mqtt  
+    state_topic: "kitchen/sensornode1"  
+    name: "SN1 PIR"  
+    value_template: '{{ value_json.motion }}'  
+  
+  - platform: mqtt  
+    state_topic: "kitchen/sensornode1"  
+    name: "SN1 Temperature"  
+    unit_of_measurement: "°C"  
+    value_template: '{{ value_json.temperature | round(1) }}'  
+
+  - platform: mqtt
+    state_topic: "kitchen/sensornode1"
+    name: "SN1 Real Feel"
+    unit_of_measurement: "°C"
+    value_template: '{{ value_json.heatIndex | round(1) }}'
+
+#  - platform: mqtt
+#    state_topic: "kitchen/co2"
+#    name: "SN1 CO2"
+#    unit_of_measurement: "NUM" 
+#    value_template: '{{ value_json.CO2 }}'
+
+################################################################################
+#
+#### Listen for MQTT topic: Automations.yaml will timestamp the PIR/motion sensors that go on
+#       why it does not work?
+################################################################################
+  - platform: mqtt
+    name: "Last motion kitchen multisensor"       # sensor.last_motion_kitchen_multisensor
+    state_topic: 'kitchen/sensornode1/on_time'
+
+  - platform: template
+    sensors: 
+      kitchen_last_motion_multisensor:
+        friendly_name: "kitchen last motion multisensor"                                         # sensor.kitchen_last_motion_multisensor
+        value_template: >-
+          {{ as_timestamp(states.sensor.sn1_pir.last_changed) | timestamp_custom("%Y-%m-%d %X") }}
+
+  - platform: mqtt
+    name: "Last Motion bathroom Sensor"          # sensor.last_motion_bathroom_sensor
+    state_topic: "bathroom/motion/on_time"
+
+#  - platform: mqtt
+#    name: "Last Motion Kitchen Sensor"
+#    state_topic: "kitchen/motion/on_time"
+
+# https://community.home-assistant.io/t/android-ip-webcam-as-a-camera-plus-sensors/10566/133
+# You can change the ‘scan_interval’ in the ip_webcam configuration in HA, it is default to 10 sec., 
+# but by default HA only polls binary sensors every 30 seconds I believe. You can change that value as well, but that is for everything, 
+# so not really recommended to put it too low as it will affect performance.
+# What I did was install Tasker on the phone, and detect the motion through that, and then push to HA. This gave me about a 1-2 sec. delay on motion, better.
+
+  - platform: mqtt
+    name: "CO2 Sensor"          # sensor.co2_sensor
+    state_topic: "kitchen/co2"

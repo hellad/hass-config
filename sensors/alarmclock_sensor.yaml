@@ -1,0 +1,11 @@
+# https://home-assistant.io/components/sensor.template/
+# settings for everyday voice alarm on Raspberry
+# data taken from slider
+# Этот компонент позволяет всячески управлять данными других компонентов HASS.
+# В данном примере, мы создаем сенсор и заполняем его данными из слайдеров будильника,
+# принудительно приводя значение к int и добавляя «0» если «длина» минут ==
+  - platform: template
+    sensors:
+      alarm_time:
+        friendly_name: 'AlarmClockSensor'
+        value_template: '{{ states.input_slider.alarmhour.state | int }}:{% if states.input_slider.alarmminutes.state|length == 1 %}0{% endif %}{{ states.input_slider.alarmminutes.state | int }}'

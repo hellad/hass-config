@@ -1,0 +1,39 @@
+#### look at https://github.com/skalavala/smarthome/blob/master/packages/alarm_clock.yaml
+
+# Automation example for media alarmclock
+- alias: 'AlarmClock'
+  trigger:
+    platform: template
+    value_template: '{{ states.sensor.time.state == states.sensor.alarm_time.state }}' # Определение тригера.Сравниваем с шаблоном сенсора.
+  condition: # Условия
+    condition: or
+    conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: input_boolean.alarmweekday
+          state: 'on'
+        - condition: time
+          weekday:
+              - mon
+              - tue
+              - wed
+              - thu
+              - fri
+      - condition: state
+        entity_id: input_boolean.alarmweekday
+        state: 'off'
+  action: # Действия
+    - service: notify.telegram_group
+      data_template:
+        title: Good morning !
+        message: "Доброе утро! Пора вставать. Температура за окном {{ states('sensor.dark_sky_temperature')|int }} °C."
+
+    - delay: 00:00:01
+#    - service: tts.yandextts_say # Вызываем Яндекс
+    - service: tts.google_translate_say # Вызываем  google tts
+      data_template:
+        message: "Любезный сударь! Извольте выслушать краткую сводку новостей о погоде. За окном сейчас {{ states('sensor.dark_sky_temperature')|int }} градусов." # Указываем какой текст нам необходимо синтезировать
+        entity_id: media_player.kitchen # Указываем, какой медиа плеер должен воспроизвести поток
+#        language: 'ru-RU'
+

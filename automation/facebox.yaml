@@ -1,0 +1,155 @@
+# test camera push integration
+#- alias: Camera push webhook
+#  description: 'to use for facebox recognition'
+#  trigger:
+#  - platform: webhook       # https://www.home-assistant.io/docs/automation/trigger#webhook-trigger
+#    webhook_id: webtestcamera
+#  condition: []
+#  action:
+#  - data:
+# debug message
+#      message: Cam Push motion trigger
+#    service: notify.telegram_direct_mega
+#  - data:
+#      entity_id: image_processing.cam_1_facebox
+#    service: image_processing.scan
+
+
+# setup webhook motion notification in MotionEye before use this automation
+#### auto generated in HASS GUI
+- id: '1578737297287'
+  alias: MotionEye webhook
+  description: Automation to recognize face  from cam1motion
+  trigger:
+  - platform: webhook
+    webhook_id: cam1motion
+  condition: []
+  action:
+  - data:
+      entity_id: image_processing.cam_1_facebox #manually added parameter
+    service: image_processing.scan
+#  - data:
+#      message: cam 1 motion trigger
+#    service: notify.telegram_direct_mega
+#  - data_template:
+#      target: !secret telegram_bot_chat_id_megafon  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+#      file: "www/recordings/cam1face.jpg"
+#      url: https://192.168.192.25:8123/local/recordings/cam1face.jpg
+#      verify_ssl: false
+#      caption: MotionEye
+#    service: telegram_bot.send_photo
+
+#- id: '1578085983261'
+#  alias: Camera motion webhook
+#  description: 'to use for facebox recognition'
+#  trigger:
+#  - platform: webhook
+#    webhook_id: cam1motion   #use this webhook name in MotionEye notification settings
+#  condition: []
+#  action:
+#  - data:
+#      entity_id: image_processing.cam_1_facebox  #name of service defined in image_processing: of configuration.yaml
+#    service: image_processing.scan
+#  - data:
+#      message: cam 1 motion trigger
+#    service: notify.telegram_direct_mega
+#  - data_template:
+#      target: !secret telegram_bot_chat_id_megafon  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+#      file: "www/recordings/cam1face.jpg"
+#      url: https://192.168.192.25:8123/local/recordings/cam1face.jpg
+#      verify_ssl: false
+#      caption: MotionEye
+#    service: telegram_bot.send_photo
+    
+- alias: Pavel recognized
+  description: 'Pavel recognized via Dafang camera'
+  trigger:
+  - entity_id: sensor.facebox_detection
+    platform: state
+    to: Pavel
+  condition: []
+  action:
+  - data:
+      message: >
+       {{now().strftime("%H:%M:%S %Y-%m-%d")}} Pavel was in corridor 
+    service: notify.telegram_group
+
+- alias: Prokhor recognized
+  description: 'Prokhor recognized via Dafang camera'
+  trigger:
+  - entity_id: sensor.facebox_detection
+    platform: state
+    to: Prokhor
+  condition: []
+  action:
+  - data:
+      message: >
+        {{now().strftime("%H:%M:%S %Y-%m-%d")}} Prokhor was in corridor 
+    service: notify.telegram_group
+
+- alias: Andrey recognized
+  description: 'Andrey recognized via Dafang camera'
+  trigger:
+  - entity_id: sensor.facebox_detection
+    platform: state
+    to: Andrey
+  condition: []
+  action:
+  - data:
+      message: >
+        {{now().strftime("%H:%M:%S %Y-%m-%d")}} Andrey was in corridor 
+    service: notify.telegram_group
+
+#- alias: Andrey push recognized
+#  description: 'Andrey recognized via Dafang camera'
+#  trigger:
+#  - entity_id: sensor.facebox_push_detection
+#    platform: state
+#    to: Andrey
+#  condition: []
+#  action:
+#  - data:
+#      message: >
+#        {{now().strftime("%H:%M:%S %Y-%m-%d")}} Andrey was in corridor 
+#    service: notify.telegram_group
+
+- alias: Irina recognized
+  description: 'Irina recognized via Dafang camera'
+  trigger:
+  - entity_id: sensor.facebox_detection
+    platform: state
+    to: Irina
+  condition: []
+  action:
+  - data:
+      message: >
+        {{now().strftime("%H:%M:%S %Y-%m-%d")}} Irina were in corridor 
+    service: notify.telegram_group
+
+- alias: Vika recognized
+  description: 'Vika recognized via Dafang camera'
+  trigger:
+  - entity_id: sensor.facebox_detection
+    platform: state
+    to: Vika
+  condition: []
+  action:
+  - data:
+      message: >
+        {{now().strftime("%H:%M:%S %Y-%m-%d")}} Vika were in corridor 
+    service: notify.telegram_group
+
+#### Facebox system errors notification
+#### https://www.home-assistant.io/integrations/facebox/
+- alias: Facebox failure notification
+  description: 'Facebox system errors notification'
+  trigger:
+    platform: event
+    event_type: system_log_event
+  condition:
+    condition: template
+    value_template: '{{ "facebox" in trigger.event.data.message }}'
+  action:
+  - service: notify.telegram_group
+    data_template:
+      message: '{{ trigger.event.data.message }}'

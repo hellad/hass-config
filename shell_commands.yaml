@@ -1,0 +1,91 @@
+#### "/srv/homeassistant/lib/python3.4/site-packages/homeassistant/components/shell_command.py"
+# shell_command runs in a more secure environment which doesn’t allow any shell helpers like automatically expanding the home dir ~ or using pipe symbols to run multiple commands.
+
+################################################################################
+####             Fujitsu Air Conditioner section            ####
+################################################################################
+
+############## try to use shell script #########################################
+# можно попробовать вариант с передачей параметра в bash script, чтобы переменные состояния отработались в HASS
+# - service: shell_command.speak
+#  data_template:
+#    text: '{{ text }}'
+
+# And in my shell command:
+# speak: bash /home/pi/scripts/speak.sh {{text}}
+#
+
+################### проверяю передачу переменных в командный файл из автоматизации ########################
+#  set_ac_to_slider: '/home/homeassistant/.homeassistant/shell_command/set_ac_to_slider.sh "{{mode}}-{{fan}}-{{temp}}"'
+  set_ac_to_slider: 'echo $(date +%Y:%m:%d) $(date +%H:%M:%S)  "{{power}} {{mode}}-{{fan}}-{{temp}}"  >> /tmp/aircon.log '
+
+# gives error [homeassistant.helpers.service] Error rendering data template: UndefinedError: 'None' has no attribute 'state'
+#  set_ac_to_slider: /bin/bash -c "/usr/bin/irsend SEND_ONCE FUJITSU cool-auto-25"
+
+# gives error [homeassistant.helpers.service] Error rendering data template: UndefinedError: 'None' has no attribute 'state'
+#  set_ac_to_slider: /bin/bash -c "/usr/bin/irsend SEND_ONCE FUJITSU '{{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_number.bedroom_aircon_temperature.state|int }}'"
+#  set_ac_to_slider: 'irsend SEND_ONCE FUJITSU {{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_number.bedroom_aircon_temperature.state|int }}'
+#  set_ac_to_slider: 'echo $(date +%Y:%m:%d) $(date +%H:%M:%S) irsend SEND_ONCE FUJITSU some temperature  >> /tmp/aircon.log '
+
+
+
+####################################################################################################
+#  set_ac_on: 'echo $(date +%Y:%m:%d) $(date +%H:%M:%S) /usr/bin/irsend SEND_ONCE FUJITSU turn-??  >> /tmp/aircon.log ' #it does not write to file!
+  #set_ac_on: 'irsend SEND_ONCE FUJITSU {{ states.input_select.bedroom_aircon_power.state }}'
+
+#### it was wrongly called from telegram command /acon via telegram automation. BUT current state is OFF and can not be used to switch off once more!!!
+#### it should bw used only from HASS web UI when manually switching from OFF to ON
+
+  set_ac_on: echo $(date +%Y:%m:%d) $(date +%H:%M:%S) "acon.sh from set_ac_on web gui automation done"  >> /tmp/aircon.log   # this is working sintax
+
+#    '/home/homeassistant/.homeassistant/shell_command/acon.sh'
+
+#irsend SEND_ONCE FUJITSU turn-on                # command to use with alexa and telegram. input select status unchanged yet!!! try to base it on mqtt
+
+#    irsend SEND_ONCE FUJITSU {{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_number.bedroom_aircon_temperature.state|int }}
+
+
+
+
+############## I try to use shell script instead of direct command inline #######################################
+  ac_on: /home/homeassistant/.homeassistant/shell_command/acon.sh
+
+#  ac_on: >-
+#    'irsend SEND_ONCE FUJITSU turn-on'                # command to use with alexa and telegram. input select status unchanged yet!!! try to base it on mqtt
+#    'echo $(date +%Y:%m:%d) $(date +%H:%M:%S) "irsend SEND_ONCE FUJITSU turn-on was done"  >> /tmp/aircon.log'     #it does not write to file!
+
+
+#  set_ac_off: 'irsend SEND_ONCE FUJITSU turn-off'
+
+############## try to use shell script #######################################
+  set_ac_off: /home/homeassistant/.homeassistant/shell_command/acoff.sh
+
+  ac_off:  /home/homeassistant/.homeassistant/shell_command/acoff.sh
+#  ac_off: >-
+#    'echo $(date +%Y:%m:%d) $(date +%H:%M:%S) "irsend SEND_ONCE FUJITSU turn-off was done"  >> /tmp/aircon.log'     #it does not write to file!
+#    'irsend SEND_ONCE FUJITSU turn-off'                # command yo use with alexa. input select status unchanged yet!!! try to base it on mqtt
+
+# &&
+#  debug_cmd: 'echo $(date +%Y:%m:%d) $(date +%H:%M:%S) "AirCon Power command run" >> /tmp/aircon.log'   # it does not work with "to: CUSTOM" rule. "to: turn-on" is Ok.
+  debug_cmd: 'echo $(date +%Y:%m:%d) $(date +%H:%M:%S) {{ states.input_select.bedroom_aircon_power.state }} "AirCon Power command run" >> /tmp/aircon.log'   # it does not work with "to: CUSTOM" rule. "to: turn-on" is Ok.
+
+################################################################################
+####              Onkyo amplifier section                    ####
+################################################################################
+  set_power_on_off: 'irsend SEND_ONCE ONKYO KEY_POWER'
+#  set_power_on_off: '/usr/bin/touch /tmp/onkyo_on'
+
+#  set_vol_amp: 'irsend SEND_ONCE ONKYO KEY_VOLUMEUP'
+  set_vol_amp: 'irsend +#{{states.input_slider.ampvol.state | int}} SEND_ONCE ONKYO KEY_VOLUMEDOWN'
+
+#  set_vol_amp: 'echo "irsend -#{{states.input_slider.ampvol.state | int}} SEND_ONCE ONKYO KEY_VOLUMEUP" >> /tmp/onkyo_shell_command_test'
+#  set_vol_amp: 'echo $(date +%Y:%m:%d) $(date +%H:%M:%S) "Onkyo volume command run" >> /tmp/onkyo.log' #it works!
+#  set_vol_amp: 'echo {{states.input_slider.ampvol.state | int}}  >> /tmp/onkyo.log' #it does not write to file!
+
+################################################################################
+####              System section                             ####
+################################################################################
+#  hass_restart: 'sudo systemctl restart home-assistant@homeassistant'
+  hass_restart: 'sudo docker container restart homeassistant'          # cat ~/.ssh/id_rsa.pub | ssh admin@192.168.1.10 'umask 077; cat >>/tmp/authorized_keys'
+  reboot: 'sudo reboot'
+  end: 'sudo halt'

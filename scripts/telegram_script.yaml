@@ -1,0 +1,77 @@
+#### https://home-assistant.io/getting-started/automation-2/
+
+#### this file is not used yet !!!
+
+#### example from https://github.com/home-assistant/home-assistant/pull/7771
+#script:
+  # Telegram Bot component
+  test_telegram_bot_location:
+    alias: Test Telegram Bot multi-target location template
+    sequence:
+      - service: telegram_bot.send_location
+        data:
+          caption: 'Test location'
+          target:
+#            - !secret telegram_bot_chat_id_beeline
+            - !secret telegram_bot_pooling_chat_id_group
+#            - !secret telegram_bot_webhooks_chat_id_group
+          latitude: '{{ states.device_tracker.adhtc_u12.attributes.latitude|float }}'
+          longitude: '{{ states.device_tracker.adhtc_u12.attributes.longitude|float }}'
+          disable_notification: true
+
+  test_telegram_bot_document:
+    alias: Test Telegram Bot multi-target document
+    sequence:
+      - service: telegram_bot.send_document
+        data:
+          caption: 'Test document'
+          target:
+            - !secret telegram_bot_chat_id_beeline
+#            - !secret telegram_bot_webhooks_chat_id_group
+            - !secret telegram_bot_pooling_chat_id_group
+#          file: '/home/homeassistant/.homeassistant/www/home-assistant.log'
+          file: './home-assistant.log'
+          disable_notification: false
+
+  test_telegram_bot_image:
+    alias: Test Telegram Bot multi-target image
+    sequence:
+      - service: telegram_bot.send_photo
+        data:
+          target:
+#            - !secret telegram_bot_chat_id_beeline
+            - !secret telegram_bot_pooling_chat_id_group  # '{{ trigger.event.data.user_id }}'
+#            - !secret telegram_bot_webhooks_chat_id_group
+          caption: 'Test image'
+          url: 'https://192.168.192.44/cgi-bin/currentpic.cgi'
+          disable_notification: false
+          verify_ssl: false
+          username: root
+          password: ismart12
+
+  # Notify component
+  test_notify_telegram_location:
+    alias: Test notify.telegram location template
+    sequence:
+      - service: notify.telegram_bot
+        data:
+          message: "Not used here but needed..."
+          data:
+            location:
+              latitude: '{{ states.device_tracker.iphone.attributes.latitude|float }}'
+              longitude: '{{ states.device_tracker.iphone.attributes.longitude|float }}'
+
+  test_notify_telegram_image:
+    alias: Test notify.telegram multiple image
+    sequence:
+      - service: notify.telegram_bot
+        data:
+          message: "Not used here but needed..."
+          data:
+            photo:
+              - url: 'http://sputniknews-uz.com/images/437/86/4378687.jpg'
+                caption: 'Test img 1. C1'
+              - url: 'http://localhost:8123{{ states.camera.adcamera.attributes.entity_picture}}'
+                caption: 'Test img 1. C2'
+
+

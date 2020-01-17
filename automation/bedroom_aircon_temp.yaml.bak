@@ -1,0 +1,188 @@
+- alias: Bedroom AirCon Power
+#### turn on/off air conditioner with given power value
+  trigger:
+    platform: state
+    entity_id: input_select.bedroom_aircon_power
+    to: CUSTOM
+  action:
+    - service: shell_command.set_ac_on
+#    - service: shell_command.debug_cmd
+
+    - service: mqtt.publish
+      data_template:
+        topic: '/dump/{{ trigger.platform }}'
+        retain: false
+        payload: >-
+          {%- macro dumpState(statePrefix, stateObj) -%}
+            {{statePrefix ~ ": "}} {{- stateObj.state }}{{- "\n" -}}
+            {{statePrefix ~ ".entity_id: "}} {{- stateObj.entity_id }}{{- "\n" -}}
+            {{statePrefix ~ ".domain: "}} {{- stateObj.domain }}{{- "\n" -}}
+            {{statePrefix ~ ".object_id: "}} {{- stateObj.object_id }}{{- "\n" -}}
+            {{statePrefix ~ ".name: "}} {{- stateObj.name }}{{- "\n" -}}
+            {{statePrefix ~ ".last_updated: "}} {{- stateObj.last_updated }}{{- "\n" -}}
+            {{statePrefix ~ ".last_changed: "}} {{- stateObj.last_changed }}{{- "\n" -}}
+            {%- for attrib in stateObj.attributes | sort() %}
+              {%- if attrib is defined -%}
+              {{- statePrefix ~ ".attributes." ~ attrib ~ ": " -}} {{- stateObj.attributes[attrib] -}}
+              {{- "\n" -}}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endmacro -%}
+
+          {% set p = trigger.platform %}
+          {{"trigger.platform: "}} {{ p }}{{- "\n" -}}
+
+          {%- if p == "mqtt" -%}
+          {{"trigger.topic: "}} {{ trigger.topic }}{{- "\n" -}}
+          {{"trigger.payload: "}} {{ trigger.payload }}{{- "\n" -}}
+          {{"trigger.payload_json: "}} {{ trigger.payload_json }}{{- "\n" -}}
+          {{"trigger.qos: "}} {{ trigger.qos }}{{- "\n" -}}
+          {%- endif -%}
+
+          {%- if p == "event" or p == "sun" or p == "zone" -%}
+          {{"trigger.event: "}} {{ trigger.event }}{{- "\n" -}}
+          {%- endif -%}
+          {%- if p == "numeric_state" -%}
+          {{"trigger.above: "}} {{ trigger.above }}{{- "\n" -}}
+          {{"trigger.below: "}} {{trigger.below }}{{- "\n" -}}
+          {%- endif -%}
+
+          {%- if p == "state" -%}
+          {{"trigger.for: "}} {{ trigger.for }}{{- "\n" -}}
+          {%- endif -%}
+
+          {%- if p == "time" -%}
+          {{"trigger.now: "}} {{ trigger.now }}{{- "\n" -}}
+          {%- endif -%}
+
+          {%- if p == "zone" -%}
+          {{"trigger.zone: "}} {{ trigger.zone }}{{- "\n" -}}
+          {%- endif -%}
+
+          {%- if p == "state" or p == "numeric_state" or p == "template" or p == "zone" -%}
+          {{"trigger.entity_id: "}} {{ trigger.entity_id }}{{- "\n" -}}{{- "\n" -}}
+          {{"trigger.from_state: "}} {{- "\n" -}}
+          -------------------{{- "\n" -}}
+          {{ dumpState("trigger.from_state", trigger.from_state) }} {{- "\n" -}}
+          trigger.to_state:{{- "\n" -}}
+          -----------------{{- "\n" -}}
+          {{ dumpState("trigger.to_state", trigger.to_state) }}
+          {%- endif -%}
+
+#### debug message
+    - service: telegram_bot.send_message
+      data_template:
+        target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+        message: >
+          {{now().strftime("%H:%M:%S %Y-%m-%d")}} Power command sent to Air conditioner from GUI: {{ states.input_select.bedroom_aircon_power.state }}.    
+
+
+#### turn on air conditioner with given temperature value
+- alias: Bedroom AirCon Temperature
+  trigger:
+    platform: state
+    entity_id: input_slider.bedroom_aircon_temperature
+  action:
+    - service: shell_command.set_ac_on
+    - service: shell_command.set_ac_to_slider
+    
+#### debug message
+    - service: telegram_bot.send_message
+      data_template:
+        target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+        message: >
+          {{now().strftime("%H:%M:%S %Y-%m-%d")}} New temperature command sent to Air conditioner from GUI: {{ states.input_slider.bedroom_aircon_temperature.state }}.    
+
+    - service: mqtt.publish
+      data_template:
+        topic: '/dump/{{ trigger.platform }}'
+        retain: false
+        payload: >-
+          {%- macro dumpState(statePrefix, stateObj) -%}
+            {{statePrefix ~ ": "}} {{- stateObj.state }}{{- "\n" -}}
+            {{statePrefix ~ ".entity_id: "}} {{- stateObj.entity_id }}{{- "\n" -}}
+            {{statePrefix ~ ".domain: "}} {{- stateObj.domain }}{{- "\n" -}}
+            {{statePrefix ~ ".object_id: "}} {{- stateObj.object_id }}{{- "\n" -}}
+            {{statePrefix ~ ".name: "}} {{- stateObj.name }}{{- "\n" -}}
+            {{statePrefix ~ ".last_updated: "}} {{- stateObj.last_updated }}{{- "\n" -}}
+            {{statePrefix ~ ".last_changed: "}} {{- stateObj.last_changed }}{{- "\n" -}}
+            {%- for attrib in stateObj.attributes | sort() %}
+              {%- if attrib is defined -%}
+              {{- statePrefix ~ ".attributes." ~ attrib ~ ": " -}} {{- stateObj.attributes[attrib] -}}
+              {{- "\n" -}}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endmacro -%}
+
+          {% set p = trigger.platform %}
+          {{"trigger.platform: "}} {{ p }}{{- "\n" -}}
+
+          {%- if p == "mqtt" -%}
+          {{"trigger.topic: "}} {{ trigger.topic }}{{- "\n" -}}
+          {{"trigger.payload: "}} {{ trigger.payload }}{{- "\n" -}}
+          {{"trigger.payload_json: "}} {{ trigger.payload_json }}{{- "\n" -}}
+          {{"trigger.qos: "}} {{ trigger.qos }}{{- "\n" -}}
+          {%- endif -%}
+
+          {%- if p == "event" or p == "sun" or p == "zone" -%}
+          {{"trigger.event: "}} {{ trigger.event }}{{- "\n" -}}
+          {%- endif -%}
+          {%- if p == "numeric_state" -%}
+          {{"trigger.above: "}} {{ trigger.above }}{{- "\n" -}}
+          {{"trigger.below: "}} {{trigger.below }}{{- "\n" -}}
+          {%- endif -%}
+
+          {%- if p == "state" -%}
+          {{"trigger.for: "}} {{ trigger.for }}{{- "\n" -}}
+          {%- endif -%}
+
+          {%- if p == "time" -%}
+          {{"trigger.now: "}} {{ trigger.now }}{{- "\n" -}}
+          {%- endif -%}
+
+          {%- if p == "zone" -%}
+          {{"trigger.zone: "}} {{ trigger.zone }}{{- "\n" -}}
+          {%- endif -%}
+
+          {%- if p == "state" or p == "numeric_state" or p == "template" or p == "zone" -%}
+          {{"trigger.entity_id: "}} {{ trigger.entity_id }}{{- "\n" -}}{{- "\n" -}}
+          {{"trigger.from_state: "}} {{- "\n" -}}
+          -------------------{{- "\n" -}}
+          {{ dumpState("trigger.from_state", trigger.from_state) }} {{- "\n" -}}
+          trigger.to_state:{{- "\n" -}}
+          -----------------{{- "\n" -}}
+          {{ dumpState("trigger.to_state", trigger.to_state) }}
+          {%- endif -%}
+
+
+#### turn on air conditioner with given mode value
+- alias: Bedroom AirCon Mode
+  trigger:
+    platform: state
+    entity_id: input_select.bedroom_aircon_mode
+    to: CUSTOM
+  action:
+    - service: shell_command.set_ac_to_slider
+#### debug message
+    - service: telegram_bot.send_message
+      data_template:
+        target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+        message: >
+          {{now().strftime("%H:%M:%S %Y-%m-%d")}} New mode command sent to Air conditioner from GUI: {{ states.input_slider.bedroom_aircon_mode.state }}.    
+
+    
+#### turn on air conditioner with given fan mode value
+- alias: Bedroom AirCon Fan
+  trigger:
+    platform: state
+    entity_id: input_select.bedroom_aircon_fan
+    to: CUSTOM
+  action:
+    - service: shell_command.set_ac_to_slider
+#### debug message
+    - service: telegram_bot.send_message
+      data_template:
+        target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+        message: >
+          {{now().strftime("%H:%M:%S %Y-%m-%d")}} New fan command sent to Air conditioner from GUI: {{ states.input_slider.bedroom_aircon_fan.state }}.    
+

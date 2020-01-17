@@ -1,0 +1,32 @@
+# input_select:
+  radio_station:
+    name: 'Выбор радиостанции:'
+    icon: mdi:radio
+    options:
+      - SomaFM Groove salad
+      - Relax FM
+      - Q-Music
+      - 3FM
+      - 100% NL
+      - Veronica
+      - Sky Radio
+      - Arrow Classic Rock
+      - Classic FM
+      - BNR Nieuwsradio
+      - SLAM! Hardstyle
+      - Sleep Radio
+      - Ambient Sleeping Pill
+      - Radio Art - Sleep
+      - Ambi Nature Radio
+      - Calm Radio - Sleep
+      - Dinamo.FM Sleep
+
+  inet_radio:
+    name: 'Выбор устройства воспроизведения:'
+    options:
+      - dune_hd_3d # hall
+      - dune_101w  # kitchen
+      - adkodi     # raspberry
+      - kitchen    # sonos
+    initial: kitchen
+    icon: mdi:speaker-wireless

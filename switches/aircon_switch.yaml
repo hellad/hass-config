@@ -1,0 +1,8 @@
+# try to use command switch component to execute irsend commands from alexa
+#switch:
+  - platform: command_line
+    switches:
+      fujitsu:
+        command_on: "irsend SEND_ONCE FUJITSU turn-on"
+        command_off: "irsend SEND_ONCE FUJITSU turn-off"
+        friendly_name: Air conditioner power

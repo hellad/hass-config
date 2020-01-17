@@ -1,0 +1,17 @@
+#### https://home-assistant.io/components/media_player.kodi/
+#### при любом обращении к медиаплееру срабатывает данный скрипт и включает телевизор 
+#### надо добавлять условия или убирать из папки automation
+#script:
+#  activate_tv:
+#    alias: Turn on TV
+#    sequence:
+#      - alias: TV on
+#        service: media_player.kodi_call_method
+#        data:
+#            entity_id: media_player.kodi
+#            method: Addons.ExecuteAddon
+#            addonid: script.json-cec
+#            params:
+#                command: activate
+
+

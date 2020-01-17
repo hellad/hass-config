@@ -1,0 +1,12 @@
+#### https://community.home-assistant.io/t/global-function-values/5239/5
+#### input_select with the desired theme names to control zwave light in corridor
+
+#input_select:
+  current_light_profile:
+    name: current_light_profile
+    options:
+      - Relax
+      - Reading
+      - Concentrate
+      - Energise
+    initial: Relax

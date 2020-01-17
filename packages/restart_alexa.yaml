@@ -1,0 +1,38 @@
+# Description:
+#   Example of how to restart AlexaPi service from within Home Assistant.
+#
+# Components:
+#   script
+#   shell_command
+#
+
+################################################################
+## Packages / Restart AlexaPi
+################################################################
+
+################################################
+## Customize
+################################################
+
+homeassistant:
+  customize:
+    script.restart_alexapi:
+      friendly_name: "Restart AlexaPi service"
+      icon: mdi:skull
+
+################################################
+## Script
+################################################
+
+script:
+  restart_alexapi:
+    sequence:
+      - service: shell_command.restart_alexapi
+
+################################################
+## Shell Command
+################################################
+
+shell_command:
+  restart_alexapi: >-
+    sudo /bin/systemctl restart AlexaPi.service

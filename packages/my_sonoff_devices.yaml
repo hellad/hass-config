@@ -1,0 +1,378 @@
+#### https://github.com/arendst/Sonoff-Tasmota/wiki/Home-Assistant-%E2%80%90-Manual-Config
+#### https://github.com/peterbuga/HASS-sonoff-ewelink
+#### https://github.com/peterbuga/HASS-sonoff-ewelink/tree/sonoff-bulb for LED support
+#### https://sprut.ai/client/article/1020
+################################################################################
+sensor:
+  - platform: mqtt
+    state_topic: "mirror/tele/STATE"
+    name: "BathRoom Relay Wifi Signal"                #### sensor.bathroom_relay_wifi_signal
+    unit_of_measurement: "%"
+    value_template: "{{value_json['Wifi'].RSSI }}"    #### https://github.com/arendst/Sonoff-Tasmota/wiki/Home-Assistant-%E2%80%90-Manual-Config#tip-wifi-rssi-signal-strength
+    availability_topic: "mirror/tele/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+
+
+  - platform: mqtt
+    state_topic: "mirror/tele/SENSOR"
+    name: "BathRoom relay touch sensor"              #### sensor.bathroom_relay_touch_sensor
+    value_template: '{{ value_json.Switch1 }}'  
+#    initial_state: on
+
+
+  - platform: mqtt
+    state_topic: "mirror/tele/STATE"
+    name: "BathRoom relay uptime"                    #### sensor.bathroom_relay_uptime
+    value_template: '{{ value_json.Uptime }}'  
+
+
+  - platform: mqtt
+    state_topic: "mirror/stat/RESULT"
+    name: "BathRoom relay last result"               #### sensor.bathroom_relay_last_result
+    value_template: '{{ value_json.POWER }}'
+
+#### 
+  - platform: mqtt
+    name: "Bathroom relay firmware version"          #### sensor.bathroom_relay_firmware_version
+    state_topic: "homeassistant/switch/0F3C4B_RL_1/config"
+    value_template: "{{value_json['device'].sw_version }}"
+    qos: 0
+    availability_topic: "mirror/tele/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+
+################################################################################
+#### Template sensor to control vent fan in bathroom
+#### ON if humidity above 60%
+  - platform: template
+    sensors:
+      wet_bathroom:
+        friendly_name: "Wet bathroom"
+        value_template: >-
+          {% if states('sensor.bathroom_mqtt_humidity_sensor') | int > 55 %}
+            on
+          {% else %}
+            off
+          {% endif %}
+        icon_template: >-
+          {% if states('sensor.bathroom_mqtt_humidity_sensor') | int > 55 %}
+            mdi:weather-rainy
+          {% else %}
+            mdi:hair-dryer-outline
+          {% endif %} 
+    
+################################################################################
+# https://github.com/arendst/Sonoff-Tasmota/wiki/Home-Assistant-%E2%80%90-Manual-Config#configure-switches
+# was changed to light somehow after migration to Docker@NAS?!
+# Payload from mirror/tele/STATE - {"Time":"1970-01-04T10:04:18","Uptime":"3T07:25:14","SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"POWER":"OFF","Wifi":{"AP":1,"SSId":"adhome","BSSId":"B8:69:F4:E7:A7:9B","Channel":4,"RSSI":96}}
+switch:
+  - platform: mqtt
+    name: "Bathroom Light"
+    state_topic: "mirror/tele/STATE"
+    value_template: "{{ value_json.POWER }}"
+    command_topic: "mirror/cmnd/POWER"
+    availability_topic: "mirror/tele/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    retain: false
+
+################################################################################
+group:
+  Sonoff_bathroom_mirror_card:
+    name: Зеркало
+    entities:
+      - switch.bathroom_light
+      - sensor.bathroom_relay_touch_sensor   #### see in sensors. does not update status immediatly!
+      - sensor.bathroom_relay_wifi_signal    #### see in sensors. does not update status immediatly!
+      - sensor.bathroom_relay_uptime
+      - sensor.bathroom_relay_last_result
+      - sensor.bathroom_relay_firmware_version
+
+  Sonoff_bathroom_switch_card:
+    name: Bathroom switch
+    entities:
+      - switch.sonoff_10008b5013_1  #### vent fan
+      - switch.sonoff_10008b5013_2  #### lamp
+      - sensor.wet_bathroom
+
+      
+  Sonoff_kitchen_card:
+    name: Свет на кухне
+    entities:
+      - switch.sonoff_10008884b8_1
+      - switch.sonoff_10008884b8_2
+      - light.sonoff_100010913a     #### Color LED lamp. supported_features: 21. device_id: 100010913a. effect_list: warmcool,color
+      
+      
+      
+automation:
+################################################################################
+#	 Turn Bathroom Mirror Light On
+################################################################################
+  - alias: Turn Bathroom Mirror Light On
+    initial_state: false    #### initially disable mirror light switching!!!
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bathroom_motion_sensor
+        from: 'off'
+        to: 'on'
+    condition:
+      - condition: state
+        entity_id: sensor.bathroom_relay_touch_sensor
+           # check the status of manual switching
+        state: 'OFF'
+        
+    action:
+      - service: homeassistant.turn_on
+        entity_id: switch.bathroom_light   #### switch on programmably
+#### debug message
+#      - service: telegram_bot.send_message
+#        data_template:
+#          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+#          message: >
+#            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Automaticaly Switch Bathroom Mirror Light On
+
+################################################################################
+#	 Switch Bathroom Light On
+################################################################################
+  - alias: Switch Bathroom Light On
+    initial_state: true     #### initially enable batroom light switching when motion detected
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bathroom_motion_sensor
+        from: 'off'
+        to: 'on'
+    condition:
+      - condition: state
+        entity_id: switch.sonoff_10008b5013_2
+           # check the status of manual switching before turn it on
+        state: 'off'
+        
+    action:
+      - service: homeassistant.turn_on
+        entity_id: switch.sonoff_10008b5013_2   #### switch on programmably
+#### debug message
+#      - service: telegram_bot.send_message
+#        data_template:
+#          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+#          message: >
+#            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Automaticaly Switch Bathroom Light On
+
+################################################################################
+#	 Switch Bathroom Fan On
+################################################################################
+  - alias: Switch Bathroom Fan On
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: sensor.wet_bathroom
+        from: 'off'
+        to: 'on'
+    condition:
+      - condition: state
+        entity_id: switch.sonoff_10008b5013_1
+           # check the status of manual switching
+        state: 'off'
+        
+    action:
+      - service: homeassistant.turn_on
+        entity_id: switch.sonoff_10008b5013_1   #### switch fan on programmably
+      - service: homeassistant.turn_on
+        entity_id: switch.bathroom_light   #### switch mirror drier on programmably
+#### debug message
+#      - service: telegram_bot.send_message
+#        data_template:
+#          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+#          message: >
+#            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Automaticaly Switch Bathroom Fan On
+
+################################################################################
+#	 Switch Bathroom Mirror Light Off
+# time of lightning defined by variable resistor on PIR sensor
+################################################################################
+  - alias: Switch Bathroom Mirror Light Off
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bathroom_motion_sensor
+        from: 'on'
+        to: 'off'
+    condition:
+#      - condition: state
+#        entity_id: switch.bathroom_light
+#        state: 'on'
+# optional: trigger only if light was ON for last X time.
+#        for:
+#          hours: 1
+#          minutes: 1
+#          seconds: 30 # light will be turned off after 30 sec of no movements но уже при следующем срабатывании датчика движения!!!
+                      # ? надо делать просто отложенное на 30 секунд выключение, но если вновь появится движение, то сброс таймера
+          
+      - condition: state
+        entity_id: sensor.bathroom_relay_touch_sensor
+           # check the status of manual switching
+        state: 'OFF'
+    action:
+      - service: homeassistant.turn_off
+        entity_id: switch.bathroom_light   #### switch off programmably
+
+################################################################################
+#	 Switch Bathroom Light Off
+# time of lightning defined by variable resistor on PIR sensor and for:
+################################################################################
+  - alias: Switch Bathroom Light Off
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bathroom_motion_sensor
+        from: 'on'
+        to: 'off'
+# optional - trigger only if no motion for last X time.
+        for:
+#          hours: 1
+          minutes: 4
+#          seconds: 30 # light will be turned off after 30 sec of no movements но уже при следующем срабатывании датчика движения!!!
+                      # надо делать просто отложенное на 30 секунд выключение, но если вновь появится движение, то сброс таймера
+#    condition:
+#      - condition: state
+#        entity_id: binary_sensor.bathroom_motion_sensor
+#        state: 'off'        
+#      - condition: state
+#        entity_id: switch.sonoff_10008b5013_2
+           # check the status of manual switching
+#        state: 'on'
+    action:
+      - service: homeassistant.turn_off
+        entity_id: switch.sonoff_10008b5013_2   #### switch off light programmably
+
+
+################################################################################
+#	 Switch Bathroom Fan Off
+# time of lightning defined by variable resistor on PIR sensor
+################################################################################
+  - alias: Switch Bathroom Fan Off
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: sensor.wet_bathroom
+        from: 'on'
+        to: 'off'
+    condition:       
+      - condition: state
+        entity_id: switch.sonoff_10008b5013_1
+           # check the status of work
+        state: 'on'
+    action:
+      - service: homeassistant.turn_off
+        entity_id: switch.sonoff_10008b5013_1   #### switch FAN off programmably
+      - service: homeassistant.turn_off
+        entity_id: switch.bathroom_light        #### switch off programmably mirror drier
+
+################################################################################
+#	 Switch Enforced Bathroom Mirror Light Off
+#    if was turned on manually and has not turned off after 1 minute without movements
+################################################################################
+  - alias: Switch Enforced Bathroom Mirror Light Off
+    initial_state: true
+    hide_entity: true
+    trigger:
+      platform: time_pattern
+#      hours: 00
+      minutes: '/1'                     #every 1 minutes check whether we need to switch light off
+#      seconds: 00
+
+    condition:
+      - condition: state
+        entity_id: binary_sensor.bathroom_motion_sensor
+        state: 'off'
+# optional: trigger only if state was this for last X time.
+        for:
+#          hours: 1
+#          minutes: 1
+          seconds: 30
+      - condition: state
+        entity_id: switch.bathroom_light
+        state: 'on'
+      - condition: state
+        entity_id: sensor.bathroom_relay_touch_sensor
+#           # check the status if was manually turned on
+        state: 'ON'
+    action:
+      - service: homeassistant.turn_off
+        entity_id: switch.bathroom_light   #### switch off enforced programmably
+#### debug message
+      - service: telegram_bot.send_message
+        data_template:
+          target: [!secret telegram_bot_chat_id_beeline]
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Enforced Switch Bathroom Mirror Light Off after 60 seconds
+
+################################################################################
+#	 Enforced Switch Bathroom Fan Off
+#    if was turned on manually and has not turned off after 3 minute without movements
+################################################################################
+  - alias: Switch Enforced Bathroom Mirror Light Off
+    initial_state: true
+    hide_entity: true
+    trigger:
+      platform: time_pattern
+#      hours: 00
+      minutes: '/1'                     #every 1 minutes check whether we need to switch light off
+#      seconds: 00
+
+    condition:
+      - condition: state
+        entity_id: binary_sensor.bathroom_motion_sensor
+        state: 'off'
+# optional: trigger only if state was this for last X time.
+        for:
+#          hours: 1
+          minutes: 3    #### 3 minutes without movements
+#          seconds: 30
+      - condition: state
+        entity_id: switch.sonoff_10008b5013_1    #### fan switch
+        state: 'on'
+      - condition: state
+        entity_id: sensor.wet_bathroom
+#           # check the status if humidity already decreased
+        state: 'off'
+    action:
+      - service: homeassistant.turn_off
+        entity_id: switch.sonoff_10008b5013_1   #### switch fan off enforced programmably
+      - service: homeassistant.turn_off
+        entity_id: switch.bathroom_light        #### switch off programmably mirror drier
+#### debug message
+      - service: telegram_bot.send_message
+        data_template:
+          target: [!secret telegram_bot_chat_id_beeline]
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Enforced Switch Bathroom vent fan Off after 240 seconds
+
+########################### Sync power state. #################################################
+# https://github.com/arendst/Sonoff-Tasmota/wiki/Home-Assistant#tip-sync-power-state
+# This automation posts to the default "sonoffs" group topic. 
+# Each device will send back their status message which contains relay power and light status.
+###############################################################################################
+  - alias: "Power state on HA start-up"
+    initial_state: true
+    trigger:
+      platform: homeassistant
+      event: start
+    action:
+      - service: mqtt.publish
+        data:
+          topic: "sonoffs/cmnd/state"
+          payload: "" 
+      - service: mqtt.publish
+        data:
+          topic: cmnd/sonoffs/POWER
+      - service: mqtt.publish
+        data:
+          topic: cmnd/sonoffs/POWER2
+      - service: mqtt.publish
+        data:
+          topic: cmnd/sonoffs/POWER3  

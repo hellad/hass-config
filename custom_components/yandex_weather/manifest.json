@@ -1,0 +1,8 @@
+{
+        "domain": "Yandex Weather",
+        "name": "Yandex Weather",
+        "documentation": "https://sprut.ai/client/blog/1165",
+        "requirements": [],
+        "dependencies": [],
+        "codeowners": ["@sprut.ai"]
+}

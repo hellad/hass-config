@@ -1,0 +1,4 @@
+switch:
+  - platform: wake_on_lan
+    name: lg_tv
+    mac_address: "CC:2D:8C:D6:91:0B"

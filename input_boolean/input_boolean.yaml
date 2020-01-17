@@ -1,0 +1,15 @@
+#создаем переключатель - Будить только в рабочие дни
+alarmweekday: 
+  name: Только будни
+  initial: on # Значение по умолчанию
+  icon: mdi:calendar
+
+onkyo_amp:
+  name: Onkyo Amp Power
+  initial: off
+  icon: mdi:power
+
+test_tts:
+  name: test sonos tts script
+  initial: off
+  icon: mdi:power

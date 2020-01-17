@@ -1,0 +1,9 @@
+####	Time and Date Sensor
+#	use both time and date separately to use in automation!
+  - platform: time_date
+#### breaking chnge in ver.0.86
+#  - platform: time_pattern
+    display_options:
+      - 'time_date'
+      - 'time'
+      - 'date'

@@ -1,0 +1,188 @@
+#sensor4:
+
+#- platform: command_line
+#  name: CPU Temp                # on Raspberry Pi
+#  command: "/bin/cat /sys/class/thermal/thermal_zone0/temp"
+#  unit_of_measurement: "C"
+#  value_template: '{{ value | multiply(0.001) }}'
+
+- platform: systemmonitor                   # https://www.home-assistant.io/components/systemmonitor/
+  resources:
+    - type: disk_use_percent
+      arg: /
+    - type: memory_free
+    - type: memory_use
+    - type: swap_use_percent
+    - type: processor_use
+    - type: last_boot
+    - type: load_1m
+    - type: load_5m
+    - type: load_15m
+    - type: network_in
+      arg: eth0
+    - type: network_out
+      arg: eth0
+
+#### https://www.home-assistant.io/components/filesize/
+#- platform: filesize
+#  file_paths:
+#    - /config/home-assistant_v2.db
+
+- platform: sql
+  db_url: !secret db_url
+  queries:
+    - name: DB size
+      query: 'SELECT table_schema "database", Round(Sum(data_length + index_length) / 1048576, 2) "value" FROM information_schema.tables WHERE table_schema="hassdb" GROUP BY table_schema;'
+      column: 'value'
+      unit_of_measurement: MB
+
+#- platform: template
+#  sensors:
+#    db_size:
+#      value_template: "{{ states.sensor.home_assistant_v2_db.state | round(0) }}"
+#      unit_of_measurement: Mb
+#      friendly_name: 'DB size'
+      
+##### Owntracks Battery Tracker for Cell Phones
+##### https://home-assistant.io/components/sensor.mqtt/
+##### sensor.andreys_iphone_battery
+- platform: mqtt
+  state_topic: "owntracks/adlg4/iphone"
+  name: "Andrey's iPhone Battery"
+  unit_of_measurement: "%"
+  value_template: '{{ value_json.batt }}'
+- platform: template
+  sensors:
+    andreys_iphone_battery_dynamic:              #### <<==============================
+      unit_of_measurement: '%'
+#      entity_id: sensor.andrey_s_iphone_battery
+      value_template: "{{ (states.sensor.andrey_s_iphone_battery.state)|int|default('unknown') }}"
+      icon_template: >-
+        {% set battery_level = states('sensor.andrey_s_iphone_battery')|int('unknown') %}
+        {% set battery_round = (battery_level|int / 10)|int * 10 %}
+        {% if battery_level == 'unknown' %}
+          mdi:battery-unknown
+        {% else %}
+          {% if battery_round >= 100 %}
+              mdi:battery
+          {% elif battery_round > 0 %}
+              mdi:battery-{{ battery_round }}
+          {% else %}
+            mdi:battery-alert
+          {% endif %}
+        {% endif %}
+
+##### sensor.andreys_htc_battery
+- platform: mqtt
+  state_topic: "owntracks/adhtc/adhtc"
+  name: "Andrey's HTC Battery"
+  unit_of_measurement: "%"
+  value_template: '{{ value_json.batt }}'
+- platform: template
+  sensors:
+    andreys_htc_battery_dynamic:              #### <<==============================
+      unit_of_measurement: '%'
+#      entity_id: sensor.andrey_s_htc_battery
+      value_template: "{{ (states.sensor.andrey_s_htc_battery.state)|int|default('unknown') }}"
+      icon_template: >-
+        {% set battery_level = states('sensor.andrey_s_htc_battery')|int('unknown') %}
+        {% set battery_round = (battery_level|int / 10)|int * 10 %}
+        {% if battery_level == 'unknown' %}
+          mdi:battery-unknown
+        {% else %}
+          {% if battery_round >= 100 %}
+              mdi:battery
+          {% elif battery_round > 0 %}
+              mdi:battery-{{ battery_round }}
+          {% else %}
+            mdi:battery-alert
+          {% endif %}
+        {% endif %}
+
+##### sensor.irinas_g7_battery
+- platform: mqtt
+  state_topic: "owntracks/irina/g7"
+  name: "Irina's G7 Battery"
+  unit_of_measurement: "%"
+  value_template: '{{ value_json.batt }}'
+- platform: template
+  sensors:
+    irinas_g7_battery_dynamic:              #### <<==============================
+      unit_of_measurement: '%'
+#      entity_id: sensor.irina_s_g7_battery
+      value_template: "{{ (states.sensor.irina_s_g7_battery.state)|int|default('unknown') }}"
+      icon_template: >-
+        {% set battery_level = states('sensor.irina_s_g7_battery')|int('unknown') %}
+        {% set battery_round = (battery_level|int / 10)|int * 10 %}
+        {% if battery_level == 'unknown' %}
+          mdi:battery-unknown
+        {% else %}
+          {% if battery_round >= 100 %}
+              mdi:battery
+          {% elif battery_round > 0 %}
+              mdi:battery-{{ battery_round }}
+          {% else %}
+            mdi:battery-alert
+          {% endif %}
+        {% endif %}
+
+##### sensor.prohors_mi4_battery
+- platform: mqtt
+  state_topic: "owntracks/mi4prime/xiaomi"
+  name: "Prohor's Mi4 Battery"
+  unit_of_measurement: "%"
+  value_template: '{{ value_json.batt }}'
+- platform: template
+  sensors:
+    prohors_mi4_battery_dynamic:              #### <<==============================
+      unit_of_measurement: '%'
+#      entity_id: sensor.prohor_s_mi4_battery
+      value_template: "{{ (states.sensor.prohor_s_mi4_battery.state)|int|default('unknown') }}"
+      icon_template: >-
+        {% set battery_level = states('sensor.prohor_s_mi4_battery')|int('unknown') %}
+        {% set battery_round = (battery_level|int / 10)|int * 10 %}
+        {% if battery_level == 'unknown' %}
+          mdi:battery-unknown
+        {% else %}
+          {% if battery_round >= 100 %}
+              mdi:battery
+          {% elif battery_round > 0 %}
+              mdi:battery-{{ battery_round }}
+          {% else %}
+            mdi:battery-alert
+          {% endif %}
+        {% endif %}
+
+# https://www.home-assistant.io/integrations/cert_expiry
+# https://community.home-assistant.io/t/sensor-to-show-expiry-date-of-ssl-certificate/13479/66
+#sensor:
+- platform: cert_expiry
+  host: !secret cert_expiry_host
+  name: ssl_certificate_expiry
+            
+#### if Zanzito programm is used on android ####
+#- platform: mqtt
+#  state_topic: "zanzito/adhtcone/battery_level"
+#  name: "Andrey's HTC Battery"
+#  unit_of_measurement: "%"
+#  value_template: '{{ value_json.batt }}'
+#- platform: template
+#  sensors:
+#    andreys_htc_battery_dynamic:
+#      unit_of_measurement: '%'
+#      entity_id: sensor.andreys_htc_battery
+#      value_template: "{{ (states.sensor.andreys_htc_battery.state)|int|default('unknown') }}"
+#      icon_template: >-
+#        {% set battery_level = states('sensor.andreys_htc_battery')|int('unknown') %}
+#        {% set battery_round = (battery_level|int / 10)|int * 10 %}
+#        {% if battery_level == 'unknown' %}
+#          mdi:battery-unknown
+#        {% else %}
+#          {% if battery_round >= 100 %}
+#              mdi:battery
+#          {% elif battery_round > 0 %}
+#              mdi:battery-{{ battery_round }}
+#          {% else %}
+#            mdi:battery-alert
+#          {% endif %}
+#        {% endif %}

@@ -1,0 +1,12 @@
+# Transmission Sensor (Working)
+#sensor 3:
+- platform: transmission
+  host: !secret transmisson_host 
+  port: 9091
+  name: Transmission
+  username: !secret transmission_admin
+  password: !secret transmission_password
+  monitored_variables:
+    - 'current_status'
+    - 'download_speed'
+    - 'upload_speed'

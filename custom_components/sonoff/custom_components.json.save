@@ -1,0 +1,14 @@
+{
+    domain: "sonoff",
+    "HASS-sonoff-ewelink": {
+        "version": "1.0.0",
+        "local_location": "/custom_components/sonoff/__init__.py",
+        "remote_location": "https://github.com/peterbuga/HASS-sonoff-ewelink/tree/sonoff-bulb/sonoff/__init__.py",
+        "visit_repo": "https://github.com/peterbuga/HASS-sonoff-ewelink",
+        "resources": [
+            "https://github.com/peterbuga/HASS-sonoff-ewelink/tree/sonoff-bulb/sonoff/sensor.py",
+            "https://github.com/peterbuga/HASS-sonoff-ewelink/tree/sonoff-bulb/sonoff/switch.py",
+            "https://github.com/peterbuga/HASS-sonoff-ewelink/tree/sonoff-bulb/sonoff/light.py"            
+        ]
+    }
+}

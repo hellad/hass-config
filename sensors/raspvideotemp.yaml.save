@@ -1,0 +1,6 @@
+#### https://home-assistant.io/components/sensor.command_line/
+#### Temperature of GPU
+#sensor:
+  - platform: command_line
+    name: raspvideotemp
+    command: /opt/vc/bin/vcgencmd measure_temp

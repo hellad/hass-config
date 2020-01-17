@@ -1,0 +1,196 @@
+#### Customization for my Home
+    sensor.owm_cloud_coverage:
+      icon: mdi:weather-partlycloudy
+      friendly_name: Облачность
+    sensor.owm_condition:
+      icon: mdi:weather-sunny
+      friendly_name: Погода
+    sensor.owm_humidity:
+      icon: mdi:water-percent
+      friendly_name: Влажн.Сеть
+    sensor.owm_rain:
+      icon: mdi:weather-lightning-rainy
+      friendly_name: Дождь
+    sensor.owm_snow:
+      friendly_name: Снег
+      hidden: true
+    sensor.owm_temperature:
+      friendly_name: Темп.Сеть
+    sensor.owm_wind_speed:
+      icon: mdi:weather-windy
+      friendly_name: Ветер
+    sensor.yr_symbol:
+      friendly_name: За окном
+    sensor.28000008a43272:
+      friendly_name: Температура дома
+    sensor.mqtt_temp_sensor:
+      friendly_name: Темп.MQTT
+#    sensor.humidity:
+#      friendly_name: Влажн.MQTT
+    sensor.hall_dht11_temperature:
+      friendly_name: Темп.дома
+    sensor.hall_dht11_humidity:
+      friendly_name: Влажн.дома
+      icon: mdi:water-percent
+    sensor.bathroom_mqtt_temp_sensor:
+      friendly_name: Темп.в ванной
+    sensor.bathroom_mqtt_humidity_sensor:
+      friendly_name: Влажн.в ванной
+      icon: mdi:water-percent
+    sensor.bathroom_mqtt_pressure_sensor:
+      friendly_name: Давление в ванной
+      icon: mdi:gauge
+
+#      sensor.pws_feelslike_c:
+#      friendly_name: Температура по ощущениям
+#    sensor.pws_precip_1d_mm:
+#      friendly_name: Уровень осадков сегодня
+#    sensor.pws_precip_1d:
+#      friendly_name: Вероятность осадков сегодня    
+#    sensor.pws_relative_humidity:
+#      friendly_name: Относительная влажность
+#    sensor.pws_temp_c:
+#      friendly_name: Температура воздуха
+#    sensor.pws_temp_high_record_c:
+#      friendly_name: Рекорд макс. темп. в этот день
+#    sensor.pws_temp_high_1d_c:
+#      friendly_name: Макс. температура сегодня
+#    sensor.pws_temp_low_1d_c:
+#      friendly_name: Минимальная температура сегодня
+#    sensor.pws_temp_low_record_c:
+#      friendly_name: Рекорд мин. темп. в этот день
+#    sensor.pws_weather:
+#      friendly_name: Погода сегодня
+#    sensor.pws_weather_1d_metric:
+#      friendly_name: Прогноз погоды на сегодня
+#    sensor.pws_wind_kph:
+#      friendly_name: Скорость ветра
+#    sensor.pws_wind_1d_kph:
+#      friendly_name: Средняя скорость ветра сегодня
+#    sensor.pws_wind_string:
+#      friendly_name: Прогноз ск. ветра сегодня
+#    sensor.pws_visibility_km:
+#      friendly_name: Видимость
+#    sensor.pws_UV:
+#      friendly_name: Уровень ультрафиолета
+#    sensor.pws_solarradiation:
+#      friendly_name: Уровень солнечной радиации
+#    sensor.pws_pressure_mb:
+#      friendly_name: Давление
+#    sensor.pws_pressure_trend:
+#      friendly_name: Прогноз изменения давления +/-
+    
+    camera.adcamera:
+      friendly_name: Комната
+    camera.prokhor:
+      friendly_name: Положение Прохора
+      icon: mdi:webcam
+    camera.iss:
+      friendly_name: МКС
+      icon: mdi:satellite-variant
+
+    sensor.cpu_use:
+      icon: mdi:chip
+      friendly_name: Загрузка процессора малины
+    sensor.ram_free:
+      icon: mdi:memory 
+      friendly_name: Свободная память
+    sensor.disk_use_home:
+      friendly_name: Занято на диске в /home
+    sensor.cpu_temp:
+      friendly_name: Температура процессора
+      icon: mdi:memory 
+    sensor.alexapi:
+      friendly_name: Состояние Алексы
+      icon: mdi:amazon 
+    sensor.hyperion:
+      friendly_name: Состояние подсветки ТВ
+      icon: mdi:led-strip
+
+      
+    media_player.adkodi:
+      friendly_name: Медиацентр малины
+    media_player.dune_hd_3d_player:
+      friendly_name: Медиаплеер Dune HD 3D
+    media_player.lg_tv50_remote:
+      friendly_name: Телевизор LG
+
+
+    script.inetradio:
+     friendly_name: Start Playing
+     icon: mdi:play
+      
+    sensor.USD_RUB_rate:
+      icon: mdi:currency-usd
+      friendly_name: Курс Доллара Евробанк
+       
+    weblink.dm8000:
+      friendly_name: Спутниковый ресивер
+    weblink.nas:
+      friendly_name: Домашний сервер (NAS)
+    weblink.home_photo:
+      friendly_name: Домашний фото сервер
+    weblink.router:
+      friendly_name: Домашний маршрутизатор
+    weblink.wifi_ap:
+      friendly_name: Домашний wi-fi
+    weblink.sip_phone:
+      friendly_name: Домашний SIP телефон
+    weblink.transmission:
+      friendly_name: Домашняя скачивалка
+    weblink.webcam:
+      friendly_name: Домашняя IP камера
+    weblink.mikrotik_switch:
+      friendly_name: Домашний коммутатор
+    weblink.narodmon:
+      friendly_name: Народный мониторинг погоды
+    weblink.hassblog:
+      friendly_name: Блог разработчиков home-assistant
+    weblink.hassgit:
+      friendly_name: Исходный код home-assistant на github
+    weblink.hassconfigurator:
+      friendly_name: Веб конфигуратор home-assistant на малине
+
+    sensor.strava_last_name:
+      icon: mdi:message-text-outline
+      friendly_name: Имя последней поездки
+    sensor.strava_last_moving_time:
+      icon: mdi:timer
+      friendly_name: Время движения
+    sensor.strava_last_distance:
+      icon: mdi:routes
+      friendly_name: Дистанция
+    sensor.strava_last_elevation:
+      icon: mdi:elevation-rise
+      friendly_name: Суммарный подъём
+    sensor.strava_last_date:
+      icon: mdi:calendar-clock
+      friendly_name: Дата и время
+      
+# state_topic: "bathroom/motion/on_time" in temp+pir_multisensors.yaml
+    sensor.last_motion_bathroom_sensor:
+      icon: mdi:calendar-clock
+      friendly_name: Ванная-последнее движение
+    sensor.last_motion_multisensor:
+      icon: mdi:calendar-clock
+      friendly_name: Кухня-последнее движение
+
+    light.aeotec_zw111_nano_dimmer_level:
+      friendly_name: Свет с диммером в корридоре
+      emulated_hue: true
+    
+    sensor.co2_sensor:
+      #icon: mdi:calendar-clockperiodic-table-co2
+      icon: mdi:flask-outline
+      friendly_name: Углекислый газ
+      
+    switch.sonoff_10008b5013_1:
+      icon: mdi:fan
+      friendly_name: Вентилятор в ванной
+      
+    switch.sonoff_10008b5013_2:
+      icon: mdi:coach-lamp          # https://materialdesignicons.com/icon/coach-lamp
+      friendly_name: Свет в ванной
+      
+    group.sonoff_bathroom_switch_card:
+      friendly_name: Выключатель в ванной

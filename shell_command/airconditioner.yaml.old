@@ -1,0 +1,19 @@
+#### "/srv/homeassistant/lib/python3.4/site-packages/homeassistant/components/shell_command.py"
+# shell_command runs in a more secure environment which doesn’t allow any shell helpers like automatically expanding the home dir ~ or using pipe symbols to run multiple commands.
+
+shell_command:
+  set_ac_to_slider: '/usr/bin/irsend SEND_ONCE FUJITSU {{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_slider.bedroom_aircon_temperature.state|int }}'
+
+  #  set_ac_on: '/usr/bin/irsend SEND_ONCE FUJITSU turn-on'
+
+  set_ac_on: >-
+    /usr/bin/irsend SEND_ONCE FUJITSU turn-on
+
+#{{ states.input_select.bedroom_aircon_power.state }} '
+
+  set_ac_off: '/usr/bin/irsend SEND_ONCE FUJITSU turn-off'
+
+# &&
+#  debug_cmd: 'echo $(date +%Y:%m:%d) $(date +%H:%M:%S) "AirCon Power command run" >> /tmp/aircon.log'
+
+  debug_cmd: '/usr/bin/touch /home/homeassistant/.homeassistant/www/aircon.log'

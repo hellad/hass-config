@@ -1,0 +1,263 @@
+###############################################################################
+#   @author         :   Mahasri Kalavala
+#   @date           :   04/28/2017
+#   @package        :   Birthday
+#   @description    :   Birthday reminders, greetings/wishes - all good stuff!
+#
+#   THREE IMPORTANT THINGS YOU NEED:
+#     1. Copy birtday_wishes.yaml file from templates folder to your templates folder
+#     2. Copy this file to Packages folder & add following to configuration.yaml
+#        packages: !include_dir_named packages
+#     3. Add the following to your secrets.yaml file, change name and date
+#        name_birthday: "MM-DD". See below for example:
+#
+#        irina_birthday: "MM-DD"
+#        prohor_birthday: "MM-DD"
+#        pavel_birthday: "MM-DD"
+#
+#    Update: I added mqtt code to refresh the sensor values dynamically.
+#    The sensor values update on hourly basis.
+###############################################################################
+homeassistant:
+  customize:
+    sensor.irina_birthday:
+      hidden: true
+    sensor.prohor_birthday:
+      hidden: true
+    sensor.pavel_birthday:
+      hidden: true
+    sensor.irina_birthday_days2go:
+      friendly_name: irina's Birthday
+      icon: mdi:cake-variant
+    sensor.prohor_birthday_days2go:
+      friendly_name: prohor's Birthday
+      icon: mdi:cake-variant
+    sensor.pavel_birthday_days2go:
+      friendly_name: pavel's Birthday
+      icon: mdi:cake-variant
+
+group:
+  Birthdays:
+    entities:
+      - sensor.irina_birthday_days2go
+      - sensor.prohor_birthday_days2go
+      - sensor.pavel_birthday_days2go
+      - automation.today_is_the_birthday
+      - automation.birthday_countdown_30_days
+      - automation.random_birthday_wishes
+
+sensor:
+  - platform: template
+    sensors:
+      irina_birthday:
+        unit_of_measurement: (mm-dd)
+        value_template: !secret irina_birthday
+
+  - platform: template
+    sensors:
+      prohor_birthday:
+        value_template: !secret prohor_birthday
+        unit_of_measurement: (mm-dd)
+
+  - platform: template
+    sensors:
+      pavel_birthday:
+        value_template: !secret pavel_birthday
+        unit_of_measurement: (mm-dd)
+
+  - platform: mqtt
+    state_topic: "/home/today"
+    name: "irina_birthday_days2go"
+    unit_of_measurement: "days to go"
+    value_template: >-
+      {% set month = value.split('-')[0] %}
+      {% set date = value.split('-')[1] %}
+      {% set year = value.split('-')[2] %}
+      {% if states('sensor.irina_birthday') != "unknown" %}
+        {%- set bDayMonth = states.sensor.irina_birthday.state.split('-')[0] -%}
+        {%- set bDayDate = states.sensor.irina_birthday.state.split('-')[1] -%}
+        {%- set numOfDays = ((as_timestamp(strptime(year ~ '-' ~ bDayMonth ~ '-' ~ bDayDate , '%Y-%m-%d')) | timestamp_custom('%j', true) | int ) - (as_timestamp(strptime(year ~ '-' ~ month~ '-' ~ date , '%Y-%m-%d')) | timestamp_custom('%j', true) | int)) -%}
+        {%- if numOfDays < 0 -%}
+          {{ numOfDays + 365 }}
+        {%- else -%}
+          {{ numOfDays }}
+        {%- endif -%}
+      {% else %}
+        -
+      {% endif %}
+
+  - platform: mqtt
+    state_topic: "/home/today"
+    name: "prohor_birthday_days2go"
+    unit_of_measurement: "days to go"
+    value_template: >-
+      {% set month = value.split('-')[0] %}
+      {% set date = value.split('-')[1] %}
+      {% set year = value.split('-')[2] %}
+      {% if states('sensor.prohor_birthday') != "unknown" %}
+        {%- set bDayMonth = states.sensor.prohor_birthday.state.split('-')[0] -%}
+        {%- set bDayDate = states.sensor.prohor_birthday.state.split('-')[1] -%}
+        {%- set numOfDays = ((as_timestamp(strptime(year ~ '-' ~ bDayMonth ~ '-' ~ bDayDate , '%Y-%m-%d')) | timestamp_custom('%j', true) | int ) - (as_timestamp(strptime(year ~ '-' ~ month~ '-' ~ date , '%Y-%m-%d')) | timestamp_custom('%j', true) | int)) -%}
+        {%- if numOfDays < 0 -%}
+          {{ numOfDays + 365 }}
+        {%- else -%}
+          {{ numOfDays }}
+        {%- endif -%}
+      {% else %}
+        -
+      {% endif %}      
+
+  - platform: mqtt
+    state_topic: "/home/today"
+    name: "pavel_birthday_days2go"
+    unit_of_measurement: "days to go"
+    value_template: >-
+      {% set month = value.split('-')[0] %}
+      {% set date = value.split('-')[1] %}
+      {% set year = value.split('-')[2] %}
+      {% if states('sensor.pavel_birthday') != "unknown" %}
+        {%- set bDayMonth = states.sensor.pavel_birthday.state.split('-')[0] -%}
+        {%- set bDayDate = states.sensor.pavel_birthday.state.split('-')[1] -%}
+        {%- set numOfDays = ((as_timestamp(strptime(year ~ '-' ~ bDayMonth ~ '-' ~ bDayDate , '%Y-%m-%d')) | timestamp_custom('%j', true) | int ) - (as_timestamp(strptime(year ~ '-' ~ month~ '-' ~ date , '%Y-%m-%d')) | timestamp_custom('%j', true) | int)) -%}
+        {%- if numOfDays < 0 -%}
+          {{ numOfDays + 365 }}
+        {%- else -%}
+          {{ numOfDays }}
+        {%- endif -%}
+      {% else %}
+        -
+      {% endif %}      
+
+automation:
+
+###############################################################################
+# Build the excitement
+###############################################################################
+  - alias: Birthday Countdown 30 Days
+    initial_state: true
+    hide_entity: true
+    trigger:
+      platform: state
+      entity_id: 
+        - sensor.irina_birthday_days2go
+        - sensor.prohor_birthday_days2go
+        - sensor.pavel_birthday_days2go
+    condition:             #### if anyone in home send notification.
+      - condition: state
+        entity_id: group.all_devices
+        state: 'home'
+      - condition: template
+        value_template: "{{ trigger.to_state.state | int > 0 and trigger.to_state.state | int < 30 }}"
+    action:
+      - service: script.notify_me
+        data_template:
+          value1: "{{ trigger.entity_id.split('.')[1].split('_')[0] | title }}'s Birthday is only {{ trigger.to_state.state }} days to go!"
+          value2: ""
+
+###############################################################################
+# Celebrate Birthday!!!
+###############################################################################
+  - alias: Today is the Birthday
+    initial_state: true
+    hide_entity: true
+    trigger:
+      platform: state
+      entity_id: 
+        - sensor.irina_birthday_days2go
+        - sensor.prohor_birthday_days2go
+        - sensor.pavel_birthday_days2go
+    condition:             #### if anyone in home send notification.
+      - condition: state
+        entity_id: group.all_devices
+        state: 'home'
+      - condition: template
+        value_template: "{{ trigger.to_state.state | int == 0 }}"
+    action:
+      - service: script.notify_me
+        data_template:
+          value1: "Hurray! Today is {{ trigger.entity_id.split('.')[1].split('_')[0] | title }}'s Birthday!"
+          value2: "Don't forget about this"
+
+###############################################################################
+# Announce Happy Birthday message every hour starting 7 am until 9 PM
+###############################################################################
+  - alias: Random Birthday Wishes
+    initial_state: true
+    hide_entity: true
+    trigger:
+      platform: time_pattern
+      hours: '/1'
+      minutes: 00
+      seconds: 00
+    condition:
+      condition: and
+      conditions:             #### if anyone in home send notification.
+        - condition: state
+          entity_id: group.all_devices
+          state: 'home'
+        - condition: time
+          after: '07:30:00'
+          before: '23:30:00'
+        - condition: or
+          conditions:
+            - condition: template
+              value_template: "{{ states.sensor.irina_birthday_days2go.state | int == 0 }}"
+            - condition: template
+              value_template: "{{ states.sensor.prohor_birthday_days2go.state | int == 0 }}"
+            - condition: template
+              value_template: "{{ states.sensor.pavel_birthday_days2go.state | int == 0 }}"
+    action:
+      - service: script.notify_us  # see package notify.yaml
+        data_template:
+          value1: !include ../templates/birthday_wishes.yaml
+
+#      - service: telegram_bot.send_message    # https://www.home-assistant.io/components/telegram_bot/
+#        data_template:
+#          target: !secret telegram_bot_chat_id_family
+#          message: >
+#            !include ../templates/birthday_wishes.yaml
+
+      - service: script.voice_notify
+        data_template:
+          value1: !include ../templates/birthday_wishes.yaml
+         
+#      - service: script.notify_me  # see package notify.yaml
+#        data_template:
+#          value1: !include ../templates/birthday_wishes.yaml
+
+###############################################################################
+# Update the MQTT with current date every hour
+# Topic: /home/today
+# Date format: "MM-DD-YYYY"
+###############################################################################
+  - alias: Update Current Date In MQTT
+    initial_state: true
+    hide_entity: true
+    trigger:
+      platform: time_pattern
+      hours: '/01'
+      minutes: 00
+      seconds: 00
+    action:
+      - service: mqtt.publish
+        data_template:
+          topic: '/home/today'
+          retain: true
+          payload: '{{ as_timestamp(now() ) | timestamp_custom("%m-%d-%Y", true) }}'
+
+###############################################################################
+# On Home Assistant Start, save the current date, so that the sensor will
+# pickup right values to begin with
+###############################################################################
+  - alias: Update Current Date On Startup
+    initial_state: true
+    hide_entity: true
+    trigger:
+      platform: homeassistant
+      event: start
+    action:
+      - service: mqtt.publish
+        data_template:
+          topic: '/home/today'
+          retain: true
+          payload: '{{ as_timestamp(now() ) | timestamp_custom("%m-%d-%Y", true) }}'

@@ -1,0 +1,8 @@
+#### https://home-assistant.io/components/sensor.fixer/
+#sensor:
+  - platform: fixer
+    name: USD_RUB_rate
+    api_key: !secret fixer_api_key
+    target: RUB
+    
+

@@ -1,0 +1,47 @@
+#Slider to set alarm time
+alarmhour:
+  name: Часы
+  icon: mdi:timer
+  initial: 08 # значение по умолчанию
+  min: 00  #Минимальное значение
+  max: 23 #Максимальное значение
+  step: 01 #Шаг изменения
+alarmminutes:
+  name: Минуты
+  icon: mdi:timer
+  initial: 40
+  min: 00
+  max: 59
+  step: 01
+
+bedroom_aircon_temperature:
+  name: Температура кондиционера
+  icon: mdi:oil-temperature
+  initial: 25 # значение по умолчанию
+  min: 18  #Минимальное значение
+  max: 30 #Максимальное значение
+  step: 01 #Шаг изменения
+
+ampvol:
+  name: Onkyo Amp Volume
+  initial: 0
+  min: 0
+  max: 73
+  step: 2
+
+# https://community.home-assistant.io/t/chromecast-radio-with-station-and-player-selection/12732/11
+volume_radio:
+  name: Volume
+  icon: mdi:volume-high
+  initial: 0.2
+  min: 0
+  max: 1
+  step: 0.05
+  
+corridor_brightness:
+  name: Яркость в коридоре
+  icon: mdi:brightness-auto
+  initial: 75 # значение по умолчанию
+  min: 15  #Минимальное значение
+  max: 99 #Максимальное значение
+  step: 02 #Шаг изменения

@@ -1,0 +1,29 @@
+bedroom_aircon_mode:
+  name: Режим кондиционера
+  icon: mdi:air-conditioner
+  options:
+    - auto
+    - cool
+    - dry
+    - heat
+    - fan
+  initial: 'cool'
+
+bedroom_aircon_fan:
+  name: Режим вентилятора кондиционера
+  icon: mdi:fan
+  options:
+    - auto
+    - high
+    - medium
+    - low
+    - quiet 
+  initial: 'auto'
+
+bedroom_aircon_power:
+  name: Включение кондиционера
+  icon: mdi:power
+  options:
+    - turn-on
+    - turn-off
+  initial: 'turn-off'

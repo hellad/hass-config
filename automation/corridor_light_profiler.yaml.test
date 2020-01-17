@@ -1,0 +1,56 @@
+#### https://community.home-assistant.io/t/global-function-values/5239/5
+#### Automation to change the current_light_profile selected depending on Sun.Elevation
+
+- alias: Set theme to Relax
+  trigger:
+    platform: numeric_state
+    entity_id: sun.sun
+    value_template: '{{ state.attributes.elevation }}'
+    below: -6
+  action:
+    service: input_select.select_option
+    data:
+      entity_id: input_select.current_light_profile
+      option: Relax
+      
+- alias: Set theme to Reading
+  trigger:
+    platform: numeric_state
+    entity_id: sun.sun
+    value_template: '{{ state.attributes.elevation }}'
+    above: -6
+    below: 6
+  action:
+    service: input_select.select_option
+    data:
+      entity_id: input_select.current_light_profile
+      option: Reading
+ 
+- alias: Set theme to Concentrate  # 75 out of maximum 99 value in light_profiles.csv
+  trigger:
+    platform: numeric_state
+    entity_id: sun.sun
+    value_template: '{{ state.attributes.elevation }}'
+    above: 6
+  action:
+    service: input_select.select_option
+    data:
+      entity_id: input_select.current_light_profile
+      option: Concentrate
+
+#### Automation to slowly change the light theme (for lights that are already on) when current_light_profile changes
+- alias: corridor_change_theme
+  trigger:
+    platform: state
+    entity_id: input_select.current_light_profile
+  condition:
+    condition: state
+    entity_id: switch.aeotec_zw111_nano_dimmer_switch            #### for automated switching ON/OFF
+    state: 'on'
+  action:
+    service: homeassistant.turn_on
+    entity_id: switch.aeotec_zw111_nano_dimmer_switch
+    data_template:      
+      profile: '{{ states.input_select.current_light_profile.state}}'
+
+

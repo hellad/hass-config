@@ -1,0 +1,39 @@
+# Description:
+#   Example of how to restart AlexaPi service from within Home Assistant.
+#
+# Components:
+#   script
+#   shell_command
+#
+
+################################################################
+## Packages / Restart hyperion
+################################################################
+
+################################################
+## Customize
+################################################
+
+homeassistant:
+  customize:
+    script.restart_hyperion:
+      friendly_name: "Restart hyperion service"
+      icon: mdi:skull
+
+################################################
+## Script
+################################################
+
+script:
+  restart_hyperion:
+    sequence:
+      - service: shell_command.restart_hyperion
+
+################################################
+## Shell Command
+## https://howitmake.ru/blog/FAQ/184.html
+################################################
+
+shell_command:
+  restart_hyperion: >-
+    ssh pi@192.168.192.31 sudo /bin/systemctl restart hyperion.service

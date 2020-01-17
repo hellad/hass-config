@@ -1,0 +1,11 @@
+shell_command:
+  set_power_on_off: 'irsend SEND_ONCE ONKYO KEY_POWER'
+#  set_power_on_off: '/usr/bin/touch /tmp/onkyo_on'
+
+#  set_vol_amp: 'irsend SEND_ONCE ONKYO KEY_VOLUMEUP'
+#  set_vol_amp: 'irsend -#{{states.input_slider.ampvol.state}} SEND_ONCE ONKYO KEY_VOLUMEUP'
+
+  set_vol_amp: '/usr/bin/echo "irsend -#{{states.input_slider.ampvol.state | int}} SEND_ONCE ONKYO KEY_VOLUMEUP" >> /tmp/onkyo_shell_command_test'
+
+#'irsend -#{{states.input_slider.ampvol.state | int}} SEND_ONCE ONKYO KEY_VOLUMEUP'
+#  set_vol_amp: 'irsend -#{{20}} SEND_ONCE ONKYO KEY_VOLUMEUP'

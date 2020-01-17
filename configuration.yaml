@@ -1,0 +1,448 @@
+#### check file consistency
+homeassistant:
+
+# Name of the location where Home Assistant is running
+  name: Home
+# Location required to calculate the time the sun rises and sets
+  latitude: !secret home_latitude
+  longitude: !secret home_longitude
+# Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 143
+# metric for Metric, imperial for Imperial
+  unit_system: metric
+# Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: !secret home_time_zone
+
+  customize: !include customization.yaml
+
+  packages: !include_dir_named packages
+#  auth_providers:
+#    - type: homeassistant
+#    - type: legacy_api_password
+#      api_password: !secret ha_api_password   # Deprecated since 0.90 release. Configuration moved to Legacy API password auth provider.
+                                          # https://www.home-assistant.io/docs/authentication/providers/#legacy-api-password
+                                          # Where your client or other software supports it, you should use long lasting access token instead, 
+                                          # as shown in the REST API and websocket API documentation.
+
+#### https://www.home-assistant.io/components/api/
+api:
+
+# whitelist_external_dirs (Optional): List of folders that can be used as sources for sending files.
+# https://www.home-assistant.io/docs/configuration/basic/
+  # - /tmp - /home/pi/test
+#  whitelist_external_dirs:
+#    - /www
+#    - /config
+
+#### Show links to resources in log and frontend
+#introduction:
+
+#### System Health component
+system_health:
+
+#### Enables the frontend.
+#### https://youtu.be/QEtX0uboxQA?t=908 
+frontend: !include frontend.yaml
+#  themes: !include_dir_merge_named themes    # https://smarttone.ru/blog/home-assistant-vs-code-themes-first-automation/
+
+#### Enables configuration UI
+config:
+
+#### https://www.home-assistant.io/components/mobile_app/
+#### The Mobile App component allows Home Assistant mobile apps to easily integrate with Home Assistant.
+mobile_app:
+
+#### Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+#### https://www.splitbrain.org/blog/2017-08/10-homeassistant_duckdns_letsencrypt
+#### https://community.home-assistant.io/t/ssl-and-home-assistant-running-on-a-synology-docker/32102
+#### Notice that I also changed the ssl_certificate to the cert.pem file instead of chain.pem.
+http:
+  server_port: 8123
+  base_url: hellad.noip.me:88  #  hellad.noip.me:88 The URL that Home Assistant is available on the internet. Telegram webhooks Bot uses it.
+  ssl_certificate: !secret ssl_certificate  # Let's encrypt certificate
+  ssl_key: !secret ssl_key 
+  ip_ban_enabled: true
+#  api_password: !secret ha_api_password
+
+#### Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+# https://www.home-assistant.io/components/updater/
+updater:
+# Optional, allows Home Assistant developers to focus on popular components.
+# include_used_components: true
+  reporting: False
+
+#### Discover some devices automatically
+discovery:
+
+#### Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# https://www.home-assistant.io/components/logger/
+logger:
+   default: info
+   logs:
+      homeassistant.components.telegram_bot: debug
+      custom_components.sonoff: debug
+      custom_components.sonoff.switch: debug
+      custom_components.sonoff.light: debug
+      custom_components.sonoff.sensor: debug
+      custom_components.yandex_smart_home: debug
+      zwave.aeon_labs_zw100_multisensor_6: info
+      zwave.aeon_labs_zw111_nano_dimmer: info
+      homeassistant.components.image_processing: debug
+      homeassistant.components.push.camera: debug
+
+#### Enables support for tracking state changes over time
+history: !include history.yaml
+
+recorder: !include recorder.yaml
+
+#### View all events in a logbook
+logbook:
+  exclude:
+    domains:
+      - updater
+      - group
+      - persistent_notification
+    entities:
+      - sensor.time_date
+      - sensor.home_assistant_errors
+      - sensor.home_assistant_warnings
+
+#### Enables a map showing the location of tracked devices
+map:
+
+# My home zone on map
+zone:
+  - name: Home
+    latitude: !secret home_latitude
+    longitude: !secret home_longitude
+    radius: 100
+    icon: mdi:home
+
+  - name: Office
+    latitude: !secret office_latitude
+    longitude: !secret office_longitude
+    radius: 100
+    icon: mdi:office-building
+
+#### Track the sun
+sun:
+
+#### Weather prediction
+sensor: !include_dir_merge_list sensors
+
+#### Text to speech
+tts: !include_dir_merge_list tts
+
+#### Cloud
+cloud:
+
+binary_sensor: !include binary_sensors.yaml
+
+media_player: !include media_player.yaml
+
+group: !include groups.yaml
+
+automation: !include_dir_merge_list automation
+
+script: !include_dir_merge_named scripts
+
+input_boolean: !include_dir_merge_named input_boolean
+
+input_number: !include input_number.yaml
+
+####   !include_dir_merge_named does not work with shell_commands !!!   ####
+#shell_command: !include_dir_merge_named shell_command
+shell_command: !include shell_commands.yaml
+
+input_select: !include_dir_merge_named input_select
+
+ifttt:
+  key: !secret ifttt_key
+
+mqtt:
+  broker: 192.168.192.25         #### run on the same host as HASS?
+  port: 1883
+  keepalive: 60
+  client_id: home-assistant-1
+  username: !secret mqtt_broker_username
+  password: !secret mqtt_broker_password
+  discovery: true                 #### https://www.home-assistant.io/docs/mqtt/discovery/
+  discovery_prefix: homeassistant
+  protocol: 3.1
+  birth_message:
+    topic: "homeassistant/LWT"
+    payload: "Online"
+    qos: 1
+    retain: true
+  will_message:
+    topic: "homeassistant/LWT"
+    payload: "Offline"
+    qos: 1
+    retain: true
+
+####  https://www.home-assistant.io/blog/#camera-streams-for-everyone
+#     https://www.home-assistant.io/components/stream/
+stream:
+    
+    
+#### Camera section  
+camera: !include cameras.yaml
+
+#### https://home-assistant.io/components/device_tracker/
+device_tracker: !include device_tracker.yaml
+
+#### https://www.home-assistant.io/components/person/
+#person:
+#  - name: Irina
+#    id: irina
+#    device_trackers:
+#      - device_tracker.irina
+
+#### https://home-assistant.io/components/device_tracker.owntracks/ was in 2018
+#### in 2019 moved to https://www.home-assistant.io/components/owntracks/ from device tracker to configuration !!!
+#  - platform: owntracks
+owntracks:
+  max_gps_accuracy: 200
+  waypoints: True
+#  waypoint_whitelist:
+#    - jon
+#    - ram
+  mqtt_topic: "owntracks/#"         # (string)(Optional)The topic to subscribe for Owntracks updates on your MQTT instance.
+
+#### telegram_bot error with sender without last name solved manually as described in https://github.com/home-assistant/home-assistant/pull/7281
+#### Telegram chatbot polling implementation. https://home-assistant.io/components/telegram_bot.polling/
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_bot_pooling_api_key
+#  - platform: webhooks
+#    api_key: !secret telegram_bot_webhooks_api_key
+#    parse_mode: html                             # optional for webhooks. default is markdown
+#    url: https://hellad.noip.me:88               # Allow to overwrite the base_url from the http component for different configurations 
+    allowed_chat_ids:
+    - !secret telegram_bot_chat_id_megafon
+    - !secret telegram_bot_chat_id_beeline
+#    - !secret telegram_bot_webhooks_chat_id_group
+    - !secret telegram_bot_pooling_chat_id_group
+    - !secret telegram_bot_chat_id_prohor
+    - !secret telegram_bot_chat_id_irina
+    - !secret telegram_bot_chat_id_pavel
+
+    
+#### Telegram Notifier https://home-assistant.io/components/notify.telegram/
+notify:
+  - platform: telegram
+    name: telegram_direct_bee # send to my beeline
+    api_key: !secret telegram_bot_pooling_api_key
+#    api_key: !secret telegram_bot_webhooks_api_key
+    chat_id: !secret telegram_bot_chat_id_beeline
+
+  - platform: telegram
+    name: telegram_direct_mega # send to my megafon
+    api_key: !secret telegram_bot_pooling_api_key
+#    api_key: !secret telegram_bot_webhooks_api_key
+    chat_id: !secret telegram_bot_chat_id_megafon
+
+  - platform: telegram
+    name: telegram_group  # send to both my phones.
+    api_key: !secret telegram_bot_pooling_api_key
+    chat_id: !secret telegram_bot_pooling_chat_id_group
+#    api_key: !secret telegram_bot_webhooks_api_key
+#    chat_id: !secret telegram_bot_webhooks_chat_id_group 
+
+
+weblink:
+  entities:
+    - name: Transmission
+      url: http://192.168.192.25:9091/transmission/web/
+    - name: router
+      url: http://192.168.192.1/
+    - name: wifi_ap
+      url: http://192.168.192.2/
+    - name: sip phone
+      url: http://192.168.192.7
+    - name: nas
+      url: http://192.168.192.25
+    - name: portainer
+      url: http://192.168.192.25:9000
+    - name: MotionEye
+      url: http://192.168.192.25:8765
+    - name: facebox
+      url: http://192.168.192.25:8080
+    - name: dm8000
+      url: http://192.168.192.4
+    - name: printer
+      url: http://192.168.192.45
+    - name: mikrotik_switch
+      url: http://192.168.192.30
+    - name: webcam
+      url: http://192.168.192.44
+    - name: mirror light
+      url: http://192.168.192.49
+#    - name: kodi media player
+#      url: http://192.168.192.25:8080
+    - name: home photo
+      url: http://192.168.192.25/photo
+    - name: narodmon
+      url: http://narodmon.ru
+    - name: hassblog
+      url: https://home-assistant.io/blog/
+    - name: hassgit
+      url: https://github.com/home-assistant/home-assistant
+    - name: configurator
+      url: http://192.168.192.25:3218
+    - name: AlexaPi
+      url: https://alexa.amazon.com
+#      url: https://github.com/alexa-pi/AlexaPi/wiki
+    - name: SnowBoy
+      url: https://github.com/Kitt-AI/snowboy/
+    - name: DarkSkyWeather
+      url: https://darksky.net/forecast/55.7507,37.6177/si12/en
+
+transmission:
+  host: !secret transmisson_host 
+  port: 9091
+  name: Transmission
+  username: !secret transmission_admin
+  password: !secret transmission_password
+#### removed in version 0.100 https://www.home-assistant.io/integrations/transmission/
+  # monitored_conditions:
+ #   - current_status
+ #   - download_speed
+ #   - upload_speed
+ #   - active_torrents
+
+# https://www.home-assistant.io/components/ffmpeg/
+ffmpeg:
+#  ffmpeg_bin: /usr/bin/ffmpeg      
+      
+#### test from multisensor example https://github.com/bruhautomation/ESP-MQTT-JSON-Multisensor
+#### 
+light:  
+  - platform: mqtt                   # https://home-assistant.io/components/light.mqtt_json/
+    schema: json                     # new in 2019 ver.084 - https://www.home-assistant.io/components/light.mqtt/#json-schema---configuration
+    name: "SN1 LED"  
+    state_topic: "bathroom/sensornode1"  
+    command_topic: "bathroom/sensornode1/set"  
+    brightness: true  
+#    flash: true  
+    rgb: true  
+    optimistic: false  
+    qos: 0 
+
+#### https://home-assistant.io/components/light.hyperion/
+  - platform: hyperion
+    host: 192.168.192.31
+    name: Pi0_ambilight
+
+zwave:
+  usb_path: /dev/ttyACM0
+#  usb_path: /dev/zwave
+  debug: false
+  autoheal: true
+#  config_path: /srv/homeassistant/lib/python3.5/site-packages/python_openzwave/ozw_config/config/
+  polling_interval: 60000    # that’s in milliseconds, so that’s each minute
+  network_key: !secret z-wave_network_key
+#  refresh_value: true        # Enable refreshing of the node value. Only the light component uses this.
+#  delay: 5                   # Specify the delay for refreshing of node value. Only the light component uses this.
+#  polling_intensity: 1       # Enables polling of a value and sets the frequency of polling (0=none, 1=every time through the list, 2=every other time, etc). If not specified then your device will not be polled.
+
+#### Example configuration.yaml entry for AlexaPi
+#### https://home-assistant.io/components/alexa/#i-want-to-build-custom-commands-to-use-with-echo
+#### upgrade to 0.50 version https://community.home-assistant.io/t/need-to-change-plaintext-to-plain-in-intent-scripts-for-alexa-in-ha-50-1/23129/5
+alexa: 
+intent_script: !include alexa.yaml
+
+switch: !include_dir_merge_list switches
+
+panel_iframe:
+  configurator:
+    title: Configurator
+    icon: mdi:square-edit-outline
+    url: http://192.168.192.25:3218/
+
+  esphome:
+    title: ESPHome
+    icon: mdi:raspberry-pi
+    url: http://192.168.192.25:6052/
+
+  portainer:
+    title: Portainer
+    icon: mdi:wrench
+    url: http://192.168.192.25:9000/
+
+#### https://github.com/peterbuga/HASS-sonoff-ewelink
+#### https://github.com/peterbuga/HASS-sonoff-ewelink/tree/sonoff-bulb for LED support
+#### https://sprut.ai/client/article/1020
+#### WARNING: completely deactivate the sonoff component from HA while doing a firmware update, 
+#### due to auto-relogin function you might be kicked out of the app before the process is completed.
+#### email [Deprecated] used only for compatibility, may be eliminated in future.
+#### username the username that you registered for ewelink account be it an email or a phone number 
+#### (the phone number should lead with region number, '+8612345678901' for example).
+#### sonoff-bulb not working with 0.100+ https://github.com/peterbuga/HASS-sonoff-ewelink/issues/165
+sonoff:
+  username: !secret ewelink_name                      #[email or phone number]
+  password: !secret ewelink_password                  #[password]
+  scan_interval: 60                                   #(optional, lower values than 60 won't work anymore!)
+  grace_period: 600                                   #(optional)
+  api_region: 'eu'                                    #(optional)
+  entity_prefix: True                                 #(optional)
+  debug: True                                        #(optional) this option createsa pseudo switch entity switch.sonoff_debug (notice it won't show up automatically in frontend 
+#in lovelace you have to manually add it or toggle it from Developer tools > Services section). 
+#when you finish toggle the pseudo-switch OFF and a new (very long) persistent notification will show up.
+
+#### https://www.home-assistant.io/components/tuya/
+tuya:
+  username: !secret tuya_username
+  password: !secret tuya_password
+  country_code: 7
+  platform: jinvoo_smart #The app where your account register. tuya for Tuya Smart, smart_life for Smart Life, jinvoo_smart for Jinvoo Smart. Default value: tuya
+
+#https://www.home-assistant.io/components/google_assistant/#configuration
+google_assistant: !include google_assistant.yaml
+
+#https://developers.home-assistant.io/docs/en/creating_component_loading.html
+#https://github.com/dmitry-k/yandex_smart_home/blob/master/README.markdown
+yandex_smart_home: !include yandex_smart_home.yaml
+
+# https://www.home-assistant.io/components/plex/#media-player
+plex:
+    token: fR_tHg8x4F1Rxvg5fdkR
+
+# Example configuration.yaml entry
+#mikrotik:
+#  host: !secret mikrotik_router_host
+#  username: !secret mikrotik_router_admin
+#  password: !secret mikrotik_router_password
+
+weather:   
+#### https://sprut.ai/client/blog/1165
+# trial period finished. FOC - 50 requests per day
+#  - platform: yandex_weather
+#    api_key: !secret yandex_weather_key
+
+  - platform: darksky        #### https://www.home-assistant.io/components/weather.darksky/
+    api_key: !secret DarkSkyAPIkey
+    latitude: !secret home_latitude
+    longitude: !secret home_longitude
+    
+# my configuration.yaml entry for Facebox image processing
+# in Home Assistant 0.103 breaking change https://github.com/home-assistant/home-assistant/pull/29151
+# This change breaks existing service call references to the image_processing.facebox_* services by changing the service calls to be facebox.*.
+image_processing:
+  - platform: facebox
+    scan_interval: 604800  # The default scan_interval is 10 seconds. 
+                           # This leads to excessive computation if the image on the camera hasn’t changed (for example if you are using a local file camera 
+                           # https://community.home-assistant.io/t/face-detection-with-docker-machinebox/48917
+    ip_address: 192.168.192.25  
+    port: 8080
+    source:
+#      - entity_id: camera.push_camera     # 4 tests with push camera
+      - entity_id: camera.cam_1_image      # use local_file camera and webhook notification from motioneye
+        name: cam_1_facebox  # this will be the name of my image_processing service in automations
+        

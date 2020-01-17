@@ -1,0 +1,30 @@
+#### https://home-assistant.io/components/binary_sensor.mqtt/
+
+#binary_sensor:
+  - platform: mqtt
+    name: "Bathroom motion sensor"
+    state_topic: "bathroom/motion"
+    payload_on: "ON"
+    payload_off: "OFF"
+#    availability_topic: "home-assistant/window/availability"
+#    payload_available: "online"
+#    payload_not_available: "offline"
+    qos: 0
+    device_class: motion
+#    value_template: '{{ value.x }}'
+
+#### Android IP camera motion sensor
+#### https://community.home-assistant.io/t/android-ip-webcam-as-a-camera-plus-sensors/10566
+#### sensor.ipcam_motion
+#  - platform: rest
+#    name: IP Camera Motion
+#    sensor_class: motion
+#    resource: http://192.168.192.28:8080/sensors.json?sense=motion_active
+#    value_template: '{{ value_json.motion_active.data[0][1][0] | round(0) }}'
+
+#### https://www.home-assistant.io/components/binary_sensor.digital_ocean/
+#### Digital Ocean droplets status
+#  - platform: digital_ocean
+#    droplets:
+#      - 'hass_vpn.hellad.io'
+

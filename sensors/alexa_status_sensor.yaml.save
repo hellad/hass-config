@@ -1,0 +1,12 @@
+#### sensor to check current status of AlexaPi service
+  - platform: command_line
+    name: "AlexaPi"
+    command: systemctl -q is-active AlexaPi  && echo ON || echo OFF
+
+#### alternative variants
+#    systemctl is-active AlexaPi >/dev/null 2>&1 && echo YES || echo NO
+#    command: SERVICE=AlexaPi && echo $?
+    scan_interval: 60
+#    device_class: connectivity
+#    payload_on: 0
+#    payload_off: 1

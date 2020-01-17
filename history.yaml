@@ -1,0 +1,111 @@
+#################################################################
+## History
+#################################################################
+
+  exclude:
+    domains:
+      - automation
+      - updater
+      - media_player
+      - input_boolean
+      - weblink
+      - camera
+      - scene
+      - script
+      - persistent_notification
+      - zone
+    entities:
+      - group.Home_devices_view
+      - group.temperature_sensors
+      - group.Temperature_sensors_view
+      - group.media_player
+      - group.media_player_view
+      - group.cameras_view
+      - group.Cameras
+      - group.default_view
+
+      - sensor.owm_forecast
+      - group.open_weather
+      - group.weather_underground
+      - group.DarkSky
+      - sensor.dark_sky_summary
+      - sensor.dark_sky_apparent_temperature
+      - sensor.dark_sky_temperature
+      - sensor.dark_sky_humidity
+      - sensor.dark_sky_wind_speed
+      - sensor.dark_sky_visibility
+      - sensor.dark_sky_icon
+      - sensor.dark_sky_summary_1d
+      - sensor.dark_sky_icon_1d
+      - sensor.dark_sky_overnight_low_temperature_1d
+      - sensor.dark_sky_daytime_high_temperature_1d
+      - sensor.dark_sky_humidity_1d
+      - sensor.dark_sky_precip_probability_1d
+      - sensor.dark_sky_wind_speed_1d
+      - sensor.dark_sky_summary_2d
+      - sensor.dark_sky_icon_2d
+      - sensor.dark_sky_overnight_low_temperature_2d
+      - sensor.dark_sky_daytime_high_temperature_2d
+      - sensor.dark_sky_humidity_2d
+      - sensor.dark_sky_precip_probability_2d
+      - sensor.dark_sky_wind_speed_2d
+      - sensor.usd_rub_rate
+      - group.all_automations
+      - group.all_devices
+      - group.all_switches
+      - group.all_scripts
+
+      - group.home_devices
+      - group.weblink_sources
+      - sensor.date
+      - sensor.time
+      - sensor.time_date
+      - group.alarmclock
+      - sensor.alarm_time
+      - input_number.alarmhour
+      - input_number.alarmminutes
+      - group.temperature_sensors
+      - sensor.yr_symbol
+      - group.IPcamera
+      - sensor.ipcam_motion 
+      - switch.ipcam_night_vision
+      - switch.ipcam_white_balance_lock
+      - switch.ipcam_overlay
+      - switch.ipcam_torch
+      - switch.ipcam_frontfacing_camera
+      - switch.ipcam_focus
+      - switch.ipcam_gps_active
+      - sensor.average_load_15m
+      - sensor.average_load_1m
+      - sensor.average_load_5m
+      - sensor.since_last_boot
+      - sensor.usd_rub_rate
+      - sensor.hass_uptime
+      - sensor.hyperion
+      - sensor.alexapi
+      - sensor.bathroom_relay_uptime
+      - sensor.bathroom_relay_firmware_version
+      - sensor.aeon_labs_zw100_multisensor_6_sourcenodeid
+      - sensor.aeon_labs_zw100_multisensor_6_ultraviolet
+      - sensor.aeon_labs_zw100_multisensor_6_alarm_level
+      - sensor.aeon_labs_zw100_multisensor_6_alarm_type
+      
+      - group.strava
+      - sensor.strava_last_date
+      - sensor.strava_last_name
+      - sensor.strava_last_moving_time
+      - sensor.strava_last_distance
+      - sensor.strava_last_elevation
+      - group.family_bithday
+      - group.birthdays
+      - group.scripts
+      - group.internet_radio
+      
+      - input_boolean.onkyo_amp
+      - input_number.ampvol
+
+      - switch.fujitsu
+      - input_select.bedroom_aircon_power
+      - input_select.bedroom_aircon_mode
+      - input_select.bedroom_aircon_fan
+      - input_number.bedroom_aircon_temperature

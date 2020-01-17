@@ -1,0 +1,159 @@
+###############################################################################
+#   @author         :   Mahasri Kalavala
+#   @date           :   04/15/2017
+#   @package        :   Scripts
+#   @description    :   All common scripts
+###############################################################################
+homeassistant:
+  customize:
+#    group.scripts:
+#      order: 25
+#    group.tts_announcements:
+#      order: 52
+    
+# Script Stuff
+    script.ifttt_notify:
+      friendly_name: Notify Via IFTTT
+      icon: mdi:share
+
+    script.notify_me:
+      friendly_name: Notify Me (Default Telegram)
+      icon: mdi:share
+      
+    script.voice_notify:
+      friendly_name: Notify via TTS
+      icon: mdi:speaker-wireless
+
+group:
+  Scripts:
+    entities:
+      - script.ifttt_notify
+      - script.notify_me
+      - script.voice_notify
+
+#ifttt:
+#  key: !secret ifttt_key
+  
+#notify:
+#  - name: notify
+#    platform: pushbullet
+#    api_key: !secret pushbulley_apikey
+
+#tts:
+#  - platform: amazon_polly
+#    aws_access_key_id: !secret aws_access_key_id
+#    aws_secret_access_key: !secret aws_secret_access_key
+#    region_name: 'us-east-1'
+#    text_type: ssml
+    
+script:
+  ifttt_notify:
+    sequence:
+      - service: ifttt.trigger
+        data_template: { "event": "Home_Assistant", "value1": "{{ value1 }}", "value2": " {{ value2 }}"}   
+
+  notify_me:
+    sequence:
+#      - service: script.ifttt_notify
+#        data_template:
+#          event: "Home_Assistant"
+#          value1: '{{ value1 }}'
+#          value2: '{{ value2 }}'
+
+      - service: telegram_bot.send_message
+        data_template:
+#          title: "Home_Assistant"  # дает ошибку при отправке :
+#   [homeassistant.components.telegram_bot] New telegram message send_message: {'title': 'Home_Assistant', 'message': "Hurray! Today is Irina's Birthday!"}
+#   telegram.error.BadRequest: Can't parse entities in message text: can't find end of the entity starting at byte offset 4
+          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+          message: >
+            {{ value1 }} {{ value2 }}
+
+  notify_us:
+    sequence:
+      - service: telegram_bot.send_message
+        data_template:
+#          title: "Home_Assistant"  # дает ошибку при отправке :
+#   [homeassistant.components.telegram_bot] New telegram message send_message: {'title': 'Home_Assistant', 'message': "Hurray! Today is Irina's Birthday!"}
+#   telegram.error.BadRequest: Can't parse entities in message text: can't find end of the entity starting at byte offset 4
+          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_irina, !secret telegram_bot_chat_id_pavel, !secret telegram_bot_chat_id_prohor,]
+          message: >
+            {{ value1 }} {{ value2 }}
+
+###############################################################################
+# Voice Notify
+# Conditions:
+#   => Only Announce when people are home. Otherwise don't bother!
+#   => Only Announce when Music is NOT being played
+###############################################################################
+  voice_notify:
+    sequence:
+      - condition: template
+        value_template: >
+          {% if states.media_player.kitchen.state =='paused' %}
+            true
+          {% else %}
+            false
+          {% endif %}
+# currently KODI is not used in my system
+#      - condition: template
+#        value_template: >
+#          {% if states.media_player.adkodi.state != 'playing' %}
+#            true
+#          {% else %}
+#            false
+#          {% endif %}
+      - condition: template
+        value_template: >
+          {% if value1 | trim == "" %}
+            false
+          {% else %}
+            true
+          {% endif %}
+      - condition: state
+        entity_id: group.family_members # check device_tracker of family mambers
+        state: 'home'
+      - condition: template
+        value_template: >
+          {% if only_at_night | default('no', true ) == "yes" %}
+            {% if states.sun.sun.state == "above_horizon" %}
+              false
+            {% else %}
+              true
+            {% endif %}
+          {% else %}
+            true
+          {% endif %}
+      - service: tts.google_translate_say
+        entity_id: media_player.kitchen   #### media_player.vlcmp
+        data_template:
+          message: >
+            {{ value2 }} {{ value1 }}
+#            Двадцать два. Фиксированная фраза голосового поздравления с днём рождения voice notify. #}
+
+
+#### what to say is taken from birthday.yaml script. The quote is below:
+#    action:
+#      - service: script.notify_me
+#        data_template:
+#          value1: "Hurray! Today is {{ trigger.entity_id.split('.')[1].split('_')[0] | title }}'s Birthday!"
+#
+
+#            <speak>
+#            {{% if greeting | default('yes', true ) == "yes" %}}
+#              {{% if now().strftime("%H")|int < 12 %}}
+#                Good morning.
+#              {{% elif now().strftime("%H")|int < 18 %}}
+#                Good afternoon.
+#              {{% else %}}
+#                Good evening.<break time='1s'/>
+#              {{% endif %}}
+#              <break time='0.5s'/>
+#            {{% endif %}}
+#            {{ value1 }}
+#            {{% if greeting |default('yes', true ) == "yes" %}}
+#            <break time='0.5s'/>Thank you.
+#            {{% endif %}}
+#            </speak>
+
+          cache: true

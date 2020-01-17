@@ -1,0 +1,32 @@
+#https://www.home-assistant.io/components/google_assistant/#configuration
+#google_assistant:
+  project_id: !secret google_Project_ID
+  api_key: !secret google_api_key
+  expose_by_default: true # this must now be true.https://community.home-assistant.io/t/home-assistant-devices-not-loading-in-google-home/77015/17
+  exposed_domains:
+    - switch
+    - light
+    - media_player
+ #   - sensor
+    - group
+    - scene
+ #   - automation
+  entity_config:
+    switch.aeon_labs_zw111_nano_dimmer_switch:
+      name: corridor light
+      aliases:
+#        - BRIGHT_LIGHTS
+        - NIGHT_LIGHTS
+      room: corridor
+    switch.bathroom_light:
+      name: bathroom light
+      aliases:
+        - Ванная
+      room: bathroom
+#    light.living_room:
+#      expose: false
+#      room: LIVING_ROOM
+    group.all_automations:
+      expose: false
+ 
+ # 

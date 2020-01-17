@@ -1,0 +1,12 @@
+#### https://home-assistant.io/components/tts.google/
+#### If you are using SSL certificate or Docker, you may need to add the base_url configuration variable to your html
+
+#### https://console.developers.google.com/apis/api/speech.googleapis.com/overview?project=raspberrymediacenter-1970
+#### Converts audio to text by applying powerful neural network models.
+
+  - platform: google_translate
+#    service_name: google_say
+    language: 'ru'  # The language to use. Defaults to en
+    cache: false
+#    cache_dir: /www
+    time_memory: 300

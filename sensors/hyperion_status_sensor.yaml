@@ -1,0 +1,12 @@
+#### sensor to check current status of AlexaPi service
+  - platform: command_line
+    name: "Hyperion"
+    command: ssh pi@192.168.192.31 sudo systemctl -q is-active hyperion  && echo ON || echo OFF
+
+#### alternative variants
+#    ssh pi@192.168.192.31 sudo systemctl is-active hyperion >/dev/null 2>&1 && echo YES || echo NO
+#    command: SERVICE=hyperion && echo $?
+    scan_interval: 60
+#    device_class: connectivity
+#    payload_on: 0
+#    payload_off: 1

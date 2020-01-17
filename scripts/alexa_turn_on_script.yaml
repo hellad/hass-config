@@ -1,0 +1,32 @@
+################################################################################
+#	Shell? scripts to be used with Alexa commands
+################################################################################
+
+#script:
+  ac_on:
+    sequence:
+      - service: shell_command.ac_on
+
+#      - service: command_line.fujitsu.command_on    #how to trigger switch in script?
+#### try to change status of dedicated switch to turn on aircon
+#      - service: switch.turn_on
+#        data: 
+#          entity_id: switch.fujitsu
+
+        
+  ac_off:
+    sequence:
+#      - service: shell_command.ac_off
+      - service: switch.turn_off
+        data:
+          entity_id: switch.fujitsu
+  
+#### idea to change input select value in accordance to voice command from alexa and then call shell_command set_ac_to_slider
+#  set_temperature:
+#    sequence:
+      
+#      - service: shell_command.set_temp
+
+#shell_command:
+#  set_ac_to_slider: '/usr/bin/irsend SEND_ONCE FUJITSU {{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_slider.bedroom_aircon_temperature.state|int }}'
+
