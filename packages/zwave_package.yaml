@@ -162,9 +162,9 @@ automation:
           parameter: 132                     #### set max brightness level
           value: >-
             {% set hour = states("sensor.time").split(':')[0] | int %}
-            {% set brightness = [16, 16, 16, 16, 16, 16, 50, 99, 80, 80, 80, 80, 80, 80, 99, 99, 99, 99, 99, 99, 50, 50, 16, 16] %}
+            {% set brightness = [16, 16, 16, 16, 16, 16, 50, 99, 99, 80, 80, 80, 80, 80, 99, 99, 99, 99, 99, 99, 50, 50, 16, 16] %}
             {{ brightness[hour] }}
- 
+ #### Don't turn on lights when sleep
       - condition: and
         conditions:
           - condition: time

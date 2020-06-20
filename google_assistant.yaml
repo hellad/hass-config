@@ -1,7 +1,12 @@
 #https://www.home-assistant.io/components/google_assistant/#configuration
 #google_assistant:
   project_id: !secret google_Project_ID
-  api_key: !secret google_api_key
+#  api_key: !secret google_api_key
+# This is not required if a service_account is specified. This has been deprecated and will be removed in 0.105, you must setup a service_account now.
+
+#  service_account: !include SERVICE_ACCOUNT.JSON 
+# Service account information. You can use an include statement with your downloaded JSON file, enter data here directly or use secrets file to populate.
+#  report_state: true
   expose_by_default: true # this must now be true.https://community.home-assistant.io/t/home-assistant-devices-not-loading-in-google-home/77015/17
   exposed_domains:
     - switch

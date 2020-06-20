@@ -213,14 +213,15 @@
       - sensor.bathroom_mqtt_temp_sensor
       - sensor.bathroom_mqtt_humidity_sensor
       - sensor.bathroom_mqtt_pressure_sensor
+      - sensor.bathroom_mqtt_gas_sensor
       - binary_sensor.bathroom_motion_sensor
       - sensor.last_motion_bathroom_sensor
 #      - automation.check_mqtttemp_sensor_value_and_show_notification
 #      - automation.check_bathmqtthumidity_sensor_value_and_show_notification
       - sensor.aeon_labs_zw100_multisensor_6_temperature
       - sensor.aeon_labs_zw100_multisensor_6_relative_humidity
-      - sensor.sn1_temperature
-      - sensor.sn1_humidity
+#      - sensor.sn1_temperature
+#      - sensor.sn1_humidity
 #      - sensor.raspvideotemp
 #      - sensor.cpu_temp
 

@@ -1,9 +1,0 @@
-sensor.aeon_labs_zw111_nano_dimmer_previous_reading_4:
-  ignored: true
-  polling_intensity: 0
-sensor.aeon_labs_zw111_nano_dimmer_previous_reading_2:
-  ignored: true
-  polling_intensity: 0
-sensor.aeon_labs_zw111_nano_dimmer_previous_reading_3:
-  ignored: true
-  polling_intensity: 0

@@ -1,17 +1,36 @@
 #### https://home-assistant.io/components/binary_sensor.mqtt/
+#### https://tasmota.github.io/docs/PIR-Motion-Sensors/
 
 #binary_sensor:
   - platform: mqtt
-    name: "Bathroom motion sensor"
-    state_topic: "bathroom/motion"
-    payload_on: "ON"
-    payload_off: "OFF"
+    name: "Bathroom motion sensor"                        #### 192.168.192.37
+    state_topic: 'stat/bathroom/POWER'                    #### "bathroom/motion" 
+                                          #### 10:48:37 MQT: stat/bathroom/RESULT = {"POWER":"OFF"}
+                                          #### 10:48:37 MQT: stat/bathroom/POWER = OFF
+    payload_on: "ON"     
+    payload_off: "OFF"   
 #    availability_topic: "home-assistant/window/availability"
 #    payload_available: "online"
 #    payload_not_available: "offline"
     qos: 0
     device_class: motion
-#    value_template: '{{ value.x }}'
+#    value_template: "{{ value_json.Switch2}}"   # Names are case sensitive!
+### tele/bathroom/SENSOR = {"Time":"1970-01-04T08:45:49","Switch2":"OFF","BME680":{"Temperature":30.9,"Humidity":21.3,"Pressure":736.8,"Gas":353.91},"PressureUnit":"mmHg","TempUnit":"C"}
+
+  - platform: mqtt
+    name: "SN1 PIR"                                      #### 192.168.192.38
+    state_topic: 'stat/kitchen/POWER'                    #### "kitchen/motion" 
+    payload_on: "ON"     
+    payload_off: "OFF"   
+#    availability_topic: "home-assistant/window/availability"
+#    payload_available: "online"
+#    payload_not_available: "offline"
+    qos: 0
+    device_class: motion
+#17:49:46 MQT: tele/kitchen/SENSOR = {"Time":"2020-06-12T17:49:46","Switch2":"ON","BME280":{"Temperature":26.3,"Humidity":52.1,"DewPoint":15.6,"Pressure":745.5},"PressureUnit":"mmHg","TempUnit":"C"}
+#17:50:12 MQT: stat/kitchen/RESULT = {"POWER":"OFF"}
+
+
 
 #### Android IP camera motion sensor
 #### https://community.home-assistant.io/t/android-ip-webcam-as-a-camera-plus-sensors/10566
@@ -24,7 +43,7 @@
 
 #### https://www.home-assistant.io/components/binary_sensor.digital_ocean/
 #### Digital Ocean droplets status
-#  - platform: digital_ocean
-#    droplets:
-#      - 'hass_vpn.hellad.io'
+  - platform: digital_ocean     #### binary_sensor.ahellad_1vcpu_1gb_nyc1_01
+    droplets:
+      - 'ahellad-1vcpu-1gb-nyc1-01'
 

@@ -68,7 +68,7 @@
     
   - platform: generic
     name: iPhone_Locations
-    still_image_url: https://static-maps.yandex.ru/1.x/?l=map&pt={{ states.device_tracker.adlg4_iphone_2.attributes.longitude }},{{ states.device_tracker.adlg4_iphone_2.attributes.latitude }},pm2rdm&z=17&l=map
+    still_image_url: https://static-maps.yandex.ru/1.x/?l=map&pt={{ states.device_tracker.adlg4_iphone.attributes.longitude }},{{ states.device_tracker.adlg4_iphone_2.attributes.latitude }},pm2rdm&z=17&l=map
 
 #    still_image_url: https://maps.googleapis.com/maps/api/staticmap?size=500x500&maptype=roadmap&markers=color:gray|label:W|{{ states.device_tracker.adlg4_iphone.attributes.latitude }},{{ states.device_tracker.adlg4_iphone.attributes.longitude }}&markers=color:red|label:HTC|{{ states.device_tracker.adhtc_adhtc.attributes.latitude }},{{ states.device_tracker.adhtc_adhtc.attributes.longitude }}&key=!secret GoogleMapsAPIkey
 #    limit_refetch_to_url_change: true

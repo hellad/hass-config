@@ -41,58 +41,122 @@
 #    value_template: '{{ value_json.temperature }}'
 
 ################################################################################
-#sensorBME280_Wemos:           #### try to use BME280 sensor on Wemos D1mini as mqtt in bathroom!
-# local topic is 'bathroom/temperature'
+#sensorBME680_NodeMCU:           #### try to use BME680 sensor on NodeMCU as mqtt in bathroom!
+# local topic is complex JSON text in 'tele/bathroom/SENSOR'
+# https://tasmota.github.io/docs/Home-Assistant/
 ################################################################################
   - platform: mqtt
     scan_interval: 120
-    state_topic: 'bathroom/temperature'
+    state_topic: 'tele/bathroom/SENSOR'
     name: 'bathroom mqtt temp sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
     unit_of_measurement: '°C'
 #    qos (Optional): The maximum QoS level of the state topic. Default is 0.
 #    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
     expire_after: 180
-#    value_template: '{{ value_json.temperature }}'
+    value_template: "{{ value_json.BME680.Temperature | round(1) }}"   # Names are case sensitive!
 
 ################################################################################
-#sensorBME280_Wemos:           #### try to use BME280 sensor on Wemos D1mini as mqtt 
-# local topic is 'bathroom/humidity'
+#sensorBME680_NodeMCU:           #### try to use BME680 sensor on NodeMCU as mqtt in bathroom!
+# local topic is complex JSON text in 'tele/bathroom/SENSOR'
 ################################################################################
   - platform: mqtt
     scan_interval: 120
-    state_topic: 'bathroom/humidity'
+    state_topic: 'tele/bathroom/SENSOR'
     name: 'bathroom mqtt humidity sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
     unit_of_measurement: '%'
 #    qos (Optional): The maximum QoS level of the state topic. Default is 0.
 #    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
     expire_after: 180
-#    value_template: '{{ value_json.temperature }}'
+    value_template: "{{ value_json.BME680.Humidity | round(1)}}"   # Names are case sensitive!
 
 ################################################################################
 # local topic is 'bathroom/analog'
 ################################################################################
-  - platform: mqtt
-    scan_interval: 120
-    state_topic: 'bathroom/analog'
-    name: 'bathroom mqtt analog sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
-    unit_of_measurement: 'V'
+#  - platform: mqtt
+#    scan_interval: 120
+#    state_topic: 'bathroom/analog'
+#    name: 'bathroom mqtt analog sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+#    unit_of_measurement: 'V'
 #    qos (Optional): The maximum QoS level of the state topic. Default is 0.
 #    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
-    expire_after: 180
+#    expire_after: 180
 #    value_template: '{{ value_json.temperature }}'
 
 ################################################################################
-# local topic is 'bathroom/pressure'
+#sensorBME680_NodeMCU:           #### try to use BME680 sensor on NodeMCU as mqtt in bathroom!
+# local topic is complex JSON text in 'tele/bathroom/SENSOR'
 ################################################################################
   - platform: mqtt
     scan_interval: 120
-    state_topic: 'bathroom/pressure'
+    state_topic: 'tele/bathroom/SENSOR'
     name: 'bathroom mqtt pressure sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
-    unit_of_measurement: 'mmHg'
+    unit_of_measurement: 'mmHg'               #'mmHg'
 #    qos (Optional): The maximum QoS level of the state topic. Default is 0.
 #    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
     expire_after: 180
-#    value_template: '{{ value_json.temperature }}'
+    value_template: "{{ value_json.BME680.Pressure | round(1) }}"      # Names are case sensitive!
+    
+################################################################################
+#sensorBME680_NodeMCU:           #### try to use BME680 sensor on NodeMCU as mqtt in bathroom!
+# local topic is complex JSON text in 'tele/bathroom/SENSOR'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'tele/bathroom/SENSOR'
+    name: 'bathroom mqtt Gas sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: 'kOhm'               
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+    value_template: "{{ value_json.BME680.Gas }}"   # Names are case sensitive!
+
+
+###############################################################################
+#  look into binary sensors for bathroom PIR motion sensor
+
+################################################################################
+#sensorBME280_d1mini:           #### try to use BME280 sensor on D1 mini as mqtt in kitchen!
+# local topic is complex JSON text in 'tele/kitchen/SENSOR'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'tele/kitchen/SENSOR'
+    name: 'SN1 Humidity'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: '%'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+    value_template: "{{ value_json.BME280.Humidity | round(1)}}"   # Names are case sensitive!
+
+################################################################################
+#sensorBME280_d1mini:           #### try to use BME280 sensor on D1 mini as mqtt in kitchen!
+# local topic is complex JSON text in 'tele/kitchen/SENSOR'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'tele/kitchen/SENSOR'
+    name: 'SN1 Temperature'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: '°C'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+    value_template: "{{ value_json.BME280.Temperature | round(1)}}"   # Names are case sensitive!
+
+################################################################################
+#sensorBME280_d1mini:           #### try to use BME280 sensor on D1 mini as mqtt in kitchen!
+# local topic is complex JSON text in 'tele/kitchen/SENSOR'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'tele/kitchen/SENSOR'
+    name: 'SN1 Pressure'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: 'mmHg'               #'mmHg'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+    value_template: "{{ value_json.BME280.Pressure | round(1) }}"      # Names are case sensitive!
+
+
 
 ################################################################################
 #### multisensor example from BRUH 
@@ -110,35 +174,35 @@
 #### {"state": "OFF"}
 
 
-  - platform: mqtt  
-    state_topic: "kitchen/sensornode1"  
-    name: "SN1 Humidity"  
-    unit_of_measurement: "%"  
-    value_template: '{{ value_json.humidity | round(1) }}'  
+#  - platform: mqtt  
+#    state_topic: "kitchen/sensornode1"  
+#    name: "SN1 Humidity"  
+#    unit_of_measurement: "%"  
+#    value_template: '{{ value_json.humidity | round(1) }}'  
   
-  - platform: mqtt  
-    state_topic: "kitchen/sensornode1"  
-    name: "SN1 LDR"
-    ##This sensor is not calibrated to actual LUX. Rather, this a map of the input voltage ranging from 0 - 1023.
-    unit_of_measurement: "NUM"  
-    value_template: '{{ value_json.ldr }}'  
+#  - platform: mqtt  
+#    state_topic: "kitchen/sensornode1"  
+#    name: "SN1 LDR"
+#    ##This sensor is not calibrated to actual LUX. Rather, this a map of the input voltage ranging from 0 - 1023.
+#    unit_of_measurement: "NUM"  
+#    value_template: '{{ value_json.ldr }}'  
   
-  - platform: mqtt  
-    state_topic: "kitchen/sensornode1"  
-    name: "SN1 PIR"  
-    value_template: '{{ value_json.motion }}'  
+#  - platform: mqtt  
+#    state_topic: "kitchen/sensornode1"  
+#    name: "SN1 PIR"  
+#    value_template: '{{ value_json.motion }}'  
   
-  - platform: mqtt  
-    state_topic: "kitchen/sensornode1"  
-    name: "SN1 Temperature"  
-    unit_of_measurement: "°C"  
-    value_template: '{{ value_json.temperature | round(1) }}'  
+#  - platform: mqtt  
+#    state_topic: "kitchen/sensornode1"  
+#    name: "SN1 Temperature"  
+#    unit_of_measurement: "°C"  
+#    value_template: '{{ value_json.temperature | round(1) }}'  
 
-  - platform: mqtt
-    state_topic: "kitchen/sensornode1"
-    name: "SN1 Real Feel"
-    unit_of_measurement: "°C"
-    value_template: '{{ value_json.heatIndex | round(1) }}'
+#  - platform: mqtt
+#    state_topic: "kitchen/sensornode1"
+#    name: "SN1 Real Feel"
+#    unit_of_measurement: "°C"
+#    value_template: '{{ value_json.heatIndex | round(1) }}'
 
 #  - platform: mqtt
 #    state_topic: "kitchen/co2"
@@ -151,24 +215,17 @@
 #### Listen for MQTT topic: Automations.yaml will timestamp the PIR/motion sensors that go on
 #       why it does not work?
 ################################################################################
-  - platform: mqtt
-    name: "Last motion kitchen multisensor"       # sensor.last_motion_kitchen_multisensor
-    state_topic: 'kitchen/sensornode1/on_time'
-
   - platform: template
     sensors: 
       kitchen_last_motion_multisensor:
         friendly_name: "kitchen last motion multisensor"                                         # sensor.kitchen_last_motion_multisensor
         value_template: >-
-          {{ as_timestamp(states.sensor.sn1_pir.last_changed) | timestamp_custom("%Y-%m-%d %X") }}
-
+          {{ as_timestamp(states.binary_sensor.sn1_pir.last_changed) | timestamp_custom("%Y-%m-%d %X") }} 
+          
   - platform: mqtt
     name: "Last Motion bathroom Sensor"          # sensor.last_motion_bathroom_sensor
     state_topic: "bathroom/motion/on_time"
 
-#  - platform: mqtt
-#    name: "Last Motion Kitchen Sensor"
-#    state_topic: "kitchen/motion/on_time"
 
 # https://community.home-assistant.io/t/android-ip-webcam-as-a-camera-plus-sensors/10566/133
 # You can change the ‘scan_interval’ in the ip_webcam configuration in HA, it is default to 10 sec., 
@@ -176,6 +233,7 @@
 # so not really recommended to put it too low as it will affect performance.
 # What I did was install Tasker on the phone, and detect the motion through that, and then push to HA. This gave me about a 1-2 sec. delay on motion, better.
 
+# separate sensor on ESP32 with sensAir8
   - platform: mqtt
     name: "CO2 Sensor"          # sensor.co2_sensor
     state_topic: "kitchen/co2"

@@ -44,7 +44,7 @@ sensor:
 
 ################################################################################
 #### Template sensor to control vent fan in bathroom
-#### ON if humidity above 60%
+#### ON if humidity above 55%
   - platform: template
     sensors:
       wet_bathroom:

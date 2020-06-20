@@ -1,86 +1,47 @@
-# https://community.home-assistant.io/t/strava-sensors/5506
-
-#- platform: rest
-#  name: strava_ride_last_miles
-#  resource: https://www.strava.com/api/v3/athlete/activities
-#  method: GET
-#  headers:
-#    Authorization:9c31cf312d9610b4e818707c50af39fca27d02ba
-#  value_template: '{{ value_json[0].distance | multiply(0.000621371) | round(1) }}'
-#  unit_of_measurement: mi
-#  scan_interval: 300
+# Rate Limits 	600 requests every 15 minutes, 30000 daily
 
 
-# 		automation
-#- alias: Notify Last Team Ride
-#  trigger:
-#    - platform: state
-#      entity_id: sensor.strava_last_team_ride_profile
-#  condition:
-#    condition: template
-#    value_template: "{{ states('sensor.strava_last_team_ride_profile') != 'unknown' }}"
-#  action:
-#    - service: notify.ios_myiphone
-#      data_template:
-#        message: "{{ states('sensor.strava_last_team_ride_name') }} just uploaded a ride titled: {{ states('sensor.strava_last_team_ride_title') }} to Strava traveling {{ states('sensor.strava_last_team_ride_distance') }} miles at an average of {{ states('sensor.strava_last_team_ride_avg_speed') }}mph at {{ states('sensor.strava_last_team_ride_avg_watts') }} watts and an average HR of {{ states('sensor.strava_last_team_ride_avg_hr') }}bpm"
-#        data:
-#          subtitle: "via Strava"
-#          attachment:
-#            url: "{{ states('sensor.strava_last_team_ride_profile') }}"
-#            content-type: jpeg
-#            hide-thumbnail: false
+  - platform: command_line
+    name: Strava Access Token
+    command: "python3 /config/python_scripts/strava.py"
+    scan_interval: 3600
+    
+    
+# https://www.home-assistant.io/integrations/rest/
+# This configuration shows how to extract multiple values from a dictionary with json_attributes and template. 
+# It helps you to avoid flooding the REST service and only ask once the results and separate them in multiple templates referring to it. 
+#(No need for a specific state on the REST sensor and it’s default state will be the full JSON value which will be longer than the 255 max length. 
+# It’s why we’ll used a static value)    
+  - platform: rest
+    name: Strava Last Activity
+    json_attributes_path: '$.[0]'
+    json_attributes:
+      - distance
+      - total_elevation_gain
+      - average_speed
+      - average_heartrate
+      - moving_time
+    resource_template: https://www.strava.com/api/v3/athlete/activities?access_token={{ states('sensor.strava_access_token') }}
+    method: GET
+    value_template: '{{ value_json[0].name }}'
+    scan_interval: 3600   
 
-# http://strava.github.io/api/v3/oauth/
-# request example
-#$ curl -G https://www.strava.com/api/v3/athlete -H "Authorization: Bearer 9c31cf312d9610b4e818707c50af39fca27d02ba"
+  - platform: template
+    sensors:  
+      strava_last_distance:
+        friendly_name: 'Strava Last Distance'
+        value_template: "{{ ((state_attr('sensor.strava_last_activity', 'distance'))/1000) | round(2) }}"
+        unit_of_measurement: "km"
+        entity_id: sensor.strava_last_activity
+      strava_last_elevation:
+        friendly_name: 'Strava Last Elevation'
+        value_template: "{{ (state_attr('sensor.strava_last_activity', 'total_elevation_gain')) | round(1) }}"
+        unit_of_measurement: "m"
+        entity_id: sensor.strava_last_activity
 
 
 
-- platform: rest
-  name: strava_last_distance
-  resource:  https://www.strava.com/api/v3/activities
-  method: GET
-  headers:
-    Authorization: !secret strava_authorization  # keep it secret!
-  value_template: '{{ value_json[0].distance }}'
-  unit_of_measurement: м
-  scan_interval: 6000
 
-- platform: rest
-  name: strava_last_elevation
-  resource:  https://www.strava.com/api/v3/activities
-  method: GET
-  headers:
-    Authorization: !secret strava_authorization  # keep it secret!
-  value_template: '{{ value_json[0].total_elevation_gain }}'
-  unit_of_measurement: м
-  scan_interval: 6000
 
-- platform: rest
-  name: strava_last_name
-  resource:  https://www.strava.com/api/v3/activities
-  method: GET
-  headers:
-    Authorization: !secret strava_authorization   # keep it secret!
-  value_template: '{{ value_json[0].name }}'
-  scan_interval: 6000
 
-- platform: rest
-  name: strava_last_moving_time
-  resource:  https://www.strava.com/api/v3/activities
-  method: GET
-  headers:
-    Authorization: !secret strava_authorization   # keep it secret!
-  value_template: '{{ value_json[0].moving_time| multiply(0.016666666666) | round(1) }}'
-  unit_of_measurement: мин.
-  scan_interval: 6000
 
-- platform: rest
-  name: strava_last_date
-  resource:  https://www.strava.com/api/v3/activities
-  method: GET
-  headers:
-    Authorization: !secret strava_authorization   # keep it secret!
-  value_template: '{{ value_json[0].start_date_local }}'
-#  unit_of_measurement: мин.
-  scan_interval: 6000

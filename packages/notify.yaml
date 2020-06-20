@@ -76,7 +76,7 @@ script:
 #          title: "Home_Assistant"  # дает ошибку при отправке :
 #   [homeassistant.components.telegram_bot] New telegram message send_message: {'title': 'Home_Assistant', 'message': "Hurray! Today is Irina's Birthday!"}
 #   telegram.error.BadRequest: Can't parse entities in message text: can't find end of the entity starting at byte offset 4
-          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_irina, !secret telegram_bot_chat_id_pavel, !secret telegram_bot_chat_id_prohor,]
+          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_irina, !secret telegram_bot_chat_id_pavel, !secret telegram_bot_chat_id_prohor]
           message: >
             {{ value1 }} {{ value2 }}
 

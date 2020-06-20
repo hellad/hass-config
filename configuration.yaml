@@ -446,3 +446,10 @@ image_processing:
       - entity_id: camera.cam_1_image      # use local_file camera and webhook notification from motioneye
         name: cam_1_facebox  # this will be the name of my image_processing service in automations
         
+# My DO droplet integration
+digital_ocean:
+  access_token: !secret DigitalOcean_token    #### https://cloud.digitalocean.com/settings/api/tokens 
+  
+# for STRAVA sensors
+# make sure you have python_script: in your configuration.yaml and folder named python_scripts
+python_script:

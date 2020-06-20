@@ -141,8 +141,8 @@
 #          file: "/home/homeassistant/.homeassistant/www/camera.png"
           disable_notification: false
           verify_ssl: false
-          username: root
-          password: ismart12
+          username: !secret dafang_user
+          password: !secret dafang_password
 
   - alias: 'Telegram bot send kitchen photo'
     hide_entity: true
@@ -157,7 +157,7 @@
           target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
 #          {"url":"http://localhost:8123{{ states.camera.adcamera.attributes.entity_picture}}","target":"!secret telegram_bot_chat_id_beeline", "keyboard":["/ping, /speak", "/photo"]}
 #          {"url":"https://hellad.ddns.us:88{{ states.camera.adcamera.attributes.entity_picture}}","target":"!secret telegram_bot_chat_id_beeline", "keyboard":["/ping, /speak", "/photo"]}  #does not work with SSL
-          url: http://root:ismart12@192.168.192.44/cgi-bin/currentpic.cgi        #### https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/blob/master/integration/homeassistant/homeassistant.md
+          url: !secret HLS_dafang_still_url        #### https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/blob/master/integration/homeassistant/homeassistant.md
 #          file: "/home/homeassistant/.homeassistant/www/camera.png"
 
 #### https://www.home-assistant.io/components/telegram_bot/
@@ -390,6 +390,7 @@
 
 #### test new AM312 small PIR sensor
   - alias: Notify when there is movement in bathroom
+    initial_state: false
     trigger:
       platform: state
       entity_id: binary_sensor.bathroom_motion_sensor
