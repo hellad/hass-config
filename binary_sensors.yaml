@@ -3,7 +3,7 @@
 
 #binary_sensor:
   - platform: mqtt
-    name: "Bathroom motion sensor"                        #### 192.168.192.37
+    name: "Bathroom motion sensor"                        #### 192.168.192.47
     state_topic: 'stat/bathroom/POWER'                    #### "bathroom/motion" 
                                           #### 10:48:37 MQT: stat/bathroom/RESULT = {"POWER":"OFF"}
                                           #### 10:48:37 MQT: stat/bathroom/POWER = OFF
@@ -27,9 +27,22 @@
 #    payload_not_available: "offline"
     qos: 0
     device_class: motion
-#17:49:46 MQT: tele/kitchen/SENSOR = {"Time":"2020-06-12T17:49:46","Switch2":"ON","BME280":{"Temperature":26.3,"Humidity":52.1,"DewPoint":15.6,"Pressure":745.5},"PressureUnit":"mmHg","TempUnit":"C"}
-#17:50:12 MQT: stat/kitchen/RESULT = {"POWER":"OFF"}
+#Console messages example
+#11:19:43.140 MQT: tele/kitchen/STATE = {"Time":"2021-06-15T11:19:43","Uptime":"0T00:00:09","UptimeSec":9,"Heap":23,"SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"MqttCount":1,"Wifi":{"AP":1,"SSId":"adhome","BSSId":"B8:69:F4:E7:A7:9B","Channel":1,"RSSI":66,"Signal":-67,"LinkCount":1,"Downtime":"0T00:00:03"}}
+#11:19:43.165 MQT: tele/kitchen/SENSOR = {"Time":"2021-06-15T11:19:43","Switch2":"ON","BME280":{"Temperature":28.6,"Humidity":48.3,"DewPoint":16.6,"Pressure":744.7},"PressureUnit":"mmHg","TempUnit":"C"}
+#11:20:16.109 MQT: stat/kitchen/RESULT = {"POWER":"ON"}
+#11:20:16.112 MQT: stat/kitchen/POWER = ON
 
+  - platform: mqtt
+    name: "Entrance Light switched"                                      #### 192.168.192.70
+    state_topic: 'stat/corridor/POWER2'                    ####  Corridor2Switch
+    payload_on: "ON"     
+    payload_off: "OFF"   
+#    availability_topic: "home-assistant/window/availability"
+#    payload_available: "online"
+#    payload_not_available: "offline"
+    qos: 0
+#    device_class: motion
 
 
 #### Android IP camera motion sensor
@@ -41,9 +54,5 @@
 #    resource: http://192.168.192.28:8080/sensors.json?sense=motion_active
 #    value_template: '{{ value_json.motion_active.data[0][1][0] | round(0) }}'
 
-#### https://www.home-assistant.io/components/binary_sensor.digital_ocean/
-#### Digital Ocean droplets status
-  - platform: digital_ocean     #### binary_sensor.ahellad_1vcpu_1gb_nyc1_01
-    droplets:
-      - 'ahellad-1vcpu-1gb-nyc1-01'
+
 

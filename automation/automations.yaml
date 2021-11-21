@@ -6,10 +6,9 @@
 ################################################################################
   - alias: Check aeon.temp sensor value and show notification
     initial_state: True  # To set an automation to be disabled when Home Assistant starts set initial_state: to False.
-    hide_entity: False   # when a rule is finished and you don’t want to see that rule in your frontend, you can set hide_entity: to True.
     trigger:
       platform: numeric_state
-      entity_id: sensor.aeon_labs_zw100_multisensor_6_temperature    # topic home/temperature
+      entity_id: sensor.multisensor_6_air_temperature    # topic home/temperature
       above: 26
 #      below: 22
 
@@ -46,7 +45,6 @@
 ################################################################################
   - alias: Check bath.mqtt.humidity sensor value and show notification
     initial_state: True  # To set an automation to be disabled when Home Assistant starts set initial_state: to False.
-    hide_entity: False   # when a rule is finished and you don’t want to see that rule in your frontend, you can set hide_entity: to True.
     trigger:
       platform: numeric_state
       entity_id: sensor.bathroom_mqtt_humidity_sensor    # topic bathroom/humidity

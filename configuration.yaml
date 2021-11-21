@@ -1,5 +1,7 @@
 #### check file consistency
 homeassistant:
+  internal_url: !secret internal_url
+  external_url: !secret external_url
 
 # Name of the location where Home Assistant is running
   name: Home
@@ -15,24 +17,24 @@ homeassistant:
 
   customize: !include customization.yaml
 
-  packages: !include_dir_named packages
-#  auth_providers:
-#    - type: homeassistant
-#    - type: legacy_api_password
-#      api_password: !secret ha_api_password   # Deprecated since 0.90 release. Configuration moved to Legacy API password auth provider.
-                                          # https://www.home-assistant.io/docs/authentication/providers/#legacy-api-password
-                                          # Where your client or other software supports it, you should use long lasting access token instead, 
-                                          # as shown in the REST API and websocket API documentation.
-
-#### https://www.home-assistant.io/components/api/
-api:
-
 # whitelist_external_dirs (Optional): List of folders that can be used as sources for sending files.
 # https://www.home-assistant.io/docs/configuration/basic/
   # - /tmp - /home/pi/test
 #  whitelist_external_dirs:
 #    - /www
 #    - /config
+
+  packages: !include_dir_named packages
+#  auth_providers:
+#    - type: homeassistant
+#    - type: legacy_api_password
+#      api_password: !secret ha_api_password   # Deprecated since 0.90 release. Configuration moved to Legacy API password auth provider.
+# https://www.home-assistant.io/docs/authentication/providers/#legacy-api-password
+# Where your client or other software supports it, you should use long lasting access token instead, 
+# as shown in the REST API and websocket API documentation.
+
+#### https://www.home-assistant.io/components/api/
+api:
 
 #### Show links to resources in log and frontend
 #introduction:
@@ -58,7 +60,7 @@ mobile_app:
 #### Notice that I also changed the ssl_certificate to the cert.pem file instead of chain.pem.
 http:
   server_port: 8123
-  base_url: hellad.noip.me:88  #  hellad.noip.me:88 The URL that Home Assistant is available on the internet. Telegram webhooks Bot uses it.
+#  base_url: hellad.noip.me:88  #  hellad.noip.me:88 The URL that Home Assistant is available on the internet. Telegram webhooks Bot uses it.
   ssl_certificate: !secret ssl_certificate  # Let's encrypt certificate
   ssl_key: !secret ssl_key 
   ip_ban_enabled: true
@@ -70,10 +72,10 @@ http:
 # For more information, please see:
 # https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
 # https://www.home-assistant.io/components/updater/
-updater:
+#updater:
 # Optional, allows Home Assistant developers to focus on popular components.
 # include_used_components: true
-  reporting: False
+#  reporting: False
 
 #### Discover some devices automatically
 discovery:
@@ -195,7 +197,8 @@ stream:
 camera: !include cameras.yaml
 
 #### https://home-assistant.io/components/device_tracker/
-device_tracker: !include device_tracker.yaml
+# device_tracker: !include device_tracker.yaml
+# 03.10.2021 Your Nmap Tracker configuration has been imported into the UI, please remove it from configuration.yaml.
 
 #### https://www.home-assistant.io/components/person/
 #person:
@@ -232,6 +235,7 @@ telegram_bot:
     - !secret telegram_bot_chat_id_prohor
     - !secret telegram_bot_chat_id_irina
     - !secret telegram_bot_chat_id_pavel
+    - !secret telegram_bot_chat_id_family
 
     
 #### Telegram Notifier https://home-assistant.io/components/notify.telegram/
@@ -255,61 +259,12 @@ notify:
 #    api_key: !secret telegram_bot_webhooks_api_key
 #    chat_id: !secret telegram_bot_webhooks_chat_id_group 
 
-
-weblink:
-  entities:
-    - name: Transmission
-      url: http://192.168.192.25:9091/transmission/web/
-    - name: router
-      url: http://192.168.192.1/
-    - name: wifi_ap
-      url: http://192.168.192.2/
-    - name: sip phone
-      url: http://192.168.192.7
-    - name: nas
-      url: http://192.168.192.25
-    - name: portainer
-      url: http://192.168.192.25:9000
-    - name: MotionEye
-      url: http://192.168.192.25:8765
-    - name: facebox
-      url: http://192.168.192.25:8080
-    - name: dm8000
-      url: http://192.168.192.4
-    - name: printer
-      url: http://192.168.192.45
-    - name: mikrotik_switch
-      url: http://192.168.192.30
-    - name: webcam
-      url: http://192.168.192.44
-    - name: mirror light
-      url: http://192.168.192.49
-#    - name: kodi media player
-#      url: http://192.168.192.25:8080
-    - name: home photo
-      url: http://192.168.192.25/photo
-    - name: narodmon
-      url: http://narodmon.ru
-    - name: hassblog
-      url: https://home-assistant.io/blog/
-    - name: hassgit
-      url: https://github.com/home-assistant/home-assistant
-    - name: configurator
-      url: http://192.168.192.25:3218
-    - name: AlexaPi
-      url: https://alexa.amazon.com
-#      url: https://github.com/alexa-pi/AlexaPi/wiki
-    - name: SnowBoy
-      url: https://github.com/Kitt-AI/snowboy/
-    - name: DarkSkyWeather
-      url: https://darksky.net/forecast/55.7507,37.6177/si12/en
-
-transmission:
-  host: !secret transmisson_host 
-  port: 9091
-  name: Transmission
-  username: !secret transmission_admin
-  password: !secret transmission_password
+#transmission:
+#  host: !secret transmisson_host 
+#  port: 9091
+#  name: Transmission
+#  username: !secret transmission_admin
+#  password: !secret transmission_password
 #### removed in version 0.100 https://www.home-assistant.io/integrations/transmission/
   # monitored_conditions:
  #   - current_status
@@ -337,18 +292,19 @@ light:
 
 #### https://home-assistant.io/components/light.hyperion/
   - platform: hyperion
-    host: 192.168.192.31
+    host: 192.168.192.81
     name: Pi0_ambilight
 
-zwave:
-  usb_path: /dev/ttyACM0
+#### disable for a while to test open zwave beta integration
+#zwave:
+#  usb_path: /dev/ttyACM0
 #  usb_path: /dev/zwave
-  debug: false
-  autoheal: true
+#  debug: false
+#  autoheal: true
 #  config_path: /srv/homeassistant/lib/python3.5/site-packages/python_openzwave/ozw_config/config/
-  polling_interval: 60000    # that’s in milliseconds, so that’s each minute
-  network_key: !secret z-wave_network_key
-#  refresh_value: true        # Enable refreshing of the node value. Only the light component uses this.
+#  polling_interval: 60000    # that’s in milliseconds, so that’s each minute
+#  network_key: !secret z-wave_network_key
+#  refresh_value: true        # invalid option for [zwave]! Enable refreshing of the node value. Only the light component uses this.
 #  delay: 5                   # Specify the delay for refreshing of node value. Only the light component uses this.
 #  polling_intensity: 1       # Enables polling of a value and sets the frequency of polling (0=none, 1=every time through the list, 2=every other time, etc). If not specified then your device will not be polled.
 
@@ -385,23 +341,30 @@ panel_iframe:
 #### username the username that you registered for ewelink account be it an email or a phone number 
 #### (the phone number should lead with region number, '+8612345678901' for example).
 #### sonoff-bulb not working with 0.100+ https://github.com/peterbuga/HASS-sonoff-ewelink/issues/165
+#### https://github.com/AlexxIT/SonoffLAN
+#### bathroom and kitchen switches
 sonoff:
   username: !secret ewelink_name                      #[email or phone number]
   password: !secret ewelink_password                  #[password]
-  scan_interval: 60                                   #(optional, lower values than 60 won't work anymore!)
-  grace_period: 600                                   #(optional)
-  api_region: 'eu'                                    #(optional)
-  entity_prefix: True                                 #(optional)
-  debug: True                                        #(optional) this option createsa pseudo switch entity switch.sonoff_debug (notice it won't show up automatically in frontend 
+#  scan_interval: 60                                   #(optional, lower values than 60 won't work anymore!)
+#  grace_period: 600                                   #(optional)
+#  api_region: 'eu'                                    #(optional)
+#  entity_prefix: True                                 #(optional)
+#  debug: True                                        #(optional) this option createsa pseudo switch entity switch.sonoff_debug (notice it won't show up automatically in frontend 
 #in lovelace you have to manually add it or toggle it from Developer tools > Services section). 
 #when you finish toggle the pseudo-switch OFF and a new (very long) persistent notification will show up.
+#  mode: local     # Legacy mode. Only downloads a list of devices from Cloud Servers. Works with local protocol. Only works with devices on 3rd firmware.
+#  reload: always  # update device list every time HA starts
 
-#### https://www.home-assistant.io/components/tuya/
-tuya:
-  username: !secret tuya_username
-  password: !secret tuya_password
-  country_code: 7
-  platform: jinvoo_smart #The app where your account register. tuya for Tuya Smart, smart_life for Smart Life, jinvoo_smart for Jinvoo Smart. Default value: tuya
+#### https://www.home-assistant.io/components/tuya/ 
+#### YAML configuration is still around for people that prefer YAML, 
+#### but it’s deprecated and you should not use it anymore.
+#### This option will become invalid in version 0.110
+#tuya:
+#  username: !secret tuya_username
+#  password: !secret tuya_password
+#  country_code: 7
+#  platform: jinvoo_smart #The app where your account register. tuya for Tuya Smart, smart_life for Smart Life, jinvoo_smart for Jinvoo Smart. Default value: tuya
 
 #https://www.home-assistant.io/components/google_assistant/#configuration
 google_assistant: !include google_assistant.yaml
@@ -411,8 +374,8 @@ google_assistant: !include google_assistant.yaml
 yandex_smart_home: !include yandex_smart_home.yaml
 
 # https://www.home-assistant.io/components/plex/#media-player
-plex:
-    token: fR_tHg8x4F1Rxvg5fdkR
+#plex:
+#    token: fR_tHg8x4F1Rxvg5fdkR
 
 # Example configuration.yaml entry
 #mikrotik:
@@ -444,12 +407,132 @@ image_processing:
     source:
 #      - entity_id: camera.push_camera     # 4 tests with push camera
       - entity_id: camera.cam_1_image      # use local_file camera and webhook notification from motioneye
-        name: cam_1_facebox  # this will be the name of my image_processing service in automations
+        name: cam_1_facebox                # this will be the name of my image_processing service in automations
         
-# My DO droplet integration
-digital_ocean:
-  access_token: !secret DigitalOcean_token    #### https://cloud.digitalocean.com/settings/api/tokens 
-  
+ 
 # for STRAVA sensors
 # make sure you have python_script: in your configuration.yaml and folder named python_scripts
 python_script:
+
+#### https://github.com/AlexxIT/YandexStation
+#### 192.168.192.20:8080 - my station
+yandex_station:
+  username: !secret yandex_user
+  password: !secret yandex_password
+  tts_service_name: alice_say
+  recognition_lang: ru-RU   # https://github.com/AlexxIT/YandexStation#%D1%8F%D0%BD%D0%B4%D0%B5%D0%BA%D1%81-%D0%B0%D0%BB%D0%B8%D1%81%D0%B0-%D0%B2-lovelace
+  devices:
+    94007890870c640d0acf:  # device_id вашей колонки
+      host: 192.168.192.20
+      name: Я_Станция  # имя можно задать и тут
+  include:
+    - Кондиционер
+    - Плеер
+    - Телевизор
+  intents:
+    Покажи сообщение: как скажешь
+    Какая температура в спальне: .
+    Какая влажность в спальне: .
+    Какая температура на кухне: .
+    Какая влажность на кухне: .
+    Какая влажность в ванной: .
+    Какая температура в ванной: .
+
+# new config in version 0.111 for synology_dsm
+# https://www.home-assistant.io/integrations/synology_dsm/
+# 03.10.2021 The 'synology_dsm' option near /config/configuration.yaml:1 is deprecated, please remove it from your configuration
+#synology_dsm:
+#  - host: !secret transmisson_host
+#    username: !secret synology_admin
+#    password: !secret synology_admin_password
+#    ssl: false
+#    port: 5000
+
+# manual configuration in ui-lovelace.yaml file    
+lovelace:
+#  mode: yaml
+  resources:
+   - url: /hacsfiles/ha-yandex-icons/yandex-icons.js
+     type: module 
+   - url: /hacsfiles/lovelace-auto-entities/auto-entities.js
+     type: module
+   - url: /hacsfiles/vertical-stack-in-card/vertical-stack-in-card.js
+     type: js 
+   - url: /hacsfiles/canvas-gauge-card/canvas-gauge-card.js
+     type: module
+   - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
+     type: module
+   - url: /hacsfiles/simple-thermostat/simple-thermostat.js
+     type: module
+   - url: /hacsfiles/weather-card/weather-card.js
+     type: module
+   - url: /hacsfiles/lovelace-card-mod/card-mod.js
+     type: module
+   - url: /hacsfiles/stack-in-card/stack-in-card.js
+     type: module
+   - url: /hacsfiles/battery-state-card/battery-state-card.js
+     type: module
+   - url: /hacsfiles/air-visual-card/air-visual-card.js
+     type: module
+   - url: /hacsfiles/logbook-card/logbook-card.js
+     type: module
+   - url: /hacsfiles/entity-attributes-card/entity-attributes-card.js
+     type: module
+   - url: /hacsfiles/lovelace-multiple-entity-row/multiple-entity-row.js
+     type: module
+   - url: /hacsfiles/lovelace-tempometer-gauge-card/tempometer-gauge-card.js
+     type: module
+      
+# https://www.home-assistant.io/integrations/webostv/
+# The full list of known endpoints is available at 
+# https://github.com/bendavid/aiopylgtv/blob/master/aiopylgtv/endpoints.py
+# LG OLED 65CX TV integration
+webostv:
+  host: 192.168.192.21   # WiFi connection
+  name: Bedroom LG TV
+  turn_on_action:
+    #service: persistent_notification.create
+    #data:
+      #message: "Turn on action"
+    service: wake_on_lan.send_magic_packet
+    data: 
+      mac: 58-FD-B1-E1-4A-36
+      broadcast_address: 11.22.33.44
+  customize:
+    sources:
+      - YouTube
+      - Plex
+      - netflix
+      - Amazon Prime Video
+      - Домашний кинотеатр
+      - КиноПоиск HD
+      - Триколор Кино и ТВ
+      - Билайн ТВ
+      - Яндекс
+      - Веб-браузер
+
+#media_player:       # media_player.bedroom_lg_tv
+
+# https://www.home-assistant.io/integrations/zodiac/
+zodiac:
+
+# https://github.com/al-one/hass-xiaomi-miot
+xiaomi_miot:
+  username: !secret xiaomi_username
+  password: !secret xiaomi_password
+  server_country: cn # location of xiaomi cloud: cn(default), de, i2, ru, sg, us
+  language: zh # Using the built-in dictionary, currently only `zh` is supported
+  # https://github.com/al-one/hass-xiaomi-miot/blob/master/custom_components/xiaomi_miot/core/translation_languages.py
+  translations:
+    # Global dictionary
+    idle: '空闲'
+    busy: '工作中'
+    # Dictionary for specifying fan modes
+    fan.mode:
+      'straight wind': '直吹模式'
+      'natural wind': '自然风'
+    # Dictionary for specifying the drying modes of the washer
+    washer.drying_level:
+      moist: '微湿'
+      extra: '特干'
+

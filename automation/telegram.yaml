@@ -1,6 +1,5 @@
 
   - alias: 'Telegram bot reply to start'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -38,7 +37,6 @@
 
 #### пример использования на https://github.com/home-assistant/home-assistant/issues/7670
   - alias: 'Telegram bot reply pong to command ping'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -53,7 +51,6 @@
             
             
 #  - alias: 'Telegram bot inline reply pong to ping'
-#    hide_entity: true
 #    trigger:
 #      platform: event
 #      event_type: telegram_callback
@@ -84,8 +81,13 @@
           message: >
             Внимание, сообщаю прогноз погоды на сегодня: {{ states('sensor.dark_sky_summary_0d') }}
       - delay: 0:0:8
-      - service: tts.google_translate_say
+      - service: tts.google_translate_say # tts.alice_say
         entity_id: media_player.kitchen   # Say to the sonos speaker device entity
+                                          # media_player.yandex_station_94007890870c640d0acf
+                                          # media_player.bedroom
+                                          # media_player.home_theater
+                                          # media_player.home_theater_zone2
+                                          # 
         data_template:
           language: ru
           message: >
@@ -124,7 +126,6 @@
 
 #### https://www.home-assistant.io/components/telegram_bot/
   - alias: 'Telegram bot send photo'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -137,7 +138,7 @@
 #          {"url":"http://localhost:8123{{ states.camera.dafang3.attributes.entity_picture}}","target":"!secret telegram_bot_chat_id_beeline", "keyboard":["/ping, /speak", "/photo"]}
 #          {"url":"https://hellad.ddns.us:88{{ states.camera.adcamera.attributes.entity_picture}}","target":"!secret telegram_bot_chat_id_beeline", "keyboard":["/ping, /speak", "/photo"]}  #does not work with SSL
 #          file: "/tmp/camera.png"
-          url: https://192.168.192.44/cgi-bin/currentpic.cgi        #### https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/blob/master/integration/homeassistant/homeassistant.md
+          url: !secret HLS_dafang_still_url       #### https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/blob/master/integration/homeassistant/homeassistant.md
 #          file: "/home/homeassistant/.homeassistant/www/camera.png"
           disable_notification: false
           verify_ssl: false
@@ -145,7 +146,6 @@
           password: !secret dafang_password
 
   - alias: 'Telegram bot send kitchen photo'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -159,11 +159,13 @@
 #          {"url":"https://hellad.ddns.us:88{{ states.camera.adcamera.attributes.entity_picture}}","target":"!secret telegram_bot_chat_id_beeline", "keyboard":["/ping, /speak", "/photo"]}  #does not work with SSL
           url: !secret HLS_dafang_still_url        #### https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/blob/master/integration/homeassistant/homeassistant.md
 #          file: "/home/homeassistant/.homeassistant/www/camera.png"
+          verify_ssl: false
+          username: !secret dafang_user
+          password: !secret dafang_password
 
 #### https://www.home-assistant.io/components/telegram_bot/
 ##   send map with Irina location
   - alias: 'Telegram bot send Irina location'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -180,7 +182,6 @@
 #### https://www.home-assistant.io/components/telegram_bot/
 ##   send map with HTC location
   - alias: 'Telegram bot send Irina location'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -197,7 +198,6 @@
 #### https://www.home-assistant.io/components/telegram_bot/
 ##   send map with iphone location
   - alias: 'Telegram bot send Iphone location'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -214,7 +214,6 @@
 #### https://www.home-assistant.io/components/telegram_bot/
 ##   send map with Prokhor location
   - alias: 'Telegram bot send Prokhor location'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -234,7 +233,6 @@
 #status details for the system# 
 ###############################
   - alias: 'Telegram reply with Status' 
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -252,11 +250,10 @@
             and Prokhor is at {{ states.device_tracker.prohor.state|replace("_"," ") }}.
             Температура и влажность дома: {{ states('sensor.aeon_labs_zw100_multisensor_6_temperature') }}C {{ states('sensor.aeon_labs_zw100_multisensor_6_relative_humidity') }}%. 
             Состояние кондиционера: Power {{ states.switch.fujitsu.state }}, current mode {{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_number.bedroom_aircon_temperature.state|int }} .
-            Свет в корридоре: Power {{ states.sensor.aeotec_zw111_nano_dimmer_power.state }}, Volt {{ states.sensor.aeotec_zw111_nano_dimmer_voltage.state }}, Luminance {{ states.sensor.aeotec_zw100_multisensor_6_luminance.state  }}, Energy  {{ states.sensor.aeotec_zw111_nano_dimmer_energy.state }}
+            Свет в корридоре: Power {{ states.sensor.aeon_labs_zw111_nano_dimmer_power.state }}, Volt {{ states.sensor.aeon_labs_zw111_nano_dimmer_voltage.state }}, Luminance {{ states.sensor.aeon_labs_zw100_multisensor_6_luminance.state  }}, Energy  {{ states.sensor.aeon_labs_zw111_nano_dimmer_energy.state }}
 
             
   - alias: 'Telegram bot restart HASS'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -271,7 +268,6 @@
             Home assistant restarted via telegram command.
 
   - alias: 'Telegram bot turn off RasPi'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -287,7 +283,6 @@
 
 
   - alias: 'Telegram bot reboot RasPi'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -308,7 +303,6 @@
 #################################################################################
 
   - alias: 'Telegram bot turn-off AirConditioner'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command
@@ -336,7 +330,6 @@
             Air conditioner turned off via telegram command.
 
   - alias: 'Telegram bot turn-on AirConditioner'
-    hide_entity: true
     trigger:
       platform: event
       event_type: telegram_command

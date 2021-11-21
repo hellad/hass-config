@@ -1,8 +1,8 @@
 # media_player: section to be included in configuration
-- platform: lg_netcast
-  host: 192.168.192.15
-  name: LG TV50 remote
-  access_token: 318905
+#- platform: lg_netcast
+#  host: 192.168.192.15
+#  name: LG TV50 remote
+#  access_token: 318905
 
 - platform: dunehd
   host: 192.168.192.3

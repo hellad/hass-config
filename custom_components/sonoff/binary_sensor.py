@@ -1,75 +1,156 @@
-import logging, time, hmac, hashlib, random, base64, json, socket
+import json
 
-from datetime import timedelta
-from homeassistant.util import Throttle
-from homeassistant.components.sensor import DOMAIN
-# from homeassistant.components.sonoff import (DOMAIN as SONOFF_DOMAIN, SonoffDevice)
-from custom_components.sonoff import (DOMAIN as SONOFF_DOMAIN, SonoffDevice)
-from homeassistant.components.binary_sensor import (DOMAIN, BinarySensorDevice, DEVICE_CLASS_MOVING)
-from homeassistant.const import STATE_ON, STATE_OFF
+from homeassistant.components.binary_sensor import DEVICE_CLASS_DOOR, \
+    DEVICE_CLASS_MOTION
+from homeassistant.const import CONF_DEVICE_CLASS, CONF_TIMEOUT, \
+    CONF_PAYLOAD_OFF
+from homeassistant.core import Event
+from homeassistant.helpers.event import async_call_later
 
-# SCAN_INTERVAL = timedelta(seconds=15)
+from . import DOMAIN
+from .sonoff_main import EWeLinkEntity
+from .utils import BinarySensorEntity
 
-_LOGGER = logging.getLogger(__name__)
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Add the Sonoff Sensor entities"""
+async def async_setup_platform(hass, config, add_entities,
+                               discovery_info=None):
+    if discovery_info is None:
+        return
 
-    entities = []
-    for device in hass.data[SONOFF_DOMAIN].get_devices(force_update = False):
+    # sonoff rf bridge sensor
+    if 'deviceid' not in discovery_info:
+        add_entities([RFBridgeSensor(discovery_info)])
+        return
 
-        if 'params' not in device.keys(): continue # this should never happen... but just in case
+    deviceid = discovery_info['deviceid']
+    registry = hass.data[DOMAIN]
 
-        if hass.data[SONOFF_DOMAIN].uiid_to_name[device['uiid']] == 'RF_BRIDGE':
-            for rf in device['params']['rfList']:
-                for rf_device in device['tags']['zyx_info']: # remote buttons, alarm
-                    for btn in rf_device['buttonName']:
-                        if list(btn.keys())[0] == str(rf['rfChl']):
-                            rf['name']  = list(btn.values())[0] if rf_device['remote_type'] == "4" else rf_device['name']
-                            rf['type']  = rf_device['remote_type']
-                            break # don't remove
+    uiid = registry.devices[deviceid].get('uiid')
+    if uiid == 102:
+        add_entities([WiFiDoorWindowSensor(registry, deviceid)])
+    elif uiid == 2026:
+        add_entities([ZigBeeMotionSensor(registry, deviceid)])
+    elif uiid == 3026:
+        add_entities([ZigBeeDoorWindowSensor(registry, deviceid)])
+    else:
+        add_entities([EWeLinkBinarySensor(registry, deviceid)])
 
-                hass.data[SONOFF_DOMAIN].rf2trig.update({ rf['rfVal'] : 'rfTrig'+str(rf['rfChl']) })
-                hass.data[SONOFF_DOMAIN].rf2trig.update({ 'rfTrig'+str(rf['rfChl']): rf['rfVal'] })
-                entity = SonoffSensorRF(hass, device, rf)
-                entities.append(entity)
 
-    if len(entities):
-        async_add_entities(entities, update_before_add=False)
-
-class SonoffSensorRF(SonoffDevice, BinarySensorDevice):
-    """Representation of a Sonoff RF binary sensor."""
-
-    def __init__(self, hass, device, rf = None):
-        """Initialize the device."""
-        SonoffDevice.__init__(self, hass, device)
-        self._rf            = rf
-        self._name          = self._rf['name']
-        self._state         = None
-        self._attributes    = {
-            'rfid'  : self._rf['rfVal'],
-            'type'  : 'remote_button' if self._rf['type'] == "4" else "alarm"
-        }
+class EWeLinkBinarySensor(EWeLinkEntity, BinarySensorEntity):
+    def _update_handler(self, state: dict, attrs: dict):
+        state = {k: json.dumps(v) for k, v in state.items()}
+        self._attrs.update(state)
+        self.schedule_update_ha_state()
 
     @property
     def is_on(self):
-        """Return true if the binary sensor is on."""
-        # it's almost always False, it'll reset back the trigger
-        return False
+        return self._is_on
 
-    @property
-    def state(self):
-        """Return the state of the binary sensor."""
-        return STATE_ON if self.is_on else STATE_OFF
+
+class WiFiDoorWindowSensor(EWeLinkBinarySensor):
+    _device_class = None
+
+    async def async_added_to_hass(self) -> None:
+        device: dict = self.registry.devices[self.deviceid]
+        self._device_class = device.get('device_class', DEVICE_CLASS_DOOR)
+
+        self._init()
+
+    def _update_handler(self, state: dict, attrs: dict):
+        self._attrs.update(attrs)
+
+        if 'switch' in state:
+            self._is_on = state['switch'] == 'on'
+
+        self.schedule_update_ha_state()
 
     @property
     def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        return DEVICE_CLASS_MOVING
+        return self._device_class
 
-    # entity id is required if the name use other characters not in ascii
+
+class ZigBeeDoorWindowSensor(WiFiDoorWindowSensor):
+    def _update_handler(self, state: dict, attrs: dict):
+        self._attrs.update(attrs)
+
+        if 'lock' in state:
+            # 1 - open, 0 - close
+            self._is_on = (state['lock'] == 1)
+
+        self.schedule_update_ha_state()
+
+
+class ZigBeeMotionSensor(EWeLinkBinarySensor):
+    def _update_handler(self, state: dict, attrs: dict):
+        self._attrs.update(attrs)
+
+        if 'motion' in state:
+            self._is_on = (state['motion'] == 1)
+        else:
+            # this intend to prevents that motion detection stay locked if
+            # zigbee turn unavailable (occurs with some frequency)
+            self._is_on = False
+
+        self.schedule_update_ha_state()
+
     @property
-    def entity_id(self):
-        """Return the unique id of the switch."""
-        entity_id = "{}.{}_{}".format(DOMAIN, SONOFF_DOMAIN, self._rf['rfVal'].lower())
-        return entity_id
+    def device_class(self):
+        return DEVICE_CLASS_MOTION
+
+
+class RFBridgeSensor(BinarySensorEntity):
+    _is_on = False
+    _unsub_turn_off = None
+
+    def __init__(self, config: dict):
+        self.payload_off = config.get(CONF_PAYLOAD_OFF)
+        self.timeout = config.get(CONF_TIMEOUT)
+        self.trigger = config.get('trigger')
+
+        self._device_class = config.get(CONF_DEVICE_CLASS)
+        self._name = config.get('name') or self.trigger
+
+    async def async_added_to_hass(self) -> None:
+        self.hass.bus.async_listen('sonoff.remote', self._update_handler)
+
+    async def _update_handler(self, event: Event):
+        if self.payload_off and event.data['name'] == self.payload_off:
+            if self._unsub_turn_off:
+                self._unsub_turn_off()
+
+            if self._is_on:
+                self._is_on = False
+                self.schedule_update_ha_state()
+
+        elif event.data['name'] == self.trigger:
+            if self._unsub_turn_off:
+                self._unsub_turn_off()
+
+            if self.timeout:
+                self._unsub_turn_off = async_call_later(
+                    self.hass, self.timeout, self._turn_off)
+
+            if not self._is_on:
+                self._is_on = True
+                self.schedule_update_ha_state()
+
+    async def _turn_off(self, now):
+        self._unsub_turn_off = None
+        self._is_on = False
+        self.async_write_ha_state()
+
+    @property
+    def should_poll(self):
+        return False
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def is_on(self):
+        return self._is_on
+
+    @property
+    def device_class(self):
+        return self._device_class

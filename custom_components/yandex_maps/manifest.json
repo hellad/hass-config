@@ -4,6 +4,7 @@
   "documentation": "https://github.com/custom-components/sensor.yandex_maps",
   "dependencies": [],
   "codeowners": [],
+  "version": "v1.1.6",
   "requirements": []
 }
 

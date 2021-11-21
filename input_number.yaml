@@ -1,14 +1,14 @@
 #Slider to set alarm time
 alarmhour:
   name: Часы
-  icon: mdi:timer
+  icon: mdi:timer-outline
   initial: 08 # значение по умолчанию
   min: 00  #Минимальное значение
   max: 23 #Максимальное значение
   step: 01 #Шаг изменения
 alarmminutes:
   name: Минуты
-  icon: mdi:timer
+  icon: mdi:timer-outline
   initial: 40
   min: 00
   max: 59
@@ -41,7 +41,7 @@ volume_radio:
 corridor_brightness:
   name: Яркость в коридоре
   icon: mdi:brightness-auto
-  initial: 75 # значение по умолчанию
+  initial: 99 # значение по умолчанию
   min: 15  #Минимальное значение
   max: 99 #Максимальное значение
   step: 02 #Шаг изменения

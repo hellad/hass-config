@@ -2,26 +2,26 @@
 # watch tutorial https://www.youtube.com/watch?v=EsBtyF5tZQ4
 #### VIEWS
   default_view:
-    view: yes
+#    view: yes
     icon: mdi:home
     entities:
       - group.family_bithday
       - group.alarmclock
       - group.airconditioner
-      - group.sensor_node_1_card
+      - group.kitchen_sensors_card
       - group.zwave_nanodimmer_card      #### see it in zwave_package.yaml
       - group.zwave_multisensor_card      #### see it in zwave_package.yaml
-      - group.sonoff_bathroom_switch_card       #### bathroom switch.see in my_sonoff_devices.yaml package file/. switch.sonoff_10008b5013_1/2/3/4
-      - group.sonoff_bathroom_mirror_card      #### bathroom mirror.see in my_sonoff_devices.yaml package file
+      - group.sonoff_bathroom_switch_card       #### bathroom switch. see in my_sonoff_devices.yaml package file/. switch.sonoff_10008b5013_1/2/3/4
+      - group.sonoff_bathroom_mirror_card      #### bathroom mirror. see in my_sonoff_devices.yaml package file
       - group.sonoff_kitchen_card 
-      - group.balcon                     #### balcon light 3 gang tuya esp-12f switch. switch.002004115ccf7ff7beca_1/2/3
+      - group.balcon                     #### balcon light 2 gang tuya esp-12f switch. 
       - switch.sonoff_debug
       - light.wled                      #### led strip via esp8266 nodemcu
 
 
   Cameras_view:
     name: Камеры микс
-    view: true
+#    view: true
     icon: mdi:camcorder
     entities:
       - group.Cameras
@@ -34,7 +34,7 @@
 
   Temperature_sensors_view:
     name: Датчики температуры
-    view: true
+#    view: true
     icon: mdi:oil-temperature
     entities:
       - group.Temperature_sensors
@@ -42,14 +42,13 @@
       - sensor.yr_symbol
       - sensor.USD_RUB_rate
 #      - sensor.badlogin      
-#      - group.Weather_underground
-#      - group.Open_Weather
+
 
 
   Home_devices_view:
     name: Домашние устройства
     icon: mdi:robot
-    view: yes
+#    view: yes
     entities:
       - group.Home_devices
       - group.weblink_sources
@@ -58,7 +57,7 @@
 
   media_player_view:
     name: Media
-    view: yes
+#    view: yes
     icon: mdi:play-circle-outline
     entities:
 #      - group.remote
@@ -68,7 +67,7 @@
 
   Strava_view:
     name: Последняя велопоездка
-    view: yes
+#    view: yes
     icon: mdi:bike
     entities:
       - group.strava
@@ -78,9 +77,10 @@
   Balcon:
     name: Свет на балконе
     entities:
-      - switch.002004115ccf7ff7beca_1
-      - switch.002004115ccf7ff7beca_2
-      - switch.002004115ccf7ff7beca_3      
+      - switch.mqtt_6e000d_rl_1
+      - switch.mqtt_6e000d_rl_2
+#      - switch.balconytasmota # right switch
+      
   Cameras:
     name: Камеры
     entities:
@@ -138,42 +138,6 @@
    - input_number.volume_radio
    - script.inetradio
 
-#### Not used anymore      
-#  Weather_underground:
-#    name: Погода подробная
-#    entities:
-#      - sensor.pws_weather_1d_metric
-#      - sensor.pws_temp_high_record_c
-#      - sensor.pws_temp_high_1d_c
-#      - sensor.pws_feelslike_c
-#      - sensor.pws_temp_c
-#      - sensor.pws_temp_low_1d_c
-#      - sensor.pws_temp_low_record_c
-#      - sensor.pws_pressure_mb
-#      - sensor.pws_pressure_trend
-#      - sensor.pws_precip_1d
-#      - sensor.pws_precip_1d_mm
-#      - sensor.pws_wind_kph
-#      - sensor.pws_wind_1d_kph
-#      - sensor.pws_wind_string
-#      - sensor.pws_visibility_km
-#      - sensor.pws_solarradiation
-#      - sensor.pws_UV
-#      - sensor.pws_alerts
-
-#### Not used anymore
-#  Open_Weather:
-#    name: Погода текущая
-#    entities:
-#      - sensor.owm_cloud_coverage
-#      - sensor.owm_condition
-#      - sensor.owm_humidity
-#      - sensor.owm_rain
-#      - sensor.owm_snow
-#      - sensor.owm_temperature
-#      - sensor.owm_wind_speed
-#      - weather.openweathermap
-  
   DarkSky:
     name: Погода 
     entities:
@@ -220,8 +184,6 @@
 #      - automation.check_bathmqtthumidity_sensor_value_and_show_notification
       - sensor.aeon_labs_zw100_multisensor_6_temperature
       - sensor.aeon_labs_zw100_multisensor_6_relative_humidity
-#      - sensor.sn1_temperature
-#      - sensor.sn1_humidity
 #      - sensor.raspvideotemp
 #      - sensor.cpu_temp
 
@@ -229,44 +191,34 @@
   Home_devices:
     name: Устройства
     entities:
-      - group.all_automations
       - sensor.hass_uptime
       - sensor.time
       - sensor.date
       - sensor.ssl_certificate_expiry
-#      - group.all_devices
+      - group.family_members
       - sensor.cpu_use
       - sensor.disk_use_percent
       - sensor.swap_use_percent
       - sensor.memory_free
       - sensor.memory_use
+      - sensor.db_size
       - sensor.network_in_eth0
       - sensor.network_out_eth0
-      - sensor.andreys_iphone_battery_dynamic
-      - sensor.irinas_g7_battery_dynamic
-      - sensor.andreys_htc_battery_dynamic
-      - sensor.prohors_mi4_battery_dynamic
       - device_tracker.ad_iphone
-      - device_tracker.adhtc
-      - device_tracker.ipad
+      - device_tracker.andrey
       - device_tracker.irina
-      - device_tracker.irina_g7
-      - device_tracker.lenovo_pad
       - device_tracker.pavel
-#      - device_tracker.iphone4
-      - device_tracker.mi4prime_xiaomi_2
-#      - device_tracker.prohor
-      - device_tracker.nas
+      - device_tracker.prohor
       - device_tracker.router
-      - device_tracker.scorpiopc
+      - device_tracker.ScopioPC1
       - device_tracker.sonos_one
-      - device_tracker.xiaomi_camera
-      - device_tracker.balcon_light
-      - device_tracker.esp826629
-      - device_tracker.nodemcu2018
-      - device_tracker.raspberrypi0
-      - device_tracker.scorpiopc
-      - device_tracker.lg_tv50
+      - device_tracker.PowerNode2i
+      - device_tracker.Ya_Station
+      - device_tracker.ya_module
+      - device_tracker.Dune_101W
+      - device_tracker.Gigaset_phone
+      - device_tracker.LG_TV65_WiFi
+      - device_tracker.Denon_AVC_X3700H
 
 #temp. disable nas check
       - sensor.transmission_down_speed
@@ -274,7 +226,7 @@
       - sensor.transmission_status  
       - sensor.external_ip
       - script.restart_mqtt
-      - script.restart_hyperion
+#      - script.restart_hyperion
 #      - switch.digital_ocean
 
   alarmclock:
@@ -298,17 +250,16 @@
   media_player:
     name: Устройства воспроизведения
     entities:
-#      - sensor.alexapi
-#      - script.restart_alexapi
-      - sensor.hyperion
-      - script.restart_hyperion
       - input_boolean.onkyo_amp
       - input_number.ampvol
       - media_player.kitchen
-#      - media_player.adkodi
-      - media_player.dune_hd_3d_player
-      - media_player.lg_tv50_remote
-      - media_player.vlcmp
+      - media_player.bedroom
+      - media_player.dune_hd_3
+      - media_player.home_theater
+      - media_player.home_theater_zone2
+      - media_player.yandex_station_94007890870c640d0acf
+      - media_player.yandex_station_210d8400a818973072efca94ef519c6a
+      - media_player.bedroom_lg_tv
 
   family_bithday:
     entities:
@@ -320,13 +271,13 @@
     name: Члены семьи 
     entities:
       - device_tracker.ad_iphone
-      - device_tracker.adhtc
+      - device_tracker.andrey
       - device_tracker.irina
-      - device_tracker.irina_g7
+#      - device_tracker.irina_g7
       - device_tracker.pavel
 #      - device_tracker.iphone4
-      - device_tracker.mi4prime_xiaomi_2
-#      - device_tracker.prohor
+#      - device_tracker.mi4prime_xiaomi_2
+      - device_tracker.prohor
 
 
 
@@ -356,19 +307,24 @@
       - sensor.strava_last_date
       - sensor.strava_last_name
       - sensor.strava_last_moving_time
+      - sensor.strava_last_total_time
       - sensor.strava_last_distance
       - sensor.strava_last_elevation
+      - sensor.strava_last_average_speed
+      - sensor.strava_last_max_speed
+      - sensor.strava_last_average_heartrate
+      - sensor.strava_last_max_heartrate
+      - sensor.strava_last_kudos
+      - sensor.strava_last_visibility
 
-#### from BRUH multisensor example https://github.com/bruhautomation/ESP-MQTT-JSON-Multisensor
-  sensor_node_1_card:  
-    name: Sensor Node 1  
+
+  kitchen_sensors_card:  
+    name: Kitchen Sensors  
     entities:  
-      - sensor.sn1_temperature  
-      - sensor.sn1_humidity  
-      - sensor.sn1_ldr  
+      - sensor.Kitchen_temperature  
+      - sensor.Kitchen_humidity    
       - sensor.sn1_pir  
       - light.sn1_led
-      - sensor.last_motion_kitchen_multisensor    # does not work!
       - sensor.kitchen_last_motion_multisensor
 
 

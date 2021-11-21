@@ -76,9 +76,11 @@ script:
 #          title: "Home_Assistant"  # дает ошибку при отправке :
 #   [homeassistant.components.telegram_bot] New telegram message send_message: {'title': 'Home_Assistant', 'message': "Hurray! Today is Irina's Birthday!"}
 #   telegram.error.BadRequest: Can't parse entities in message text: can't find end of the entity starting at byte offset 4
-          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_irina, !secret telegram_bot_chat_id_pavel, !secret telegram_bot_chat_id_prohor]
+
+          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon, !secret telegram_bot_chat_id_pavel, !secret telegram_bot_chat_id_irina, !secret telegram_bot_chat_id_prohor]
+#          target: [!secret telegram_bot_chat_id_family]
           message: >
-            {{ value1 }} {{ value2 }}
+            {{ value1 }}  {{ value2 }}
 
 ###############################################################################
 # Voice Notify
@@ -95,14 +97,7 @@ script:
           {% else %}
             false
           {% endif %}
-# currently KODI is not used in my system
-#      - condition: template
-#        value_template: >
-#          {% if states.media_player.adkodi.state != 'playing' %}
-#            true
-#          {% else %}
-#            false
-#          {% endif %}
+
       - condition: template
         value_template: >
           {% if value1 | trim == "" %}
@@ -125,10 +120,10 @@ script:
             true
           {% endif %}
       - service: tts.google_translate_say
-        entity_id: media_player.kitchen   #### media_player.vlcmp
+        entity_id: media_player.kitchen   #### SonosOne
         data_template:
           message: >
-            {{ value2 }} {{ value1 }}
+            {{ value1 }} {{ value2 }}
 #            Двадцать два. Фиксированная фраза голосового поздравления с днём рождения voice notify. #}
 
 

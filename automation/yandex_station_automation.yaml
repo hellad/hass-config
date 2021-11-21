@@ -1,0 +1,32 @@
+- trigger:
+    platform: event
+    event_type: yandex_intent
+    event_data:
+      text: Покажи сообщение
+  action:
+    service: persistent_notification.create
+    data:
+      title: Сообщение со станции
+      message: Шеф, станция чего-то хочет
+
+- trigger:
+    platform: event
+    event_type: yandex_station_response
+  action:
+    service: telegram_bot.send_message
+    data_template:
+      target: "{{ trigger.event.data.request_id }}"
+      message: "{{ trigger.event.data.text }}"
+
+- trigger:
+    platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/Станция'
+  action:
+    service: media_player.play_media
+    entity_id: media_player.yandex_station_94007890870c640d0acf   # my yandex station
+    data_template:
+      media_content_id: "{{ trigger.event.data['args']|join(' ') }}"
+      media_content_type: "question:{{ trigger.event.data.chat_id }}"
+

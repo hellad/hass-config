@@ -1,4 +1,4 @@
-#### this file is not used ! see single shell_commans.yaml config file
+#### this file is not used ! see single shell_commands.yaml config file
   end: 'sudo halt'
   hass_restart: 'sudo systemctl restart home-assistant'
   reboot: 'sudo reboot'

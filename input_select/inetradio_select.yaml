@@ -4,29 +4,49 @@
     icon: mdi:radio
     options:
       - SomaFM Groove salad
-      - Relax FM
       - Q-Music
-      - 3FM
-      - 100% NL
-      - Veronica
-      - Sky Radio
-      - Arrow Classic Rock
-      - Classic FM
-      - BNR Nieuwsradio
+      - 101.ru - Modern Rock
+      - 101.4 FM - Pадио Эльдо Sant-Petersburg
+      - Легенды FM
+      - Classic Rock Florida
+      - Мелодии Века
+      - Chill Out Zone
       - SLAM! Hardstyle
       - Sleep Radio
-      - Ambient Sleeping Pill
+      - SLAM! Hardstyle
+      - Sleep Radio
+      - Radio @plus - Relax
       - Radio Art - Sleep
       - Ambi Nature Radio
       - Calm Radio - Sleep
       - Dinamo.FM Sleep
+      - Relax.FM
+      - Bigtunesradio - trance
+      - Biker-FM
+      - Bim radio
+      - Chainikoff.FM
+      - Channel 5 HQ
+      - CjRadio.Ru
+      - Cybernetic FM
+      - DANCE - ALIUSART fm
+      - Dance Wave Retro!
+      - Deep Melon radio
+      - DFM-Спокойной ночи, голыши!
+      - Dixi FM
 
   inet_radio:
     name: 'Выбор устройства воспроизведения:'
     options:
       - dune_hd_3d # hall
       - dune_101w  # kitchen
-      - adkodi     # raspberry
+      - dune_hd    # Dune 4K Pro II in bedroom
+#      - adkodi     # raspberry
       - kitchen    # sonos
+      - yandex_station # yandex station yandex_station_94007890870c640d0acf
+      - yandex_module # yandex module in kitchen yandex_station_210d8400a818973072efca94ef519c6a
+      - bedroom    # BlueSound PowerNode 2i player
+      - home_theater # Denon AVC-3700H
+      - home_theater_zone2 # Zone 2 on Denon
+      - bedroom_lg_tv # LG OLED65CX TV
     initial: kitchen
     icon: mdi:speaker-wireless

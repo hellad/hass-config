@@ -19,7 +19,7 @@ binary_sensor:
       zwave_motion_sensor:
         friendly_name: "zwave motion sensor"
         value_template: >-
-          {%- if is_state('sensor.aeon_labs_zw100_multisensor_6_burglar', '8') -%}
+          {%- if is_state('binary_sensor.multisensor_6_home_security_motion_detection', 'on') -%}
           true
           {%- else -%}
           false
@@ -27,7 +27,7 @@ binary_sensor:
 
   - platform: template
     sensors: 
-      zwave_corridor_light_no_current:
+      zwave_corridor_light_no_current:                      # there is delay about 15 sec after switchin off light and update of sensor.aeon_labs_zw111_nano_dimmer_current value
         friendly_name: "zwave corridor light no current"
         value_template: >-
           {%- if is_state('sensor.aeon_labs_zw111_nano_dimmer_current', '0.0') -%}
@@ -42,7 +42,7 @@ sensor:
       zwave_last_motion_multisensor:
         friendly_name: "zwave last motion multisensor"                                         # sensor.zwave_last_motion_multisensor
         value_template: >-
-          {{ as_timestamp(states.binary_sensor.zwave_motion_sensor.last_changed) | timestamp_custom("%Y-%m-%d %X") }}
+          {{ as_timestamp(states.binary_sensor.multisensor_6_home_security_motion_detection.last_changed) | timestamp_custom("%Y-%m-%d %X") }}
 
 ################################################################################
 #
@@ -66,20 +66,17 @@ group:
   zwave_multisensor_card:  
     name: Aeon MultiSensor 6 
     entities:  
-      - sensor.aeon_labs_zw100_multisensor_6_temperature
-      - sensor.aeon_labs_zw100_multisensor_6_relative_humidity
-      - sensor.aeon_labs_zw100_multisensor_6_burglar
-      - sensor.aeon_labs_zw100_multisensor_6_luminance
-      - sensor.aeon_labs_zw100_multisensor_6_sourcenodeid
-      - sensor.aeon_labs_zw100_multisensor_6_ultraviolet
-      - sensor.aeon_labs_zw100_multisensor_6_alarm_level
-      - sensor.aeon_labs_zw100_multisensor_6_alarm_type
-      - binary_sensor.aeon_labs_zw100_multisensor_6_sensor   #### what? activate?
-      - binary_sensor.zwave_motion_sensor                 #### my binary sensor based on burglar value of 8 
+      - sensor.multisensor_6_air_temperature
+      - sensor.multisensor_6_humidity
+      - binary_sensor.multisensor_6_home_security_motion_detection
+      - sensor.multisensor_6_illuminance
+      - sensor.multisensor_6_ultraviolet
+      - binary_sensor.multisensor_6_home_security_tampering_product_cover_removed
+      - binary_sensor.multisensor_6_low_battery_level
+#      - binary_sensor.aeon_labs_zw100_multisensor_6_sensor   #### what? activate?
+      - binary_sensor.zwave_motion_sensor                 #### my binary sensor based on home_security_motion_detection value of on 
 #      - sensor.last_motion_zwave_multisensor              #### my mqtt sensor of last motion time
       - sensor.zwave_last_motion_multisensor              #### my template sensor of last motion time in corridor
-####  try to display all attributes
-      - zwave.aeon_labs_zw100_multisensor_6                  #### general status with drill down
 
   zwave_nanodimmer_card:      
     name: Aeon Nano Dimmer 
@@ -205,7 +202,7 @@ automation:
 #            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Z-wave motion sensor is OFF
 
 ###############################################################################################
-########        turn off corridor dimmer  when no motion  #####################################
+########        turn off corridor dimmer  when 30 minutes no motion  #####################################
 ###############################################################################################
   - alias: zwave corridor light off
     initial_state: on
@@ -214,17 +211,17 @@ automation:
       entity_id: light.aeon_labs_zw111_nano_dimmer_level    #### binary_sensor.sensor
       to: 'on'
       for:
-        minutes: 10             # 
-# trigger will not cause the actions to run until light.aeon_labs_zw111_nano_dimmer_level changes to on and stays that way for 10 minutes. 
-# If it changes to on for 1 second then changes to off and stays off, the actions will not run after 10 minutes. 
-# If it changes to on, then changes back to off before 10 minutes, then changes back to on again, the 10 minutes starts over.
+        minutes: 30             # 
+# trigger will not cause the actions to run until light.aeon_labs_zw111_nano_dimmer_level changes to on and stays that way for 30 minutes. 
+# If it changes to on for 1 second then changes to off and stays off, the actions will not run after 30 minutes. 
+# If it changes to on, then changes back to off before 30 minutes, then changes back to on again, the 30 minutes starts over.
     condition:
       - condition: state
         entity_id: binary_sensor.zwave_motion_sensor    #### binary_sensor.sensor
-    #### there was no movements last 10 minutes in corridor and we can turn light off
+    #### there was no movements last 30 minutes in corridor and we can turn light off
         state: 'off'
         for:
-          minutes: 10
+          minutes: 30
     action:
       - service: homeassistant.turn_off
         entity_id: light.aeon_labs_zw111_nano_dimmer_level   #### switch off manual switch
@@ -233,7 +230,7 @@ automation:
         data_template:
           target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
           message: >
-            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Z-wave motion sensor was OFF for 10 minutes and dimmer switched off
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Z-wave motion sensor was OFF for 30 minutes and dimmer switched off
 
 
 
@@ -269,10 +266,10 @@ automation:
         to: 'on'
     action:
     #### make snapshot
-      - service: camera.snapshot
-        data:
-          entity_id: camera.hls_dafang
-          filename: 'www/snapshots/hls_dafang_{{ now().strftime("%Y%m%d-%H%M%S") }}.jpg'
+#      - service: camera.snapshot
+#        data:
+#          entity_id: camera.hls_dafang
+#          filename: 'www/snapshots/hls_dafang_{{ now().strftime("%Y%m%d-%H%M%S") }}.jpg'
 
       - service: mqtt.publish
         alias: MQTT store zwave multisensor6 ON time
@@ -319,20 +316,20 @@ automation:
       entity_id: binary_sensor.zwave_corridor_light_no_current    #### numeric sensor
       to: 'on'
       for:
-        minutes: 1             # 
+        minutes: 3             # 
 
     condition:
       - condition: state
-        entity_id: light.aeon_labs_zw111_nano_dimmer_level    #### binary_sensor
+        entity_id: light.aeon_labs_zw111_nano_dimmer_level    #### binary_sensor for manually switched on light
         state: 'on'
 #        for:
-#          minutes: 1
+#          minutes: 3
     action:
       - service: homeassistant.turn_off
-        entity_id: light.aeon_labs_zw111_nano_dimmer_level   #### switch off manual switch
+        entity_id: light.aeon_labs_zw111_nano_dimmer_level   #### switch off bynary_sensor of manually switched on light if no current in dimmer
 #### debug message
       - service: telegram_bot.send_message
         data_template:
           target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
           message: >
-            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Z-wave light no current sensor was 0.0 for 1 minutes and dimmer switched off
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Z-wave light no current sensor was 0.0 for 3 minutes and dimmer switched off

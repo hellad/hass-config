@@ -4,7 +4,7 @@
 #### https://www.home-assistant.io/components/camera.ffmpeg/
   - platform: ffmpeg
     name: DaFang3
-    input: -rtsp_transport tcp -i rtsp://192.168.192.44:8554/unicast
+    input: -rtsp_transport tcp -i rtsp://192.168.33.245:8554/unicast
 
 #### HLS camera
 #### https://www.home-assistant.io/blog/#camera-streams-for-everyone
@@ -12,8 +12,8 @@
   - platform: generic
     name: HLS Dafang
     still_image_url: !secret HLS_dafang_still_url
-    stream_source: rtsp://192.168.192.44:8554/unicast 
-#    stream_source: http://192.168.192.44:8554/unicast.m3u8
+    stream_source: rtsp://192.168.33.245:8554/unicast 
+#    stream_source: http://192.168.192.28:8554/unicast.m3u8
     verify_ssl: false
     scan_interval: 2
 
@@ -22,7 +22,7 @@
     username: !secret dafang_user
     password: !secret dafang_password
     authentication: basic
-    still_image_url: https://192.168.192.44/cgi-bin/currentpic.cgi
+    still_image_url: https://192.168.33.245/cgi-bin/currentpic.cgi
     verify_ssl: false
     scan_interval: 4
 

@@ -4,5 +4,6 @@
         "documentation": "https://sprut.ai/client/blog/1165",
         "requirements": [],
         "dependencies": [],
+        "version": "0.1.1",
         "codeowners": ["@sprut.ai"]
 }

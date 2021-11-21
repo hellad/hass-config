@@ -4,8 +4,12 @@
     include_domains:
       - switch
       - light
+      - climate
+      - sensor
     include_entities:
-      - media_player.lg_tv50_remote
+#      - media_player.lg_tv50_remote
+      - media_player.yandex_station_94007890870c640d0acf
+      - media_player.yandex_station_210d8400a818973072efca94ef519c6a
   entity_config:
     switch.aeon_labs_zw111_nano_dimmer_switch:
       name: corridor light
@@ -13,3 +17,6 @@
     switch.bathroom_light:
       name: bathroom light
       room: bathroom
+  settings:
+    pressure_unit: mmHg  # Единица измерения давления, в которой будут переданы данные в УДЯ. 
+                         # Конвертация из значения в Home Assistant автоматическая на основании атрибута устройства unit_of_measurement

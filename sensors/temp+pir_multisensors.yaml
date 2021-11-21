@@ -112,7 +112,7 @@
 
 
 ###############################################################################
-#  look into binary sensors for bathroom PIR motion sensor
+#  !!! look into binary sensors for bathroom PIR motion sensor !!!
 
 ################################################################################
 #sensorBME280_d1mini:           #### try to use BME280 sensor on D1 mini as mqtt in kitchen!
@@ -121,7 +121,7 @@
   - platform: mqtt
     scan_interval: 120
     state_topic: 'tele/kitchen/SENSOR'
-    name: 'SN1 Humidity'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    name: 'Kitchen Humidity'   # the name of the sensor. Default is ‘MQTT Sensor’.
     unit_of_measurement: '%'
 #    qos (Optional): The maximum QoS level of the state topic. Default is 0.
 #    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
@@ -135,7 +135,7 @@
   - platform: mqtt
     scan_interval: 120
     state_topic: 'tele/kitchen/SENSOR'
-    name: 'SN1 Temperature'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    name: 'Kitchen Temperature'   # the name of the sensor. Default is ‘MQTT Sensor’.
     unit_of_measurement: '°C'
 #    qos (Optional): The maximum QoS level of the state topic. Default is 0.
 #    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
@@ -149,66 +149,14 @@
   - platform: mqtt
     scan_interval: 120
     state_topic: 'tele/kitchen/SENSOR'
-    name: 'SN1 Pressure'   # the name of the sensor. Default is ‘MQTT Sensor’.
-    unit_of_measurement: 'mmHg'               #'mmHg'
+    name: 'Kitchen Pressure'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: 'mmHg'               #'mmHg' 	In tasmota console:	SetOption24	1 / on 0 (default) to show pressure in hPa, 1 to show pressure in mmHg
+
 #    qos (Optional): The maximum QoS level of the state topic. Default is 0.
 #    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
     expire_after: 180
     value_template: "{{ value_json.BME280.Pressure | round(1) }}"      # Names are case sensitive!
 
-
-
-################################################################################
-#### multisensor example from BRUH 
-#### https://github.com/bruhautomation/ESP-MQTT-JSON-Multisensor
-#### #define light_state_topic "bruh/sensornode1"
-#### #define light_set_topic "bruh/sensornode1/set"
-#### const char* on_cmd = "ON";
-#### const char* off_cmd = "OFF";
-#### root["state"] = (stateOn) ? on_cmd : off_cmd 
-#### Client mosqsub|11536-hassbian received PUBLISH (d0, q0, r1, m0, 'bathroom/sensornode1', ... (157 bytes))
-#### {"state":"OFF","color":{"r":255,"g":255,"b":255},"brightness":255,"humidity":"23.00","motion":"standby","ldr":"388","temperature":"16.00","heatIndex":"8.38"}
-#### Command to turn On or Off
-#### Client mosqsub|11732-hassbian received PUBLISH (d0, q0, r0, m0, 'bathroom/sensornode1/set', ... (15 bytes))
-#### {"state": "ON"}     
-#### {"state": "OFF"}
-
-
-#  - platform: mqtt  
-#    state_topic: "kitchen/sensornode1"  
-#    name: "SN1 Humidity"  
-#    unit_of_measurement: "%"  
-#    value_template: '{{ value_json.humidity | round(1) }}'  
-  
-#  - platform: mqtt  
-#    state_topic: "kitchen/sensornode1"  
-#    name: "SN1 LDR"
-#    ##This sensor is not calibrated to actual LUX. Rather, this a map of the input voltage ranging from 0 - 1023.
-#    unit_of_measurement: "NUM"  
-#    value_template: '{{ value_json.ldr }}'  
-  
-#  - platform: mqtt  
-#    state_topic: "kitchen/sensornode1"  
-#    name: "SN1 PIR"  
-#    value_template: '{{ value_json.motion }}'  
-  
-#  - platform: mqtt  
-#    state_topic: "kitchen/sensornode1"  
-#    name: "SN1 Temperature"  
-#    unit_of_measurement: "°C"  
-#    value_template: '{{ value_json.temperature | round(1) }}'  
-
-#  - platform: mqtt
-#    state_topic: "kitchen/sensornode1"
-#    name: "SN1 Real Feel"
-#    unit_of_measurement: "°C"
-#    value_template: '{{ value_json.heatIndex | round(1) }}'
-
-#  - platform: mqtt
-#    state_topic: "kitchen/co2"
-#    name: "SN1 CO2"
-#    unit_of_measurement: "NUM" 
-#    value_template: '{{ value_json.CO2 }}'
 
 ################################################################################
 #
@@ -237,3 +185,45 @@
   - platform: mqtt
     name: "CO2 Sensor"          # sensor.co2_sensor
     state_topic: "kitchen/co2"
+
+
+################################################################################
+#### Qingping Air Monitor Lite
+#### https://community.home-assistant.io/t/qingping-air-monitor-lite-integration/280277
+#### https://raw.githubusercontent.com/ha0y/xiaomi_miot_raw/8aab7ec136eb130226e8e7d31c5db4cbc8417db6/config_example/sensor.yaml
+################################################################################
+#  - platform: xiaomi_miot_raw
+#    name: air_monitor
+#    host: 192.168.192.81
+#    token: 5f69e95575d8536423d7058d17cd7763
+#    mapping:
+#      humidity:
+#        siid: 3
+#        piid: 1
+#      pm2_5:
+#        siid: 3
+#        piid: 4
+#      pm10:
+#        siid: 3
+#        piid: 5
+#      temperature:
+#        siid: 3
+#        piid: 7
+#      co2:
+#        siid: 3
+#        piid: 8
+#      battery:
+#        siid: 4
+#        piid: 1
+#      charging:
+#        siid: 4
+#        piid: 2
+#      voltage:
+#        siid: 4
+#        piid: 3
+#    params:
+#    sensor_property: co2
+#    sensor_unit: 'ppm'
+#    scan_interval: 3
+
+

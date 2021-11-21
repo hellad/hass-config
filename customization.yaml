@@ -155,8 +155,10 @@
       icon: mdi:message-text-outline
       friendly_name: Имя последней поездки
     sensor.strava_last_moving_time:
-      icon: mdi:timer
+      icon: mdi:timer-outline
       friendly_name: Время движения
+    sensor.strava_last_total_time:
+      friendly_name: Общее время
     sensor.strava_last_distance:
       icon: mdi:routes
       friendly_name: Дистанция
@@ -166,6 +168,18 @@
     sensor.strava_last_date:
       icon: mdi:calendar-clock
       friendly_name: Дата и время
+    sensor.strava_last_max_speed:
+      friendly_name: Максимальная скорость
+    sensor.strava_last_average_speed:
+      friendly_name: Средняя скорость
+    sensor.strava_last_max_heartrate:      
+      friendly_name: Максимальный пульс      
+    sensor.strava_last_average_heartrate:
+      friendly_name: Средний пульс
+    sensor.strava_last_kudos:
+      friendly_name: Количество лайков
+    sensor.strava_last_visibility:
+      friendly_name: Кому видно
       
 # state_topic: "bathroom/motion/on_time" in temp+pir_multisensors.yaml
     sensor.last_motion_bathroom_sensor:

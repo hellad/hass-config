@@ -1,0 +1,3 @@
+title: Home Assistant - сервер
+views:
+  - !include lovelace/01_system.yaml

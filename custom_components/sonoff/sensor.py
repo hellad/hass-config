@@ -1,68 +1,127 @@
-import logging, time, hmac, hashlib, random, base64, json, socket
+import time
+from typing import Optional
 
-from datetime import timedelta
-from homeassistant.util import Throttle
-from homeassistant.components.sensor import DOMAIN
-# from homeassistant.components.sonoff import (DOMAIN as SONOFF_DOMAIN, SonoffDevice)
-from custom_components.sonoff import (DOMAIN as SONOFF_DOMAIN, SonoffDevice)
-from custom_components.sonoff import SONOFF_SENSORS_MAP
+from homeassistant.const import DEVICE_CLASS_TEMPERATURE, \
+    DEVICE_CLASS_HUMIDITY, DEVICE_CLASS_ILLUMINANCE, DEVICE_CLASS_POWER, \
+    DEVICE_CLASS_SIGNAL_STRENGTH, ATTR_BATTERY_LEVEL
+from homeassistant.helpers.entity import Entity
 
-SCAN_INTERVAL = timedelta(seconds=15)
+from . import DOMAIN, EWeLinkRegistry
+from .sonoff_main import EWeLinkEntity
 
-_LOGGER = logging.getLogger(__name__)
+SENSORS = {
+    'temperature': [DEVICE_CLASS_TEMPERATURE, '°C', None],
+    # UNIT_PERCENTAGE is not on old versions
+    'humidity': [DEVICE_CLASS_HUMIDITY, '%', None],
+    'dusty': [None, None, 'mdi:cloud'],
+    'light': [DEVICE_CLASS_ILLUMINANCE, None, None],
+    'noise': [None, None, 'mdi:bell-ring'],
+    'power': [DEVICE_CLASS_POWER, 'W', None],
+    'current': [DEVICE_CLASS_POWER, 'A', None],
+    'voltage': [DEVICE_CLASS_POWER, 'V', None],
+    'rssi': [DEVICE_CLASS_SIGNAL_STRENGTH, 'dBm', None]
+}
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Add the Sonoff Sensor entities"""
+SONOFF_SC = {'temperature', 'humidity', 'dusty', 'light', 'noise'}
 
-    entities = []
-    for device in hass.data[SONOFF_DOMAIN].get_devices(force_update = False):
-        # as far as i know only 1-switch devices seem to have sensor-like capabilities
+GLOBAL_ATTRS = ('local', 'cloud', 'rssi', ATTR_BATTERY_LEVEL)
 
-        if 'params' not in device.keys(): continue # this should never happen... but just in case
 
-        for sensor in SONOFF_SENSORS_MAP.keys():
-            if device['params'].get(sensor) and device['params'].get(sensor) != "unavailable":
-                entity = SonoffSensor(hass, device, sensor)
-                entities.append(entity)
+async def async_setup_platform(hass, config, add_entities,
+                               discovery_info=None):
+    if discovery_info is None:
+        return
 
-    if len(entities):
-        async_add_entities(entities, update_before_add=False)
+    deviceid = discovery_info['deviceid']
+    registry = hass.data[DOMAIN]
 
-class SonoffSensor(SonoffDevice):
-    """Representation of a Sonoff sensor."""
+    attr = discovery_info.get('attribute')
+    uiid = registry.devices[deviceid].get('uiid')
 
-    def __init__(self, hass, device, sensor = None):
-        """Initialize the device."""
-        SonoffDevice.__init__(self, hass, device)
-        self._sensor        = sensor
-        self._name          = '{} {}'.format(device['name'], SONOFF_SENSORS_MAP[self._sensor]['eid'])
-        self._attributes    = {}
-        self._state         = None
+    # skip duplicate attribute
+    if uiid in (18, 1770) and attr in SONOFF_SC:
+        return
+
+    elif attr:
+        add_entities([EWeLinkSensor(registry, deviceid, attr)])
+
+    elif uiid == 18:
+        add_entities([EWeLinkSensor(registry, deviceid, attr)
+                      for attr in SONOFF_SC])
+
+    elif uiid == 1000:
+        add_entities([ZigBeeButtonSensor(registry, deviceid)])
+
+    elif uiid == 1770:
+        add_entities([EWeLinkSensor(registry, deviceid, 'temperature'),
+                      EWeLinkSensor(registry, deviceid, 'humidity')])
+
+
+class EWeLinkSensor(EWeLinkEntity, Entity):
+    _state = None
+
+    def __init__(self, registry: EWeLinkRegistry, deviceid: str, attr: str):
+        super().__init__(registry, deviceid)
+        self._attr = attr
+
+    async def async_added_to_hass(self) -> None:
+        self._init()
+
+        if self._name:
+            self._name += f" {self._attr.capitalize()}"
+
+    def _update_handler(self, state: dict, attrs: dict):
+        self._attrs.update({k: attrs[k] for k in GLOBAL_ATTRS if k in attrs})
+
+        if self._attr not in state:
+            return
+
+        self._state = state[self._attr]
+
+        self.schedule_update_ha_state()
+
+    @property
+    def unique_id(self) -> Optional[str]:
+        return f"{self.deviceid}_{self._attr}"
+
+    @property
+    def state(self) -> str:
+        return self._state
+
+    @property
+    def device_class(self):
+        return SENSORS[self._attr][0] if self._attr in SENSORS else None
 
     @property
     def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return SONOFF_SENSORS_MAP[self._sensor]['uom']
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        state = self.get_device()['params'].get(self._sensor, None)
-
-        # they should also get updated via websocket
-        if state is not None and state != "unavailable":
-            self._state = state
-
-        return self._state
-
-    # entity id is required if the name use other characters not in ascii
-    @property
-    def entity_id(self):
-        """Return the unique id of the switch."""
-        entity_id = "{}.{}_{}_{}".format(DOMAIN, SONOFF_DOMAIN, self._deviceid, SONOFF_SENSORS_MAP[self._sensor]['eid'])
-        return entity_id
+        return SENSORS[self._attr][1] if self._attr in SENSORS else None
 
     @property
     def icon(self):
-        """Return the icon."""
-        return SONOFF_SENSORS_MAP[self._sensor]['icon']
+        return SENSORS[self._attr][2] if self._attr in SENSORS else None
+
+
+BUTTON_STATES = ['single', 'double', 'hold']
+
+
+class ZigBeeButtonSensor(EWeLinkEntity, Entity):
+    _state = ''
+
+    async def async_added_to_hass(self) -> None:
+        # don't call update at startup
+        self._init(force_refresh=False)
+
+    def _update_handler(self, state: dict, attrs: dict):
+        self._attrs.update(attrs)
+
+        if 'key' in state:
+            self._state = BUTTON_STATES[state['key']]
+            self.async_write_ha_state()
+            time.sleep(.5)
+            self._state = ''
+
+        self.schedule_update_ha_state()
+
+    @property
+    def state(self) -> str:
+        return self._state

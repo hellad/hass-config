@@ -6,8 +6,15 @@
           entity_id: >
             {% if is_state("input_select.inet_radio", "dune_hd_3d") %} media_player.dune_hd_3d_player
             {% elif is_state("input_select.inet_radio", "dune_101w") %} media_player.dune_101w_player
+            {% elif is_state("input_select.inet_radio", "dune_hd") %} media_player.dune_hd
             {% elif is_state("input_select.inet_radio", "kitchen") %} media_player.kitchen
             {% elif is_state("input_select.inet_radio", "adkodi") %} media_player.adkodi
+            {% elif is_state("input_select.inet_radio", "yandex_station") %} media_player.yandex_station_94007890870c640d0acf
+            {% elif is_state("input_select.inet_radio", "yandex_module") %} media_player.yandex_station_210d8400a818973072efca94ef519c6a
+            {% elif is_state("input_select.inet_radio", "bedroom") %} media_player.bedroom
+            {% elif is_state("input_select.inet_radio", "home_theater") %} media_player.home_theater
+            {% elif is_state("input_select.inet_radio", "home_theater_zone2") %} media_player.home_theater_zone2
+            {% elif is_state("input_select.inet_radio", "bedroom_lg_tv") %} media_player.bedroom_lg_tv
             {% endif %}
           volume_level: '{{  states.input_number.volume_radio.state  }}' 
 
@@ -16,41 +23,62 @@
           entity_id: >
             {% if is_state("input_select.inet_radio", "dune_hd_3d") %} media_player.dune_hd_3d_player
             {% elif is_state("input_select.inet_radio", "dune_101w") %} media_player.dune_101w_player
+            {% elif is_state("input_select.inet_radio", "dune_hd") %} media_player.dune_hd
             {% elif is_state("input_select.inet_radio", "kitchen") %} media_player.kitchen
             {% elif is_state("input_select.inet_radio", "adkodi") %} media_player.adkodi
+            {% elif is_state("input_select.inet_radio", "yandex_station") %} media_player.yandex_station_94007890870c640d0acf
+            {% elif is_state("input_select.inet_radio", "yandex_module") %} media_player.yandex_station_210d8400a818973072efca94ef519c6a
+            {% elif is_state("input_select.inet_radio", "bedroom") %} media_player.bedroom
+            {% elif is_state("input_select.inet_radio", "home_theater") %} media_player.home_theater
+            {% elif is_state("input_select.inet_radio", "home_theater_zone2") %} media_player.home_theater_zone2
+            {% elif is_state("input_select.inet_radio", "bedroom_lg_tv") %} media_player.bedroom_lg_tv
             {% endif %}
           message: "Следующая станция: {{ states.input_select.radio_station.state  }}"
-      - delay: '00:00:04'   
+      - delay: '00:00:05'   
 
       - service: media_player.play_media
         data_template:
           entity_id: >
             {% if is_state("input_select.inet_radio", "dune_hd_3d") %} media_player.dune_hd_3d_player
             {% elif is_state("input_select.inet_radio", "dune_101w") %} media_player.dune_101w_player
+            {% elif is_state("input_select.inet_radio", "dune_hd") %} media_player.dune_hd
             {% elif is_state("input_select.inet_radio", "kitchen") %} media_player.kitchen
             {% elif is_state("input_select.inet_radio", "adkodi") %} media_player.adkodi
+            {% elif is_state("input_select.inet_radio", "yandex_station") %} media_player.yandex_station_94007890870c640d0acf
+            {% elif is_state("input_select.inet_radio", "yandex_module") %} media_player.yandex_station_210d8400a818973072efca94ef519c6a
+            {% elif is_state("input_select.inet_radio", "bedroom") %} media_player.bedroom
+            {% elif is_state("input_select.inet_radio", "home_theater") %} media_player.home_theater
+            {% elif is_state("input_select.inet_radio", "home_theater_zone2") %} media_player.home_theater_zone2
+            {% elif is_state("input_select.inet_radio", "bedroom_lg_tv") %} media_player.bedroom_lg_tv
             {% endif %}
           media_content_id: >
             {% if is_state("input_select.radio_station", "SomaFM Groove salad") %} http://ice1.somafm.com/groovesalad-128-aac
             {% elif is_state("input_select.radio_station", "Q-Music") %} http://icecast-qmusic.cdp.triple-it.nl/Qmusic_nl_live_96.mp3
-            {% elif is_state("input_select.radio_station", "3FM") %} http://icecast.omroep.nl/3fm-bb-mp3
-            {% elif is_state("input_select.radio_station", "100% NL") %} http://stream.100p.nl/100pctnl.mp3
-            {% elif is_state("input_select.radio_station", "Veronica") %} http://8543.live.streamtheworld.com/VERONICACMP3
-            {% elif is_state("input_select.radio_station", "Sky Radio") %} http://8623.live.streamtheworld.com:80/SKYRADIOAAC_SC
-            {% elif is_state("input_select.radio_station", "Arrow Classic Rock") %} http://91.221.151.155/listen.mp3
-            {% elif is_state("input_select.radio_station", "Classic FM") %} http://19143.live.streamtheworld.com/CLASSICFM_SC
-            {% elif is_state("input_select.radio_station", "BNR Nieuwsradio") %} http://icecast-bnr.cdp.triple-it.nl/bnr_mp3_96_03
-            {% elif is_state("input_select.radio_station", "Smooth Jazz Tampa") %} http://us3.internet-radio.com:8007/listen.mp3
+            {% elif is_state("input_select.radio_station", "101.ru - Modern Rock") %} http://ic7.101.ru:8000/a16
+            {% elif is_state("input_select.radio_station", "101.4 FM - Pадио Эльдо Sant-Petersburg") %} http://eldoradio128.streamr.ru/
+            {% elif is_state("input_select.radio_station", "Легенды FM") %} http://live.legendy.by:8000/legendyfm
             {% elif is_state("input_select.radio_station", "Classic Rock Florida") %} http://listen.shoutcast.com/Classic-RockFlorida
-            {% elif is_state("input_select.radio_station", "Bob Sinclar Radio") %} http://listen.shoutcast.com/prysmradio09-mp3
+            {% elif is_state("input_select.radio_station", "Мелодии Века") %} http://93.84.112.253:8010/MV128
             {% elif is_state("input_select.radio_station", "Chill Out Zone") %} http://air.chillout.zone:8000/radio
             {% elif is_state("input_select.radio_station", "SLAM! Hardstyle") %} http://stream.radiocorp.nl/web11_mp3
             {% elif is_state("input_select.radio_station", "Sleep Radio") %} http://37.59.28.208:8722/stream
-            {% elif is_state("input_select.radio_station", "Ambient Sleeping Pill") %} http://perseus.shoutca.st:8447/h
+            {% elif is_state("input_select.radio_station", "Radio @plus - Relax") %} 	http://shoutcast.aplus.by:9000/aplus_relax_128
             {% elif is_state("input_select.radio_station", "Radio Art - Sleep") %} http://live.radioart.com/fSleep.mp3
             {% elif is_state("input_select.radio_station", "Ambi Nature Radio") %} http://94.23.252.14:8067/stream
             {% elif is_state("input_select.radio_station", "Calm Radio - Sleep") %} http://streams.calmradio.com/api/39/128/stream
             {% elif is_state("input_select.radio_station", "Dinamo.FM Sleep") %} http://channels.dinamo.fm/sleep-aac
             {% elif is_state("input_select.radio_station", "Relax.FM") %} http://ic2.101.ru:80/v13_1?userid=0&setst=tm2o0e9r2r6rh171tt093l3mt2&city=269
+            {% elif is_state("input_select.radio_station", "Bigtunesradio - trance") %} http://bigtunesradio.com:8000/trance.mp3?type=.mp3/;stream.mp3
+            {% elif is_state("input_select.radio_station", "Biker-FM") %} http://stream3.radiostyle.ru:8001/biker-fm
+            {% elif is_state("input_select.radio_station", "Bim radio") %} http://av.bimradio.ru:8066/bim_mp3
+            {% elif is_state("input_select.radio_station", "Chainikoff.FM") %} http://46.174.49.15:8000/coffie_1
+            {% elif is_state("input_select.radio_station", "Channel 5 HQ") %} http://radio.promodj.com:8000/channel5-192
+            {% elif is_state("input_select.radio_station", "CjRadio.Ru") %} http://www.cjradio.ru:8000/high
+            {% elif is_state("input_select.radio_station", "Cybernetic FM") %} http://s04.radio-tochka.com:4740/radio
+            {% elif is_state("input_select.radio_station", "DANCE - ALIUSART fm") %} http://www.aliusart.ru:8004/;stream.nsv?99
+            {% elif is_state("input_select.radio_station", "Dance Wave Retro!") %} http://retro.dancewave.online/retrodance.mp3
+            {% elif is_state("input_select.radio_station", "Deep Melon radio") %} http://stream.melonradio.com/deep
+            {% elif is_state("input_select.radio_station", "DFM-Спокойной ночи, голыши!") %} https://dfm-spoknochi.hostingradio.ru/spoknochi96.aacp
+            {% elif is_state("input_select.radio_station", "Dixi FM") %} http://stream8.radiostyle.ru:8008/online          
             {% endif %}
           media_content_type: 'audio/mp4'

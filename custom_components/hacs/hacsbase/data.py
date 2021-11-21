@@ -1,215 +1,211 @@
 """Data handler for HACS."""
+import asyncio
 import os
-import json
-from integrationhelper import Logger
-from . import Hacs
-from .const import STORAGE_VERSION
-from ..const import VERSION
-from ..repositories.manifest import HacsManifest
-from ..store import async_save_to_store, async_load_from_store
+
+from homeassistant.core import callback
+
+from custom_components.hacs.helpers.classes.manifest import HacsManifest
+from custom_components.hacs.helpers.functions.register_repository import (
+    register_repository,
+)
+from custom_components.hacs.helpers.functions.store import (
+    async_load_from_store,
+    async_save_to_store,
+    async_save_to_store_default_encoder,
+    get_store_for_key,
+)
+from custom_components.hacs.share import get_hacs
+from custom_components.hacs.utils.logger import getLogger
 
 
-STORES = {
-    "old": "hacs",
-    "hacs": "hacs.hacs",
-    "installed": "hacs.installed",
-    "repositories": "hacs.repositories",
-}
+def update_repository_from_storage(repository, storage_data):
+    """Merge in data from storage into the repo data."""
+    repository.data.memorize_storage(storage_data)
+    repository.data.update_data(storage_data)
+    if repository.data.installed:
+        return
+
+    repository.logger.debug("%s Should be installed but is not... Fixing that!", repository)
+    repository.data.installed = True
 
 
-class HacsData(Hacs):
+class HacsData:
     """HacsData class."""
 
     def __init__(self):
         """Initialize."""
-        self.logger = Logger("hacs.data")
-
-    def check_corrupted_files(self):
-        """Return True if one (or more) of the files are corrupted."""
-        for store in STORES:
-            path = f"{self.system.config_path}/.storage/{STORES[store]}"
-            if os.path.exists(path):
-                if os.stat(path).st_size == 0:
-                    # File is empty (corrupted)
-                    return True
-        return False
-
-    def read(self, store):
-        """Return data from a store."""
-        path = f"{self.system.config_path}/.storage/{STORES[store]}"
-        content = None
-        if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as storefile:
-                content = storefile.read()
-                content = json.loads(content)
-        return content
+        self.logger = getLogger()
+        self.hacs = get_hacs()
+        self.content = {}
 
     async def async_write(self):
         """Write content to the store files."""
-        if self.system.status.background_task:
+        if self.hacs.status.background_task or self.hacs.system.disabled:
             return
 
         self.logger.debug("Saving data")
 
         # Hacs
         await async_save_to_store(
-            self.hass, "hacs", {"view": self.configuration.frontend_mode}
+            self.hacs.hass,
+            "hacs",
+            {
+                "view": self.hacs.configuration.frontend_mode,
+                "compact": self.hacs.configuration.frontend_compact,
+                "onboarding_done": self.hacs.configuration.onboarding_done,
+                "archived_repositories": self.hacs.common.archived_repositories,
+                "renamed_repositories": self.hacs.common.renamed_repositories,
+            },
         )
+        await self._async_store_content_and_repos()
+        for event in ("hacs/repository", "hacs/config"):
+            self.hacs.hass.bus.async_fire(event, {})
 
+    async def _async_store_content_and_repos(self):  # bb: ignore
+        """Store the main repos file and each repo that is out of date."""
         # Repositories
-        content = {}
-        for repository in self.repositories:
-            if repository.repository_manifest is not None:
-                repository_manifest = repository.repository_manifest.manifest
-            else:
-                repository_manifest = None
-            content[repository.information.uid] = {
-                "authors": repository.information.authors,
-                "topics": repository.information.topics,
-                "category": repository.information.category,
-                "description": repository.information.description,
-                "full_name": repository.information.full_name,
-                "hide": repository.status.hide,
-                "installed_commit": repository.versions.installed_commit,
-                "installed": repository.status.installed,
-                "last_commit": repository.versions.available_commit,
-                "last_release_tag": repository.versions.available,
-                "repository_manifest": repository_manifest,
-                "name": repository.information.name,
-                "new": repository.status.new,
-                "selected_tag": repository.status.selected_tag,
-                "show_beta": repository.status.show_beta,
-                "version_installed": repository.versions.installed,
-            }
+        self.content = {}
+        # Not run concurrently since this is bound by disk I/O
+        for repository in self.hacs.repositories:
+            await self.async_store_repository_data(repository)
 
-        await async_save_to_store(self.hass, "repositories", content)
-        self.hass.bus.async_fire("hacs/repository", {})
-        self.hass.bus.fire("hacs/config", {})
+        await async_save_to_store(self.hacs.hass, "repositories", self.content)
+
+    async def async_store_repository_data(self, repository):
+        repository_manifest = repository.repository_manifest.manifest
+        data = {
+            "authors": repository.data.authors,
+            "category": repository.data.category,
+            "description": repository.data.description,
+            "domain": repository.data.domain,
+            "downloads": repository.data.downloads,
+            "etag_repository": repository.data.etag_repository,
+            "full_name": repository.data.full_name,
+            "first_install": repository.status.first_install,
+            "installed_commit": repository.data.installed_commit,
+            "installed": repository.data.installed,
+            "last_commit": repository.data.last_commit,
+            "last_release_tag": repository.data.last_version,
+            "last_updated": repository.data.last_updated,
+            "name": repository.data.name,
+            "new": repository.data.new,
+            "repository_manifest": repository_manifest,
+            "selected_tag": repository.data.selected_tag,
+            "show_beta": repository.data.show_beta,
+            "stars": repository.data.stargazers_count,
+            "topics": repository.data.topics,
+            "version_installed": repository.data.installed_version,
+        }
+        self.content[str(repository.data.id)] = data
+
+        if (
+            repository.data.installed
+            and (repository.data.installed_commit or repository.data.installed_version)
+            and (export := repository.data.export_data())
+        ):
+            # export_data will return `None` if the memorized
+            # data is already up to date which allows us to avoid
+            # writing data that is already up to date or generating
+            # executor jobs to check the data on disk to see
+            # if a write is needed.
+            await async_save_to_store_default_encoder(
+                self.hacs.hass,
+                f"hacs/{repository.data.id}.hacs",
+                export,
+            )
+            repository.data.memorize_storage(export)
 
     async def restore(self):
         """Restore saved data."""
-        hacs = {}
-        repositories = {}
+        hacs = await async_load_from_store(self.hacs.hass, "hacs")
+        repositories = await async_load_from_store(self.hacs.hass, "repositories") or {}
+
+        if not hacs and not repositories:
+            # Assume new install
+            self.hacs.status.new = True
+            return True
+        self.logger.info("Restore started")
+        self.hacs.status.new = False
+
+        # Hacs
+        self.hacs.configuration.frontend_mode = hacs.get("view", "Grid")
+        self.hacs.configuration.frontend_compact = hacs.get("compact", False)
+        self.hacs.configuration.onboarding_done = hacs.get("onboarding_done", False)
+        self.hacs.common.archived_repositories = hacs.get("archived_repositories", [])
+        self.hacs.common.renamed_repositories = hacs.get("renamed_repositories", {})
+
+        hass = self.hacs.hass
+        stores = {}
 
         try:
-            hacs = await async_load_from_store(self.hass, "hacs")
-        except KeyError:
-            await async_save_to_store(self.hass, "hacs", self.data.read("hacs")["data"])
-            hacs = await async_load_from_store(self.hass, "hacs")
+            await self.register_unknown_repositories(repositories)
 
-        try:
-            repositories = await async_load_from_store(self.hass, "repositories")
-        except KeyError:
-            await async_save_to_store(
-                self.hass, "repositories", self.data.read("repositories")["data"]
-            )
-            repositories = await async_load_from_store(self.hass, "repositories")
+            for entry, repo_data in repositories.items():
+                if self.async_restore_repository(entry, repo_data):
+                    stores[entry] = get_store_for_key(hass, f"hacs/{entry}.hacs")
 
-        try:
-            if self.check_corrupted_files():
-                # Coruptted installation
-                self.logger.critical("Restore failed one or more files are corrupted!")
-                return False
-            if hacs is None and repositories is None:
-                # Assume new install
-                return True
+            def _load_from_storage():
+                for entry, store in stores.items():
+                    if os.path.exists(store.path) and (data := store.load()):
+                        if (full_name := data.get("full_name")) and (
+                            renamed := self.hacs.common.renamed_repositories.get(full_name)
+                        ) is not None:
+                            data["full_name"] = renamed
+                        update_repository_from_storage(self.hacs.get_by_id(entry), data)
 
-            self.logger.info("Restore started")
-
-            # Hacs
-            self.configuration.frontend_mode = hacs.get("view", "Grid")
-
-            # Repositories
-            repositories = repositories
-            for entry in repositories:
-                repo = repositories[entry]
-                if repo["full_name"] == "custom-components/hacs":
-                    # Skip the old repo location
-                    continue
-                if not self.is_known(repo["full_name"]):
-                    await self.register_repository(
-                        repo["full_name"], repo["category"], False
-                    )
-                repository = self.get_by_name(repo["full_name"])
-                if repository is None:
-                    self.logger.error(f"Did not find {repo['full_name']}")
-                    continue
-
-                # Restore repository attributes
-                if repo.get("authors") is not None:
-                    repository.information.authors = repo["authors"]
-
-                if repo.get("topics", []):
-                    repository.information.topics = repo["topics"]
-
-                if repo.get("description") is not None:
-                    repository.information.description = repo["description"]
-
-                if repo.get("name") is not None:
-                    repository.information.name = repo["name"]
-
-                if repo.get("hide") is not None:
-                    repository.status.hide = repo["hide"]
-
-                if repo.get("installed") is not None:
-                    repository.status.installed = repo["installed"]
-                    if repository.status.installed:
-                        repository.status.first_install = False
-
-                if repo.get("selected_tag") is not None:
-                    repository.status.selected_tag = repo["selected_tag"]
-
-                if repo.get("repository_manifest") is not None:
-                    repository.repository_manifest = HacsManifest.from_dict(
-                        repo["repository_manifest"]
-                    )
-
-                if repo.get("show_beta") is not None:
-                    repository.status.show_beta = repo["show_beta"]
-
-                if repo.get("last_commit") is not None:
-                    repository.versions.available_commit = repo["last_commit"]
-
-                repository.information.uid = entry
-
-                if repo.get("last_release_tag") is not None:
-                    repository.releases.last_release = repo["last_release_tag"]
-                    repository.versions.available = repo["last_release_tag"]
-
-                if repo.get("new") is not None:
-                    repository.status.new = repo["new"]
-
-                if repo["full_name"] == "hacs/integration":
-                    repository.versions.installed = VERSION
-                    repository.status.installed = True
-                    if "b" in VERSION:
-                        repository.status.show_beta = True
-                elif repo.get("version_installed") is not None:
-                    repository.versions.installed = repo["version_installed"]
-
-                if repo.get("installed_commit") is not None:
-                    repository.versions.installed_commit = repo["installed_commit"]
-
+            await hass.async_add_executor_job(_load_from_storage)
             self.logger.info("Restore done")
-        except Exception as exception:
-            self.logger.critical(
-                f"[{exception}] Restore Failed! see https://github.com/hacs/integration/issues/639 for more details."
-            )
+        except (Exception, BaseException) as exception:  # pylint: disable=broad-except
+            self.logger.critical(f"[{exception}] Restore Failed!", exc_info=exception)
             return False
         return True
 
+    async def register_unknown_repositories(self, repositories):
+        """Registry any unknown repositories."""
+        register_tasks = [
+            register_repository(repo_data["full_name"], repo_data["category"], False)
+            for entry, repo_data in repositories.items()
+            if not self.hacs.is_known(entry)
+        ]
+        if register_tasks:
+            await asyncio.gather(*register_tasks)
 
-def save(logger, path, content):
-    """Save file."""
-    from .backup import Backup
+    @callback
+    def async_restore_repository(self, entry, repository_data):
+        full_name = repository_data["full_name"]
+        if not (repository := self.hacs.get_by_name(full_name)):
+            self.logger.error(f"Did not find {full_name} ({entry})")
+            return False
+        # Restore repository attributes
+        self.hacs.async_set_repository_id(repository, entry)
+        repository.data.authors = repository_data.get("authors", [])
+        repository.data.description = repository_data.get("description")
+        repository.releases.last_release_object_downloads = repository_data.get("downloads")
+        repository.data.last_updated = repository_data.get("last_updated")
+        repository.data.etag_repository = repository_data.get("etag_repository")
+        repository.data.topics = repository_data.get("topics", [])
+        repository.data.domain = repository_data.get("domain", None)
+        repository.data.stargazers_count = repository_data.get("stars", 0)
+        repository.releases.last_release = repository_data.get("last_release_tag")
+        repository.data.hide = repository_data.get("hide", False)
+        repository.data.installed = repository_data.get("installed", False)
+        repository.data.new = repository_data.get("new", True)
+        repository.data.selected_tag = repository_data.get("selected_tag")
+        repository.data.show_beta = repository_data.get("show_beta", False)
+        repository.data.last_version = repository_data.get("last_release_tag")
+        repository.data.last_commit = repository_data.get("last_commit")
+        repository.data.installed_version = repository_data.get("version_installed")
+        repository.data.installed_commit = repository_data.get("installed_commit")
 
-    backup = Backup(path)
-    backup.create()
-    try:
-        content = {"data": content, "schema": STORAGE_VERSION}
-        with open(path, "w", encoding="utf-8") as storefile:
-            json.dump(content, storefile, indent=4)
-    except Exception as exception:  # pylint: disable=broad-except
-        logger.warning(f"Saving {path} failed - {exception}")
-        backup.restore()
-    backup.cleanup()
+        repository.repository_manifest = HacsManifest.from_dict(
+            repository_data.get("repository_manifest", {})
+        )
+
+        if repository.data.installed:
+            repository.status.first_install = False
+
+        if full_name == "hacs/integration":
+            repository.data.installed_version = self.hacs.version
+            repository.data.installed = True
+
+        return True

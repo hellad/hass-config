@@ -2,6 +2,7 @@
 #### https://github.com/peterbuga/HASS-sonoff-ewelink
 #### https://github.com/peterbuga/HASS-sonoff-ewelink/tree/sonoff-bulb for LED support
 #### https://sprut.ai/client/article/1020
+#### Tasmota devices configured for native discovery (SetOption19 1)
 ################################################################################
 sensor:
   - platform: mqtt
@@ -73,6 +74,62 @@ switch:
     value_template: "{{ value_json.POWER }}"
     command_topic: "mirror/cmnd/POWER"
     availability_topic: "mirror/tele/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    retain: false
+
+# switch.balcony_light_right
+  - platform: mqtt
+    name: "Balcony Light Right"
+    state_topic: "stat/balcony/POWER1"
+    value_template: "{{ value_json.POWER }}"
+    command_topic: "cmnd/balcony/POWER1"
+    availability_topic: "tele/balcony/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    retain: false
+
+# switch.balcony_light_left
+  - platform: mqtt
+    name: "Balcony Light Left"
+    state_topic: "stat/balcony/POWER2"
+    value_template: "{{ value_json.POWER }}"
+    command_topic: "cmnd/balcony/POWER2"
+    availability_topic: "tele/balcony/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    retain: false
+
+# switch.manual_entrance_light
+  - platform: mqtt
+    name: "Manual Entrance Light"
+    state_topic: "stat/corridor/POWER2"       #### should be theme as command topic?
+    value_template: "{{ value_json.POWER }}"
+    command_topic: "cmnd/corridor-manual/POWER2"
+    availability_topic: "tele/corridor/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    retain: false
+
+# switch.manual_storeroom_light
+  - platform: mqtt
+    name: "Manual Storeroom Light"
+    state_topic: "stat/corridor/POWER1"
+    value_template: "{{ value_json.POWER }}"
+    command_topic: "cmnd/corridor-manual/POWER1"
+    availability_topic: "tele/corridor/LWT"
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
@@ -221,7 +278,7 @@ automation:
         entity_id: switch.bathroom_light   #### switch off programmably
 
 ################################################################################
-#	 Switch Bathroom Light Off
+#	 Switch Bathroom Light Off in 4 minutes without motion
 # time of lightning defined by variable resistor on PIR sensor and for:
 ################################################################################
   - alias: Switch Bathroom Light Off
@@ -278,7 +335,6 @@ automation:
 ################################################################################
   - alias: Switch Enforced Bathroom Mirror Light Off
     initial_state: true
-    hide_entity: true
     trigger:
       platform: time_pattern
 #      hours: 00
@@ -293,7 +349,7 @@ automation:
         for:
 #          hours: 1
 #          minutes: 1
-          seconds: 30
+          seconds: 60
       - condition: state
         entity_id: switch.bathroom_light
         state: 'on'
@@ -317,7 +373,6 @@ automation:
 ################################################################################
   - alias: Switch Enforced Bathroom Mirror Light Off
     initial_state: true
-    hide_entity: true
     trigger:
       platform: time_pattern
 #      hours: 00
@@ -350,7 +405,7 @@ automation:
         data_template:
           target: [!secret telegram_bot_chat_id_beeline]
           message: >
-            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Enforced Switch Bathroom vent fan Off after 240 seconds
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Enforced Switch Bathroom vent fan Off after 180 seconds
 
 ########################### Sync power state. #################################################
 # https://github.com/arendst/Sonoff-Tasmota/wiki/Home-Assistant#tip-sync-power-state
@@ -367,12 +422,176 @@ automation:
         data:
           topic: "sonoffs/cmnd/state"
           payload: "" 
-      - service: mqtt.publish
-        data:
-          topic: cmnd/sonoffs/POWER
-      - service: mqtt.publish
-        data:
-          topic: cmnd/sonoffs/POWER2
-      - service: mqtt.publish
-        data:
-          topic: cmnd/sonoffs/POWER3  
+#      - service: mqtt.publish
+#        data:
+#          topic: cmnd/sonoffs/POWER
+#      - service: mqtt.publish
+#        data:
+#          topic: cmnd/sonoffs/POWER2
+#      - service: mqtt.publish
+#        data:
+#          topic: cmnd/sonoffs/POWER3  
+          
+################################################################################
+#	 Enforced Switch Entrance Light Off
+#    if was turned on manually and has not turned off after 5 minute without movements
+################################################################################
+  - alias: Switch Enforced Entrance Light Off
+    initial_state: true
+    trigger:
+      platform: time_pattern
+#      hours: 00
+      minutes: '/1'                     #every 1 minutes check whether we need to switch light off
+#      seconds: 00
+
+    condition:
+      - condition: template
+        value_template: "{{(as_timestamp(now()) - as_timestamp(states.binary_sensor.entrance_light_switched.last_changed)) | int > 300}}"
+        
+      - condition: state
+        entity_id: binary_sensor.zwave_motion_sensor
+        state: 'off'
+# optional: trigger only if state was this for last X time.
+        for:
+#          hours: 1
+          minutes: 5    #### 5 minutes without movements
+#          seconds: 30
+      - condition: state
+        entity_id: switch.mqtt_6e0052_rl_2    #### corridor entrance ligh switch tasmota
+        state: 'on'
+
+    action:
+      - service: homeassistant.turn_off
+        entity_id: switch.mqtt_6e0052_rl_2   #### switch light off enforced programmably
+#### debug message
+      - service: telegram_bot.send_message
+        data_template:
+          target: [!secret telegram_bot_chat_id_beeline]
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Enforced Switch Entrance Light Off after 5 minutes
+
+################################################################################
+#	 Enforced Switch StoreRoom Light Off
+#    if was turned on manually and has not turned off after 5 minute without movements
+################################################################################
+  - alias: Switch Enforced StoreRoom Light Off
+    initial_state: true
+    trigger:
+      platform: time_pattern
+#      hours: 00
+      minutes: '/1'                     #every 1 minutes check whether we need to switch light off
+#      seconds: 00
+
+    condition:
+      - condition: template
+        value_template: "{{(as_timestamp(now()) - as_timestamp(states.binary_sensor.entrance_light_switched.last_changed)) | int > 600}}"
+# turn off light in storeroom after 10 minutes of inactivity in corridor
+
+      - condition: state
+        entity_id: binary_sensor.zwave_motion_sensor
+        state: 'off'
+# optional: trigger only if state was this for last X time.
+        for:
+#          hours: 1
+          minutes: 10    #### 10 minutes without movements
+#          seconds: 30
+      - condition: state
+        entity_id: switch.corridortasmota    #### corridor storeroom ligh switch tasmota
+        state: 'on'
+
+    action:
+      - service: homeassistant.turn_off
+        entity_id: switch.corridortasmota   #### switch light off enforced programmably
+#### debug message
+      - service: telegram_bot.send_message
+        data_template:
+          target: [!secret telegram_bot_chat_id_beeline]
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Enforced Switch StoreRoom Light Off after 600 seconds            
+
+################################################################################
+#	 Enforced manual Switch Entrance Light On
+#    if was turned on manually in new test configuration 
+#    with ButtonTopic corridor-manual activated in tasmota
+################################################################################
+  - alias: Manually Switch Entrance Light On
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: switch.manual_entrance_light
+        from: 'off'
+        to: 'on'
+    condition:       
+      - condition: state
+        entity_id: switch.mqtt_6e0052_rl_2     #### switch.corridortasmota_2
+           # check the status of work - was not turned on before
+        state: 'off'
+    action:
+      - service: homeassistant.turn_on
+        entity_id: switch.mqtt_6e0052_rl_2   #### switch entrance light programmably switch.corridortasmota_2 ?
+
+
+################################################################################
+#	 Enforced manual Switch Entrance Light Off
+#    if was turned off manually in new test configuration 
+#    with ButtonTopic corridor-manual activated in tasmota
+################################################################################
+  - alias: Manually Switch Entrance Light Off
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: switch.manual_entrance_light
+        from: 'on'
+        to: 'off'
+    condition:       
+      - condition: state
+        entity_id: switch.mqtt_6e0052_rl_2    #### switch.corridortasmota_2
+           # check the status of work - was not turned on before
+        state: 'on'
+    action:
+      - service: homeassistant.turn_off
+        entity_id: switch.mqtt_6e0052_rl_2   #### switch entrance light programmably switch.corridortasmota_2 ?
+
+#switch.corridortasmota
+################################################################################
+#	 Enforced manual Switch Storeroom Light On
+#    if was turned on manually in new test configuration 
+#    with ButtonTopic corridor-manual activated in tasmota
+################################################################################
+  - alias: Manually Switch Entrance Light On
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: switch.manual_storeroom_light
+        from: 'off'
+        to: 'on'
+    condition:       
+      - condition: state
+        entity_id: switch.corridortasmota     #### 
+           # check the status of work - was not turned on before
+        state: 'off'
+    action:
+      - service: homeassistant.turn_on
+        entity_id: switch.corridortasmota   #### switch storeroom light programmably 
+
+
+################################################################################
+#	 Enforced manual Switch Storeroom Light Off
+#    if was turned off manually in new test configuration 
+#    with ButtonTopic corridor-manual activated in tasmota
+################################################################################
+  - alias: Manually Switch Entrance Light Off
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: switch.manual_storeroom_light
+        from: 'on'
+        to: 'off'
+    condition:       
+      - condition: state
+        entity_id: switch.corridortasmota    #### 
+           # check the status of work - was not turned on before
+        state: 'on'
+    action:
+      - service: homeassistant.turn_off
+        entity_id: switch.corridortasmota   #### switch entrance light programmably 

@@ -1,71 +1,10 @@
-#### https://github.com/arsaboo/homeassistant-config/blob/master/sensor.yaml
-#### https://home-assistant.io/components/sensor.wunderground/
-#### A free account allows 500 requests per day and also a maximum of 10 per minute.
-# At this time existing free keys will continue to work, but will be disabled Dec 31, 2018, except you own a personal weather station and provide your data to WU (PWS Uploader).
-# As of Sept 6, 2018 Weather Underground states they are declaring the End of Service for the Weather Underground API.
-# They say they will develop new plans for non-commercial users. No timeline for this has been announced. Please consider this when using the following information.
-#  - platform: wunderground
-#    api_key: !secret wunderground_api_key
-#    pws_id: IMOSKVA1297 # You can enter a Personal Weather Station ID. The current list of Wunderground PWS stations is available here.
-# If you do not enter a PWS ID, the current location information (latitude and longitude) from your configuration.yaml will be used to display weather conditions.
-
-#    monitored_conditions:
-#      - alerts  #Current severe weather advisories
-#      - dewpoint_c  # Temperature in Celsius below which water droplets begin to condense and dew can form
-#      - dewpoint_string  # Text summary of dew point
-#      - feelslike_c  # Feels like (or apparent) temperature in Celsius
-#      - feelslike_string  # Text summary of how the current temperature feels like
-#      - heat_index_c   # Heat index (combined effects of the temperature and humidity of the air) in Celsius
-#      - heat_index_string  # Text summary of current heat index
-#      - elevation  # Elevation in feet
-#      - location  # City and State
-#      - observation_time  # Text summary of observation time
-#      - precip_1hr_metric  # Forecasted precipitation intensity in milimeters
-#      - precip_1hr_string  #
-#      - precip_1d_mm
-#      - precip_1d
-#      - precip_today_metric  # Total precipitation in metric units
-#      - precip_today_string  # Text summary of precipitation today
-#      - pressure_mb  # Atmospheric air pressure in millibars
-#      - pressure_trend  # Atmospheric air presure trend signal (+/-)
-#      - relative_humidity  #
-#      - station_id: IMOSKVA1297  # Your personal weather station (PWS) ID
-#      - solarradiation  # Current levels of solar radiation
-#      - temperature_string  # Temperature text combinding Fahrenheit and Celsius
-#      - temp_c  # Current temperature in Celsius
-#      - temp_high_record_c  # Maximum temperature meassured in Celsius
-#      - temp_high_1d_c
-#      - temp_low_1d_c
-#      - temp_low_record_c  # Minimal temperature meassured in Celsius
-#      - UV  # Current levels of UV radiation.
-#      - visibility_km  # Average visibility in km
-#      - weather  # A human-readable text summary with picture from Wunderground.
-#      - weather_1d_metric
-#      - wind_degrees  #
-#      - wind_dir  # Wind direction
-#      - wind_gust_kph  # Wind gusts speed in kph
-#      - wind_kph  # Current wind speed in kph
-#      - wind_1d_kph
-#      - wind_string # Text summary of current wind conditions
-
 # Weather prediction
-  - platform: yr
+#  - platform: yr
 
-# OpenWeatherMap Sensor https://home-assistant.io/components/sensor.openweathermap/
-  - platform: openweathermap
-    api_key: !secret openweathermap_api_key
-#    latitude: !secret home_latitude
-#    longitude: !secret home_longitude
-    forecast: 1               #### https://github.com/home-assistant/home-assistant/issues/8640#issuecomment-318126680
-    monitored_conditions:
-      - weather
-      - temperature
-      - wind_speed
-      - humidity
-      - clouds
-      - rain
-      - snow 
 
+# moved into configuration.yaml
+# On March 31, 2020 Dark Sky was acquired by Apple and is no longer allowing new API registrations. 
+# The Dark Sky API will continue to function for existing users through the end of 2021
   - platform: darksky        #### https://www.home-assistant.io/components/weather.darksky/
     api_key: !secret DarkSkyAPIkey
     latitude: !secret home_latitude

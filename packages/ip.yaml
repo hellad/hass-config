@@ -30,7 +30,7 @@ automation:
     action:
       - service: notify.telegram_group
         data_template:
-          notify_text: "Произошла смена внешнего IP адреса на: '{{ states.sensor.external_ip.state }}'"
+          message: "Произошла смена внешнего IP адреса на: '{{ states.sensor.external_ip.state }}'"
 #          notify_mobile: True
 #          is_warning: True
 

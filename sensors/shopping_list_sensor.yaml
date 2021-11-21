@@ -1,0 +1,7 @@
+- platform: command_line
+  name: shopping_list
+  command: "jq -r '.[] | select(.complete==false) | .name' .shopping_list.json"
+    
+#  - platform: command_line
+#  name: shopping_list_number
+#  command: "jq length .shopping_list.json"
