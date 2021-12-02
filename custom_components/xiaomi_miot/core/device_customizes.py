@@ -13,7 +13,7 @@ DEVICE_CUSTOMIZES = {
     },
     'chuangmi.plug.v3': {
         'sensor_attributes': 'electric_power,prop_cal_day.power_cost:today,prop_cal_day.power_cost:month',
-        'sensor_miio_commands': {
+        'miio_commands': {
             'get_power': {
                 'params': [],
                 'values': ['electric_power'],
@@ -75,19 +75,36 @@ DEVICE_CUSTOMIZES = {
         'stat_power_cost_key': '2.2',
     },
     'cuco.plug.cp4': {
-        'sensor_properties': 'voltage,electric_current',
+        'sensor_properties': 'power,voltage,electric_current',
         'sensor_attributes': 'power_cost_today,power_cost_month',
         'stat_power_cost_key': '2.2',
     },
     'cuco.plug.cp4am': {
-        'sensor_properties': 'voltage,electric_current',
+        'sensor_properties': 'power,voltage,electric_current',
         'sensor_attributes': 'power_cost_today,power_cost_month',
         'stat_power_cost_key': '2.2',
     },
     'cuco.plug.cp4m': {
-        'sensor_properties': 'voltage,electric_current',
+        'sensor_properties': 'power,voltage,electric_current',
         'sensor_attributes': 'power_cost_today,power_cost_month',
         'stat_power_cost_key': '2.2',
+    },
+    'cuco.plug.cp5pro': {
+        'sensor_properties': 'voltage,electric_current',
+        'sensor_attributes': 'power_cost_today,power_cost_month',
+        'stat_power_cost_key': '10.1',
+    },
+    'cuco.plug.cp5pro:power_cost_today': {
+        'value_ratio': 1,
+        'state_class': 'total_increasing',
+        'device_class': 'energy',
+        'unit_of_measurement': 'kWh',
+    },
+    'cuco.plug.cp5pro:power_cost_month': {
+        'value_ratio': 1,
+        'state_class': 'total_increasing',
+        'device_class': 'energy',
+        'unit_of_measurement': 'kWh',
     },
     'cuco.plug.*:electric_current': {
         'state_class': 'measurement',
@@ -240,7 +257,7 @@ DEVICE_CUSTOMIZES = {
     },
     'roborock.vacuum.*': {
         'sensor_attributes': 'props:clean_area,props:clean_time',
-        'sensor_miio_commands': {
+        'miio_commands': {
             'get_status': ['props'],
             'get_consumable': ['consumables'],
         },
@@ -255,7 +272,7 @@ DEVICE_CUSTOMIZES = {
     },
     'rockrobo.vacuum.*': {
         'sensor_attributes': 'props:clean_area,props:clean_time',
-        'sensor_miio_commands': {
+        'miio_commands': {
             'get_status': ['props'],
             'get_consumable': ['consumables'],
         },
@@ -327,7 +344,7 @@ DEVICE_CUSTOMIZES = {
     },
     'zimi.powerstrip.v2': {
         'sensor_attributes': 'electric_power,store.powerCost:today,store.powerCost:month',
-        'sensor_miio_commands': {
+        'miio_commands': {
             'get_prop': {
                 'params': ['power_consume_rate'],
                 'values': ['electric_power'],
@@ -375,21 +392,18 @@ DEVICE_CUSTOMIZES = {
         'number_properties': 'off_delay_time',
         'switch_properties': 'fan_init_power_opt',
     },
-    '*.feeder.*': {
-        'switch_properties': 'feeding_measure',
-    },
-    '*.fishbowl.*': {
-        'switch_properties': 'feeding_measure',
-    },
     '*.light.*': {
         'number_properties': 'off_delay_time',
         'switch_properties': 'init_power_opt,fan_init_power_opt',
     },
     '*.lock.*': {
-        'sensor_attributes': 'event.7:door_state,event.11:lock_state,event.11:key_id',
-        'miio_cloud_records': 'event.7:1,event.11:1',
-        'miio_event_7_template': 'lock_event_7_template',
-        'miio_event_11_template': 'lock_event_11_template',
+        'sensor_attributes': 'door_state,lock_action,lock_key_id,timestamp',
+        'binary_sensor_attributes': 'armed_state',
+        'miio_cloud_props': 'event.6,event.7,event.8,event.11',
+        'miio_cloud_props_template': 'ble_lock_events',
+    },
+    '*.lock.*:timestamp': {
+        'device_class': 'timestamp',
     },
     '*.microwave.*': {
         'sensor_properties': 'left_time,heat_level,cook_time',
@@ -410,11 +424,20 @@ DEVICE_CUSTOMIZES = {
         'switch_properties': 'uv,radar_on,lighting.on',
         'number_properties': 'target_time',
     },
+    '*.sensor_smoke.*': {
+        'binary_sensor_attributes': 'smoke_status',
+        'miio_cloud_props': '4117',
+        'miio_cloud_props_template': 'ble_sensor_smoke',
+    },
+    '*.sensor_smoke.*:smoke_status': {
+        'device_class': 'smoke',
+    },
     '*.walkingpad.*': {
         'sensor_properties': 'current_distance,current_step_count,current_calorie_consumption,'
                              'left_distance,left_time,working_time',
         'number_properties': 'target_distance,target_time',
-        'select_properties': 'mode,speed_level',
+        'select_properties': 'mode',
+        'number_select_properties': 'speed_level',
     },
 
 }

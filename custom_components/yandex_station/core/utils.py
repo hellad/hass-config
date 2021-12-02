@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 import os
@@ -9,7 +10,11 @@ from logging import Logger
 from aiohttp import web, ClientSession
 from homeassistant.components import frontend
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.core import HomeAssistant
+from homeassistant.components.media_player import SUPPORT_PLAY_MEDIA
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import network
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.typing import HomeAssistantType
 
 _LOGGER = logging.getLogger(__name__)
@@ -344,3 +349,67 @@ def load_token_from_json(hass: HomeAssistant):
             raw = json.load(f)
         return raw['main_token']['access_token']
     return None
+
+
+@callback
+def get_media_players(hass: HomeAssistant) -> list:
+    """Get all Hass media_players not from yandex_station with support
+    play_media service.
+    """
+    # check entity_components because MPD not in entity_registry and DLNA has
+    # wrong supported_features
+    try:
+        ec: EntityComponent = hass.data["entity_components"]["media_player"]
+        return [
+            entity.entity_id
+            for entity in ec.entities
+            if entity.platform.platform_name != "yandex_station"
+               and entity.supported_features & SUPPORT_PLAY_MEDIA
+        ]
+    except:
+        return []
+
+
+class StreamingView(HomeAssistantView):
+    requires_auth = False
+
+    url = "/api/yandex_station/{sid}/{uid}.mp3"
+    name = "api:yandex_station"
+
+    links: dict = {}
+
+    def __init__(self, hass: HomeAssistant):
+        self.session = async_get_clientsession(hass)
+
+    @staticmethod
+    def get_url(hass: HomeAssistant, sid: str, url: str):
+        sid = sid.lower()
+        uid = hashlib.md5(url.encode()).hexdigest()
+        StreamingView.links[sid] = url
+        return network.get_url(hass) + f"/api/yandex_station/{sid}/{uid}.mp3"
+
+    async def head(self, request: web.Request, sid: str, uid: str):
+        url: str = self.links.get(sid)
+        if not url or hashlib.md5(url.encode()).hexdigest() != uid:
+            return web.HTTPNotFound()
+
+        # r = await self.session.head(url)
+        # support DLNA players
+        return web.Response(headers={"Content-Type": "audio/mpeg"})
+
+    async def get(self, request: web.Request, sid: str, uid: str):
+        url: str = self.links.get(sid)
+        if not url or hashlib.md5(url.encode()).hexdigest() != uid:
+            return web.HTTPNotFound()
+
+        try:
+            r = await self.session.get(url)
+
+            response = web.StreamResponse()
+            response.headers.update(r.headers)
+            await response.prepare(request)
+
+            async for chunk in r.content.iter_chunked(8192):
+                await response.write(chunk)
+        except:
+            pass

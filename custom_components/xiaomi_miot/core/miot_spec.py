@@ -306,7 +306,7 @@ class MiotService(MiotSpecInstance):
         super().__init__(dat)
         self.unique_name = f'{self.name}-{self.iid}'
         self.desc_name = self.format_desc_name(self.description, self.name)
-        self.friendly_desc = self.get_translation(self.description)
+        self.friendly_desc = self.get_translation(self.description or self.name)
         spec.services_count.setdefault(self.name, 0)
         spec.services_count[self.name] += 1
         self.properties = {}
@@ -374,6 +374,20 @@ class MiotService(MiotSpecInstance):
         for a in self.actions.values():
             if a.name in args:
                 return a
+        return None
+
+    def search_action(self, *args, **kwargs):
+        for v in self.actions.values():
+            dls = [
+                v.name,
+                v.description,
+                self.desc_name,
+                self.friendly_desc,
+            ]
+            for d in dls:
+                if d not in args:
+                    continue
+                return v
         return None
 
     def unique_prop(self, **kwargs):
@@ -491,7 +505,10 @@ class MiotProperty(MiotSpecInstance):
     def list_value(self, des):
         if des is not None and self.value_range:
             try:
-                val = int(des)
+                if self.range_step() % 1 > 0:
+                    val = float(des)
+                else:
+                    val = int(des)
             except (TypeError, ValueError):
                 val = None
             return val
@@ -712,6 +729,7 @@ class MiotAction(MiotSpecInstance):
         super().__init__(dat)
         self.unique_prop = self.service.unique_prop(aiid=self.iid)
         self.full_name = f'{service.name}.{self.name}'
+        self.friendly_desc = self.get_translation(self.description or self.name)
         self.ins = dat.get('in') or []
         self.out = dat.get('out') or []
 
@@ -752,6 +770,13 @@ class MiotAction(MiotSpecInstance):
         if len(kls) == len(out):
             return dict(zip(kls, out))
         return None
+
+    @property
+    def translation_keys(self):
+        return [
+            '_globals',
+            self.service.name,
+        ]
 
 
 class MiotResults:

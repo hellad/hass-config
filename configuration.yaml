@@ -312,7 +312,8 @@ light:
 #### https://home-assistant.io/components/alexa/#i-want-to-build-custom-commands-to-use-with-echo
 #### upgrade to 0.50 version https://community.home-assistant.io/t/need-to-change-plaintext-to-plain-in-intent-scripts-for-alexa-in-ha-50-1/23129/5
 alexa: 
-intent_script: !include alexa.yaml
+yandex_dialogs:
+intent_script: !include intents_yandex+alexa.yaml
 
 switch: !include_dir_merge_list switches
 

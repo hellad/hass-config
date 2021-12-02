@@ -1,0 +1,9 @@
+ - platform: command_line
+   name: "Список покупок - сенсор"
+   command: python3 /config/python_scripts/shopping_list.py
+   json_attributes:
+     - not_complete
+     - content
+   value_template: '{{ value_json.state }}'
+   scan_interval: 1
+   

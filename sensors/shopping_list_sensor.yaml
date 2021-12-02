@@ -1,3 +1,4 @@
+# не работает корректно. оставляет только первую позицию.
 - platform: command_line
   name: shopping_list
   command: "jq -r '.[] | select(.complete==false) | .name' .shopping_list.json"

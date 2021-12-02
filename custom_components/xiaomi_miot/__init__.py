@@ -864,7 +864,7 @@ class MiotEntity(MiioEntity):
         name = kwargs.get(CONF_NAME) or self._config.get(CONF_NAME) or ''
         self._miot_service = miot_service if isinstance(miot_service, MiotService) else None
         if self._miot_service:
-            name = f'{name} {self._miot_service.friendly_desc}'
+            name = f'{name} {self._miot_service.friendly_desc}'.strip()
             kwargs['miot_service'] = self._miot_service
         super().__init__(name, device, **kwargs)
 
@@ -1118,7 +1118,10 @@ class MiotEntity(MiioEntity):
         self._state = True if self._state_attrs.get('power') else False
 
         if self._miot_service:
-            for d in ['sensor', 'binary_sensor', 'switch', 'number', 'select', 'fan', 'cover']:
+            for d in [
+                'sensor', 'binary_sensor', 'switch', 'number',
+                'select', 'fan', 'cover', 'number_select',
+            ]:
                 pls = self.custom_config_list(f'{d}_properties') or []
                 if pls:
                     self._update_sub_entities(pls, '*', domain=d)
@@ -1205,7 +1208,13 @@ class MiotEntity(MiioEntity):
             await self.hass.async_add_executor_job(partial(self.update_miio_props, pls))
 
         # update miio commands in lan
-        if cls := self.custom_config_json('sensor_miio_commands'):
+        # sensor_miio_commands is deprecated
+        cls = self.custom_config_json('miio_commands')
+        if not cls:
+            cls = self.custom_config_json('sensor_miio_commands')
+            if cls:
+                _LOGGER.warning('Custom attribute `sensor_miio_commands` is deprecated, please use `miio_commands`.')
+        if cls:
             await self.hass.async_add_executor_job(partial(self.update_miio_command_sensors, cls))
 
     def update_miio_props(self, props):
@@ -1541,11 +1550,10 @@ class MiotEntity(MiioEntity):
                 self._state = False
         return ret
 
-    def _update_sub_entities(self, properties, services=None, domain=None, option=None):
+    def _update_sub_entities(self, properties, services=None, domain=None, option=None, **kwargs):
         from .sensor import MiotSensorSubEntity
         from .binary_sensor import MiotBinarySensorSubEntity
         from .switch import MiotSwitchSubEntity
-        from .switch import MiotSwitchActionSubEntity
         from .light import MiotLightSubEntity
         from .fan import MiotModesSubEntity
         from .cover import MiotCoverSubEntity
@@ -1606,13 +1614,7 @@ class MiotEntity(MiioEntity):
                 elif tms > 0:
                     if tms <= 1:
                         self.logger.info('%s: Device sub entity %s: %s already exists.', self.name, domain, fnm)
-                elif p.full_name not in self._state_attrs:
-                    if add_switches and p.name in ['feeding_measure']:
-                        act = s.get_action('pet_food_out')
-                        if not act:
-                            continue
-                        self._subs[fnm] = MiotSwitchActionSubEntity(self, p, act, option=opt)
-                        add_switches([self._subs[fnm]])
+                elif p.full_name not in self._state_attrs and not kwargs.get('whatever'):
                     continue
                 elif add_switches and domain == 'switch' and p.format in ['bool', 'uint8'] and p.writeable:
                     self._subs[fnm] = MiotSwitchSubEntity(self, p, option=opt)
@@ -1863,7 +1865,8 @@ class BaseSubEntity(BaseEntity):
             self.update_custom_scan_interval(only_custom=True)
         self._option['icon'] = self.custom_config('icon', self.icon)
         self._option['unit'] = self.custom_config('unit_of_measurement', self.unit_of_measurement)
-        self._attr_entity_category = self.custom_config('entity_category', self.entity_category)
+        if hasattr(self, 'entity_category'):
+            self._attr_entity_category = self.custom_config('entity_category', self.entity_category)
         if not self.device_class:
             self._option['device_class'] = self.custom_config('device_class')
 

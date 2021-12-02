@@ -2,7 +2,7 @@
 #### https://community.home-assistant.io/t/sonos-tts-script/8896/47
 #### https://community.home-assistant.io/t/sonos-tts-script/8896/59
 #### https://community.home-assistant.io/t/sonos-tts-script/8896/84
-
+#### variables defined somewhere in UI card when script is called
 
 sonos_tts:
   alias: Sonos Text To Speech
@@ -36,6 +36,16 @@ sonos_tts:
       data_template:
         entity_id: "{{ 'media_player.' ~ where }}"
  
+ 
+#### should be transfred from automation
+####   action:
+####     - service: script.turn_on
+####       entity_id: script.sonos_tts
+####       data:
+####         variables:
+####           what: 'Text to say'
+####           where: 'kitchen'
+ 
 #sonos_say:
 #  alias: Sonos TTS script
 #  sequence:
@@ -52,14 +62,7 @@ sonos_tts:
 #    - service: tts.google_say
 #      data_template:
 #        entity_id: "{{ 'media_player.' ~ where }}"
-#        message: "{{ what }}"                                            #### should be transfred from automation
-                                                                         ####   action:
-                                                                         ####     - service: script.turn_on
-                                                                         ####       entity_id: script.sonos_tts
-                                                                         ####       data:
-                                                                         ####         variables:
-                                                                         ####           what: 'Text to say'
-                                                                         ####           where: 'kitchen'
+#        message: "{{ what }}"                                            
 #    - delay: "{{ delay|default('00:00:00') }}"
 #    - wait_template: "{{ is_state('media_player.' ~ where, 'playing') }}"
 #      timeout: '00:00:05'
