@@ -65,9 +65,9 @@ async def async_devices(hass: HomeAssistant, data: RequestData, message: dict[st
     https://yandex.ru/dev/dialogs/alice/doc/smart-home/reference/get-devices-docpage/
     """
     devices = []
-    ent_reg = await entity_registry.async_get_registry(hass)
-    dev_reg = await device_registry.async_get_registry(hass)
-    area_reg = await area_registry.async_get_registry(hass)
+    ent_reg = entity_registry.async_get(hass)
+    dev_reg = device_registry.async_get(hass)
+    area_reg = area_registry.async_get(hass)
 
     hass.bus.async_fire(EVENT_DEVICE_DISCOVERY, context=data.context)
 
@@ -146,7 +146,7 @@ async def async_devices_execute(hass: HomeAssistant, data: RequestData, message:
             instance = capability['state']['instance']
 
             try:
-                await entity.execute(data, capability_type, instance, capability['state'])
+                value = await entity.execute(data, capability_type, instance, capability['state'])
             except SmartHomeError as e:
                 _LOGGER.error(f'{e.code}: {e.message}')
 
@@ -162,7 +162,7 @@ async def async_devices_execute(hass: HomeAssistant, data: RequestData, message:
                 })
                 continue
 
-            capabilities_result.append({
+            result = {
                 'type': capability_type,
                 'state': {
                     'instance': instance,
@@ -170,7 +170,11 @@ async def async_devices_execute(hass: HomeAssistant, data: RequestData, message:
                         'status': 'DONE',
                     }
                 }
-            })
+            }
+            if value:
+                result['state']['value'] = value
+
+            capabilities_result.append(result)
 
         devices.append({
             'id': entity_id,

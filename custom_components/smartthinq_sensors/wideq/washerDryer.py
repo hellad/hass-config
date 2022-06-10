@@ -4,7 +4,7 @@ import json
 import logging
 from typing import Optional
 
-from . import (
+from .const import (
     FEAT_ANTICREASE,
     FEAT_CHILDLOCK,
     FEAT_CREASECARE,
@@ -32,18 +32,13 @@ from . import (
     FEAT_TUBCLEAN_COUNT,
     FEAT_TURBOWASH,
     FEAT_WATERTEMP,
-)
-
-from .device import (
-    Device,
-    DeviceStatus,
-    DeviceType,
     STATE_OPTIONITEM_NONE,
     STATE_OPTIONITEM_OFF,
     STATE_OPTIONITEM_ON,
 )
-
 from .core_exceptions import InvalidDeviceStatus
+from .device import Device, DeviceStatus
+from .device_info import DeviceType
 
 STATE_WM_POWER_OFF = "@WM_STATE_POWER_OFF_W"
 STATE_WM_END = [
@@ -105,7 +100,7 @@ class WMDevice(Device):
             s_course_key = "SmartCourse"
             def_course_id = str(self.model_info.config_value("defaultCourseId"))
         if course_id is None:
-            # check if course is defined in data payload
+            # check if this course is defined in data payload
             for course_key in [n_course_key, s_course_key]:
                 course_id = str(data.get(course_key))
                 if self._get_course_info(course_key, course_id):
@@ -124,7 +119,7 @@ class WMDevice(Device):
 
         return ret_data
 
-    def _prepare_command_v1(self, cmd, key, value):
+    def _prepare_command_v1(self, cmd, key):
         """Prepare command for specific ThinQ1 device."""
         if "data" in cmd:
             str_data = cmd["data"]
@@ -145,7 +140,7 @@ class WMDevice(Device):
             cmd["data"] = str_data
         return cmd
 
-    def _prepare_command_v2(self, cmd, key, value):
+    def _prepare_command_v2(self, cmd, key):
         """Prepare command for specific ThinQ2 device."""
         data_set = cmd.pop("data", None)
         if not data_set:
@@ -195,30 +190,33 @@ class WMDevice(Device):
             return None
 
         if self.model_info.is_info_v2:
-            return self._prepare_command_v2(cmd, key, value)
-        return self._prepare_command_v1(cmd, key, value)
+            return self._prepare_command_v2(cmd, key)
+        return self._prepare_command_v1(cmd, key)
 
-    def power_off(self):
+    async def power_off(self):
         """Power off the device."""
         keys = self._get_cmd_keys(CMD_POWER_OFF)
-        self.set(keys[0], keys[1], value=keys[2])
+        await self.set(keys[0], keys[1], value=keys[2])
         self._update_status(POWER_STATUS_KEY, STATE_WM_POWER_OFF)
 
-    def wake_up(self):
+    async def wake_up(self):
         """Wakeup the device."""
         keys = self._get_cmd_keys(CMD_WAKE_UP)
-        self.set(keys[0], keys[1], value=keys[2])
+        await self.set(keys[0], keys[1], value=keys[2])
 
-    def remote_start(self):
+    async def remote_start(self):
         """Remote start the device."""
         if not self._remote_start_status:
             raise InvalidDeviceStatus()
 
         keys = self._get_cmd_keys(CMD_REMOTE_START)
-        self.set(keys[0], keys[1], key=keys[2])
+        await self.set(keys[0], keys[1], key=keys[2])
 
     def reset_status(self):
-        self._status = WMStatus(self, None)
+        tcl_count = None
+        if self._status:
+            tcl_count = self._status.tubclean_count
+        self._status = WMStatus(self, None, tcl_count)
         return self._status
 
     def _set_remote_start_opt(self, res):
@@ -232,10 +230,10 @@ class WMDevice(Device):
         elif not remote_enabled:
             self._remote_start_status = None
 
-    def poll(self) -> Optional["WMStatus"]:
+    async def poll(self) -> Optional["WMStatus"]:
         """Poll the device's current state."""
 
-        res = self.device_poll(WM_ROOT_DATA)
+        res = await self.device_poll(WM_ROOT_DATA)
         if not res:
             return None
 
@@ -250,12 +248,13 @@ class WMStatus(DeviceStatus):
     :param device: The Device instance.
     :param data: JSON data from the API.
     """
-    def __init__(self, device, data):
+    def __init__(self, device, data, tcl_count: str = None):
         super().__init__(device, data)
         self._run_state = None
         self._pre_state = None
         self._process_state = None
         self._error = None
+        self._tcl_count = tcl_count
 
     def _get_run_state(self):
         if not self._run_state:
@@ -506,11 +505,11 @@ class WMStatus(DeviceStatus):
         if not self.key_exist("TCLCount"):
             return None
         if self.is_info_v2:
-            result = DeviceStatus.int_or_none(self._data.get("TCLCount"))
+            result = self.int_or_none(self._data.get("TCLCount"))
         else:
             result = self._data.get("TCLCount")
         if result is None:
-            result = "N/A"
+            result = self._tcl_count or "N/A"
         return self._update_feature(
             FEAT_TUBCLEAN_COUNT, result, False
         )
@@ -662,7 +661,7 @@ class WMStatus(DeviceStatus):
         )
 
     def _update_features(self):
-        result = [
+        _ = [
             self.run_state,
             self.pre_state,
             self.process_state,

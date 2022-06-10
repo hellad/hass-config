@@ -1,0 +1,229 @@
+# Domofon
+
+automation:
+  - alias: Domofon incoming call notification
+    initial_state: true
+    trigger:
+      # Обнаружен звонок
+      - platform: state
+        entity_id: binary_sensor.domofon_incoming_call
+        to: 'on'
+    action:
+      - choose:
+          # Включён режим авто-открыть или авто-открыть-один-раз
+          - conditions:
+              - condition: or
+                conditions:
+                  - condition: state
+                    entity_id: switch.domofon_automatically_open
+                    state: 'on'
+                  - condition: state
+                    entity_id: switch.domofon_automatically_open_once
+                    state: 'on'
+            sequence:
+              # Отправить уведомление
+              - service: notify.telegram_family
+                data:
+                  message: "Звонок в домофон (откроется автоматически)"
+          # Включён режим авто-отклонить
+          - conditions:
+              - condition: state
+                entity_id: switch.domofon_automatically_reject
+                state: 'on'
+            sequence:
+              # Отправить уведомление
+              - service: notify.telegram_family
+                data:
+                  message: "Звонок в домофон (отклонится автоматически)"
+        default:
+          # Отправить уведомление с кнопками Открыть/Отклонить
+          - service: notify.telegram_family
+            data:
+              message: "Звонок в домофон"
+              data:
+                inline_keyboard:
+                  - "{{ 'Открыть:/domofon_open, Отклонить:/domofon_reject' }}"
+          # Оповестить на колонке в кухне о звонке в домофон
+          - service: script.turn_on
+            entity_id: script.sonos_tts # A cloud queue cannot be restarted. 
+                                        #This includes queues started from within Spotify and queues controlled by Amazon Alexa.
+            data:
+              variables:
+                where: 'kitchen'
+                what: >
+                  Внимание, кто-то звонит в домофон
+          
+#### не восстанавливает проигрывание музыки (из Pandora) после сообщения
+#          - service: tts.google_translate_say
+#            entity_id: media_player.kitchen   # Say to the sonos speaker device entity
+#            data_template:
+#              language: ru
+#              message: >
+#                Внимание, кто-то звонит в домофон 
+
+
+
+
+  - alias: Telegram /domofon_open callback
+    initial_state: true
+    trigger:
+      # Из телеграмма пришла команда Открыть
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          data: '/domofon_open'
+    action:
+      - choose:
+          # Идет звонок
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.domofon_incoming_call
+                state: 'on'
+            sequence:
+              # Отправить подтверждение о намерении открыть
+              - service: telegram_bot.answer_callback_query
+                data_template:
+                  callback_query_id: "{{ trigger.event.data.id }}"
+                  message: "Открываю..."
+              # Открыть
+              - service: switch.turn_on
+                entity_id: switch.domofon_accept_call
+        default:
+          # Отправить ответ, что нету звонка
+          - service: telegram_bot.answer_callback_query
+            data_template:
+              callback_query_id: "{{ trigger.event.data.id }}"
+              message: "Нет входящего звонка"
+
+  - alias: Telegram /domofon_reject callback
+    initial_state: true
+    trigger:
+      # Из телеграмма пришла команда Отклонить
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          data: '/domofon_reject'
+    action:
+      - choose:
+          # Идет звонок
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.domofon_incoming_call
+                state: 'on'
+            sequence:
+              # Отправить подтверждение о намерении отклонить
+              - service: telegram_bot.answer_callback_query
+                data_template:
+                  callback_query_id: "{{ trigger.event.data.id }}"
+                  message: "Отклоняю..."
+              # Открыть
+              - service: switch.turn_on
+                entity_id: switch.domofon_reject_call
+        default:
+          # Отправить ответ, что нету звонка
+          - service: telegram_bot.answer_callback_query
+            data_template:
+              callback_query_id: "{{ trigger.event.data.id }}"
+              message: "Нет входящего звонка"
+
+  - alias: Domofon opened by button notification
+    initial_state: true
+    trigger:
+      # Нажата кнопка на плате
+      - platform: state
+        entity_id: binary_sensor.domofon_button
+        to: 'on'
+    condition:
+      # Идет звонок
+      - condition: state
+        entity_id: binary_sensor.domofon_incoming_call
+        state: 'on'
+    action:
+      # Отправить уведомление
+      - service: notify.telegram_family
+        data:
+          message: "Домофон открыт кнопкой"
+
+
+#### =======================================================
+
+  - alias: 'Telegram bot open Domofon once by key'
+    trigger:
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          data: "/oo"                              #### /oo
+      - platform: event
+        event_type: telegram_text
+        event_data:
+          text: "Домофон"
+    action:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.domofon_automatically_open_once
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Включен режим однократного открытия домофона.
+
+  - alias: 'Telegram bot open Domofon once'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: "/oo"                              #### /oo
+      - platform: event
+        event_type: telegram_text
+        event_data:
+          text: "Домофон"
+    action:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.domofon_automatically_open_once
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Включен режим однократного открытия домофона.
+            
+  - alias: 'Telegram bot mute Domofon once by key'
+    trigger:
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          data: "/mo"                              #### /mo
+      - platform: event
+        event_type: telegram_text
+        event_data:
+          text: "Домофон"
+    action:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.domofon_mute_sound_once
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Включен режим однократного ключения звука домофона.
+
+  - alias: 'Telegram bot mute Domofon once'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: "/mo"                              #### /mo
+      - platform: event
+        event_type: telegram_text
+        event_data:
+          text: "Домофон"
+    action:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.domofon_mute_sound_once
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Включен режим однократного выключения звука домофона.
+# switch.domofon_mute_sound_once

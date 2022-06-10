@@ -31,12 +31,6 @@
           "token": "Token",
           "telnet_cmd": "Open Telnet command"
         }
-      },
-      "ble": {
-        "title": "Add BLE Device",
-        "data": {
-          "mac": "Device"
-        }
       }
     }
   },
@@ -55,14 +49,14 @@
           "host": "Host",
           "token": "Token",
           "telnet_cmd": "Open Telnet command",
-          "ble": "Support BLE Devices",
-          "stats": "Zigbee and BLE performance data",
-          "debug": "Debug",
-          "buzzer": "Disable buzzer [PRO]",
-          "parent": "Parent devices in stats [PRO]",
-          "zha": "Mode [PRO]"
+          "ble": "Support Bluetooth devices",
+          "stats": "Add statistic sensors",
+          "debug": "Debug logs",
+          "buzzer": "[DANGER] Disable buzzer",
+          "memory": "[DANGER] Use storage in memory",
+          "zha": "[DANGER] Mode ZHA or zigbee2mqtt"
         },
-        "description": "Change **PRO** options ONLY if you know what you doing"
+        "description": "Change **[DANGER]** options ONLY if you know what you doing"
       }
     }
   },

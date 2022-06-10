@@ -1,0 +1,1 @@
+tele/bathroom/SENSOR,{"Time":"2022-02-10T18:10:57","Switch1":"OFF","BME680":{"Temperature":33.2,"Humidity":17.6,"DewPoint":5.4,"Pressure":737.0,"Gas":2552.38},"PressureUnit":"mmHg","TempUnit":"C"}

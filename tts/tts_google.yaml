@@ -1,12 +1,17 @@
 #### https://home-assistant.io/components/tts.google/
 #### If you are using SSL certificate or Docker, you may need to add the base_url configuration variable to your html
+#### https://www.home-assistant.io/integrations/tts/
 
 #### https://console.developers.google.com/apis/api/speech.googleapis.com/overview?project=raspberrymediacenter-1970
 #### Converts audio to text by applying powerful neural network models.
 
   - platform: google_translate
-#    service_name: google_say
+#    service_name: google_say # The service name default set to _say. For example, for google_translate tts, its service name default is google_translate_say
     language: 'ru'  # The language to use. Defaults to en
-    cache: false
-#    cache_dir: /www
-    time_memory: 300
+    cache: false  # Allow TTS to cache voice file to local storage.
+    base_url: https://hellad.noip.me:88  # A base URL to use instead of the one set in the Home Assistant configuration. 
+                              # It is used as-is by the tts component. In particular, you need to include the protocol scheme http:// or https:// and the correct port number. 
+                              # They will not be automatically added for you.
+#    cache_dir: /www  # Folder name or path to a folder for caching files.
+    time_memory: 300  # Time to hold the voice data inside memory for fast play on a media player.
+                      # Minimum is 60 s and the maximum 57600 s (16 hours).

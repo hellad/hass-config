@@ -4,10 +4,10 @@
   yandex_tts1:
     alias: TTS зависит от настройки "Режим звука"!
     sequence:
-    - service: tts.alice_say
+    - service: tts.yandex_station_say                                  # tts.alice_say
       entity_id: media_player.yandex_station_94007890870c640d0acf
       data_template:
-        message: Температура в коридоре {{ states('sensor.aeon_labs_zw100_multisensor_6_temperature')|round }} градуса.
+        message: Температура в коридоре {{ states('sensor.multisensor_6_air_temperature')|round }} градуса.
 
   yandex_tts2:
     alias: TTS не зависит от настройки "Режим звука"
@@ -44,8 +44,9 @@
       data:
         entity_id:
         - media_player.yandex_station_94007890870c640d0acf               # station
-        - media_player.yandex_station__210d8400a818973072efca94ef519c6a  # module
-        volume_level: 0.5
+        - media_player.yandex_module_210d8400a818973072efca94ef519c6a    # module
+        - media_player.yandex_station_m00t8c500rkshb                     # Станция Мини
+        volume_level: 0.5                                                # 50%
 
 # Только для локального режима!
   yandex_play_album:  # только в локальном режиме!!!

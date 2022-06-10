@@ -35,7 +35,7 @@ sensors/yandex_transport.yaml
 # Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
 ip_bans.yaml
 secrets.yaml
-known_devices.yaml*
+known_devices.*
 .google_maps_location_sharing.cookies.ad6170epson_gmail_com
 options.xml
 plex.conf

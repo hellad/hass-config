@@ -29,12 +29,6 @@
           "token": "Token",
           "telnet_cmd": "Comanda de deschidere Telnet"
         }
-      },
-      "ble": {
-        "title": "Add BLE Device",
-        "data": {
-          "mac": "Device"
-        }
       }
     }
   },
@@ -56,11 +50,11 @@
           "ble": "Dispozitive BLE suportate",
           "stats": "Date despre performanta dispozitivelor Zigbee si BLE",
           "debug": "Debug",
-          "buzzer": "Dezactiveaza buzzer [PRO]",
-          "parent": "Afiseaza dispozitivele tip parinte in statistici [PRO]",
-          "zha": "Mod [PRO]"
+          "buzzer": "[DANGER] Dezactiveaza buzzer",
+          "memory": "[DANGER] Use storage in memory",
+          "zha": "[DANGER] Mode ZHA or zigbee2mqtt"
         },
-        "description": "Nu schimba optiunile **PRO** DECAT daca stii ce fac!"
+        "description": "Nu schimba optiunile **[DANGER]** DECAT daca stii ce fac!"
       }
     }
   },

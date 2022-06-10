@@ -13,9 +13,9 @@
 #      below: 22
 
     action:
-      - service: persistent_notification.create
-        data:
-          message: "Home temperature AEON sensor value is higher than 26C. Температура дома выше 26С."
+#      - service: persistent_notification.create
+#        data:
+#          message: "Home temperature AEON sensor value is higher than 26C. Температура дома выше 26С."
 #          message: "Home temperature MQTT sensor value is lower than 22C. Температура дома ниже 22С."
 
       - service: notify.telegram_group
@@ -55,9 +55,9 @@
 #      after: '8:00:00'
 #      before: '23:30:00'
     action:
-      - service: persistent_notification.create
-        data:
-          message: "Bathroom humidity MQTT sensor value is higher than 55%. Влажность в ванной выше 55%."
+#      - service: persistent_notification.create
+#        data:
+#          message: "Bathroom humidity MQTT sensor value is higher than 55%. Влажность в ванной выше 55%."
       - service: notify.telegram_group
         data_template:
           message: "Bathroom humidity MQTT sensor value is higher than 55%. Влажность в ванной выше 55%."
@@ -80,6 +80,48 @@
         data_template:
           message: > 
             Внимание.  Влажность в ванной превысила 55 процентов.
+
+################################################################################
+#	Check CO2 sensor value and show notification
+#
+################################################################################
+  - alias: Check CO2 sensor value and show notification
+    initial_state: True  # To set an automation to be disabled when Home Assistant starts set initial_state: to False.
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.cgllc_cgdn1_5dcf_co2_density    # Xiaomi Air Monitor
+      above: 800
+#    condition:
+#      condition: time
+      # At least one of the following is required.
+#      after: '8:00:00'
+#      before: '23:30:00'
+    action:
+      - service: persistent_notification.create
+        data:
+          message: "Bedroom CO2 sensor value is higher than 800. Углекислый газ в спальне выше 800."
+#      - service: notify.telegram_group
+#        data_template:
+#          message: "Bedroom CO2 sensor value is higher than 800. Углекислый газ в спальне выше 800."
+      - service: notify.telegram_group
+        data_template:
+#          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
+          message: "Внимание пора проветрить в спальне, углекислый газ больше 800."
+
+      - condition: and
+        conditions:
+          - condition: time
+      # At least one of the following is required.
+            after: '8:30:00'
+          - condition: time
+            before: '23:30:00'
+
+      - service: tts.google_translate_say
+        entity_id: media_player.kitchen   # Say to the sonos media_player device 
+#        entity_id: media_player.vlcmp   # Say to the media_player.vlcmp device entity
+        data_template:
+          message: > 
+            Внимание пора проветрить в спальне, углекислый газ больше 800.
 
 ################################################################################
 #	 Save timestamps of last motion detected by sensors
@@ -254,23 +296,23 @@
 #	 HASS Update Available Notifications
 #	
 ################################################################################
-  - alias: 'HASS Update Available Notifications'
-    initial_state: true
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.updater
-        from: 'off'
-        to: 'on'       
-    action:
-      - service: telegram_bot.send_message
-        data_template:
+#  - alias: 'HASS Update Available Notifications'
+#    initial_state: true
+#    trigger:
+#      - platform: state
+#        entity_id: binary_sensor.updater
+#        from: 'off'
+#        to: 'on'       
+#    action:
+#      - service: telegram_bot.send_message
+#        data_template:
 #          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
-          target: 
-            - !secret telegram_bot_chat_id_beeline 
-            - !secret telegram_bot_chat_id_megafon
-          title: '{{ as_timestamp (now()) | timestamp_custom("%d/%b/%Y %T") }}'
-          message: >
-              New Home Assistant  {{ state_attr('binary_sensor.updater', 'newest_version') }}  is now available.
+#          target: 
+#            - !secret telegram_bot_chat_id_beeline 
+#            - !secret telegram_bot_chat_id_megafon
+#          title: '{{ as_timestamp (now()) | timestamp_custom("%d/%b/%Y %T") }}'
+#          message: >
+#              New Home Assistant  {{ state_attr('binary_sensor.updater', 'newest_version') }}  is now available.
 
 ################################################################################
 #	 
@@ -281,7 +323,7 @@
     initial_state: true
     trigger:
       platform: zone
-      entity_id: device_tracker.adhtc_u12
+      entity_id: device_tracker.oneplus9pro_2
       zone: zone.home
       # Event is either enter or leave
       event: enter  # or "leave"
@@ -300,7 +342,7 @@
     initial_state: true
     trigger:
       platform: zone
-      entity_id: device_tracker.adhtc_u12
+      entity_id: device_tracker.oneplus9pro_2
       zone: zone.office
       # Event is either enter or leave
       event: enter  # or "leave"

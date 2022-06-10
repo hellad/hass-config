@@ -6,7 +6,7 @@
 
 - platform: dunehd
   host: 192.168.192.3
-  name: Dune 4K Pro
+  name: Dune 4K Pro player
 
 - platform: dunehd
   host: 192.168.192.10

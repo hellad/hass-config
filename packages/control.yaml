@@ -1,4 +1,5 @@
 #control:
+# attempt to create switch for automations and quick turn them all off?
 
     binary_sensor:
     

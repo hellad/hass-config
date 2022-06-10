@@ -11,9 +11,9 @@
 
       type: plain
       text: >-
-          The temperature in room is {{ states("sensor.aeon_labs_zw100_multisensor_6_temperature") }} Celcius .
-          The humidity in room is  {{ states("sensor.aeon_labs_zw100_multisensor_6_relative_humidity") }} % . 
-          The temperature near kitchen window is {{ states("sensor.sn1_temperature") }} Celcius . 
+          The temperature in corridor is {{ states("sensor.multisensor_6_air_temperature") }} Celcius .
+          The humidity in corridor is  {{ states("sensor.multisensor_6_humidity") }} % . 
+          The temperature in room is {{ states("sensor.cgllc_cgdn1_5dcf_temperature") }} Celcius . 
 
   StatusIntent:
     speech:
@@ -21,10 +21,10 @@
       text: >-
           Today is {{ states.sensor.date.state }}, current time is {{ states.sensor.time.state }}.
           System is working! Time since last reboot is  {{ as_timestamp(states.sensor.last_boot.state)| timestamp_custom("%Y-%m-%d %X") }}. 
-          The temperature in room is {{ states("sensor.aeon_labs_zw100_multisensor_6_temperature") }} Celcius .
-          The humidity in room is  {{ states("sensor.aeon_labs_zw100_multisensor_6_relative_humidity") }} % . 
+          The temperature in room is {{ states("sensor.cgllc_cgdn1_5dcf_temperature") }} Celcius .
+          The humidity in room is  {{ states("sensor.cgllc_cgdn1_5dcf_environment") }} % . 
           Irina is at {{ states.device_tracker.irina.state|replace("_"," ") }} .
-          Andrey is at {{ states.device_tracker.adhtc.state|replace("_"," ") }} .
+          Andrey is at {{ states.device_tracker.andrey.state|replace("_"," ") }} .
           Pavel is at {{ states.device_tracker.iphone7.state|replace("_"," ") }} ,
           and Prokhor is at {{ states.device_tracker.mi4prime_xiaomi.state|replace("_"," ") }}.
           Today Weather is {{ states('sensor.dark_sky_summary') }}.

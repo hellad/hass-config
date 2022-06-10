@@ -132,4 +132,4 @@
       data_template:
         target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
         message: >
-          {{now().strftime("%H:%M:%S %Y-%m-%d")}} New fan command sent to Air conditioner from homeassistant GUI input_number.bedroom_aircon_fan: {{ states.input_number.bedroom_aircon_fan.state }}.    
+          {{now().strftime("%H:%M:%S %Y-%m-%d")}} New fan command sent to Air conditioner from homeassistant GUI input_number.bedroom_aircon_fan: {{ states.input_select.bedroom_aircon_fan.state }}.    

@@ -1,6 +1,10 @@
-# Internet HASS Module
-#
-# Provides external IP address.
+#### Internet HASS Module
+####
+#### Provides external IP address.
+#### https://www.home-assistant.io/integrations/dnsip/
+#### check in nslookup myip.opendns.com
+#### sensor.hellad_myds_me
+
 
 sensor:
 
@@ -9,7 +13,7 @@ sensor:
     name: External IP
     command: "curl -m 10 -s checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//'"
     unit_of_measurement: ""
-    scan_interval: 900
+    scan_interval: 300
     #value_template: '{{ value }}'
 
 #### this server can be overloaded and does not reply.that's why sensor became "unknown"
@@ -26,11 +30,13 @@ automation:
   - alias: IP Changed
     trigger:
       - platform: state
-        entity_id: sensor.external_ip
+#        entity_id: sensor.external_ip
+        entity_id: sensor.hellad_myds_me
     action:
       - service: notify.telegram_group
         data_template:
-          message: "Произошла смена внешнего IP адреса на: '{{ states.sensor.external_ip.state }}'"
+          message: "Произошла смена внешнего IP адреса на: '{{ states.sensor.hellad_myds_me.state }}'"
+#          message: "Произошла смена внешнего IP адреса на: '{{ states.sensor.external_ip.state }}'"
 #          notify_mobile: True
 #          is_warning: True
 

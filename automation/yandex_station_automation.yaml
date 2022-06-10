@@ -1,8 +1,20 @@
+#### https://github.com/AlexxIT/YandexDialogs
+- trigger:
+    platform: event
+    event_type: yandex_intent  # это событие ОТ вашего навыка
+    event_data:
+      text: привет  # проверяем точное совпадение с фразой "привет"
+  action:
+    event: yandex_intent_response  # это наш ответ навыку, нужно уложиться в пару секунд
+    event_data:
+      text: "{{ ['слушаю', 'здесь я', 'на связи']|random }}"
+
+####
 - trigger:
     platform: event
     event_type: yandex_intent
     event_data:
-      text: Покажи сообщение
+      text: покажи сообщение
   action:
     service: persistent_notification.create
     data:
@@ -30,3 +42,35 @@
       media_content_id: "{{ trigger.event.data['args']|join(' ') }}"
       media_content_type: "question:{{ trigger.event.data.chat_id }}"
 
+- alias: Как дела
+  trigger:
+    - platform: event
+      event_type: yandex_intent
+      event_data:
+        text: как дела  # пример (1)
+#        room: Спальня     # сработает, если спросили колонку в комнате "Кухня"
+  action:
+    - service: media_player.play_media
+      target:
+        entity_id: '{{ trigger.event.data.entity_id }}'
+      data:
+        media_content_type: text
+        media_content_id: Здесь в спальне всё отлично!
+#        media_content_id: Здесь в комнате {{ trigger.event.data.room }} всё отлично!
+
+#### Похоже на реакцию после вызова трансляции музыки с колонки на сонос - то ли из GUI, то ли голосом
+- alias: Трансляция на Сонос
+  description: ''
+  trigger:
+    - platform: event
+      event_type: yandex_speaker
+      event_data:
+        value: Включаю трансляцию на Сонос
+  condition: []
+  action:
+    - service: media_player.select_sound_mode
+      target:
+        entity_id: media_player.yandex_station_94007890870c640d0acf
+      data:
+        sound_mode: media_player.kitchen
+  mode: single

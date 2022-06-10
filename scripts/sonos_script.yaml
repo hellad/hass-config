@@ -16,7 +16,7 @@ sonos_tts:
     - service: media_player.volume_set
       data_template:
         entity_id: "{{ 'media_player.' ~ where }}"
-        volume_level: "{{ states.input_number.volume_radio.state|default(0.2) }}"    # {{  states('input_number.volume_radio')  }}
+        volume_level: "{{ states.input_number.volume_radio.state|default(0.5) }}"    # {{  states('input_number.volume_radio')  }}
     - service: tts.google_translate_say
       data_template:
         entity_id: "{{ 'media_player.' ~ where }}"
@@ -32,7 +32,7 @@ sonos_tts:
         {% set minutes = (duration / 60)|int % 60 %}
         {% set hours = (duration / 3600)|int %}
         {{ "%02i:%02i:%02i"|format(hours, minutes, seconds)}}
-    - service: sonos.restore
+    - service: sonos.restore # A cloud queue cannot be restarted. This includes queues started from within Spotify and queues controlled by Amazon Alexa.
       data_template:
         entity_id: "{{ 'media_player.' ~ where }}"
  

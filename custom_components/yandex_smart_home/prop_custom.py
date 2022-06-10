@@ -72,9 +72,6 @@ class CustomEntityProperty(AbstractProperty, ABC):
         return True
 
     def get_value(self) -> str | float | None:
-        if not self.retrievable:
-            return None
-
         value_attribute = self.property_config.get(CONF_ENTITY_PROPERTY_ATTRIBUTE)
 
         if value_attribute:
@@ -93,7 +90,7 @@ class CustomEntityProperty(AbstractProperty, ABC):
 
     @property
     def property_entity_id(self) -> str | None:
-        return self.property_config.get(CONF_ENTITY_PROPERTY_ENTITY)
+        return self.property_config.get(CONF_ENTITY_PROPERTY_ENTITY, self.property_state.entity_id)
 
 
 class CustomFloatEntityProperty(CustomEntityProperty, FloatProperty):
@@ -111,7 +108,7 @@ class CustomFloatEntityProperty(CustomEntityProperty, FloatProperty):
     def get_value(self) -> float | None:
         value = super().get_value()
 
-        if self.instance in [const.FLOAT_INSTANCE_PRESSURE, const.FLOAT_INSTANCE_TVOC]:
+        if self.instance in [const.FLOAT_INSTANCE_PRESSURE, const.FLOAT_INSTANCE_TVOC, const.FLOAT_INSTANCE_AMPERAGE]:
             value_unit = self.property_config.get(CONF_ENTITY_PROPERTY_UNIT_OF_MEASUREMENT,
                                                   self.property_state.attributes.get(ATTR_UNIT_OF_MEASUREMENT))
             return self.convert_value(value, value_unit)
@@ -120,6 +117,8 @@ class CustomFloatEntityProperty(CustomEntityProperty, FloatProperty):
 
 
 class CustomEventEntityProperty(CustomEntityProperty, EventProperty):
+    report_immediately = True
+
     def __init__(self, hass: HomeAssistant, config: Config, state: State,
                  property_state: State, property_config: dict[str, str]):
         super().__init__(hass, config, state, property_state, property_config)
@@ -129,6 +128,3 @@ class CustomEventEntityProperty(CustomEntityProperty, EventProperty):
 
     def get_value(self) -> str | None:
         return self.event_value(super().get_value())
-
-    def supported(self) -> bool:
-        return bool(self.config.beta)

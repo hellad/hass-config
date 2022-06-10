@@ -15,8 +15,8 @@
       - group.sonoff_bathroom_mirror_card      #### bathroom mirror. see in my_sonoff_devices.yaml package file
       - group.sonoff_kitchen_card 
       - group.balcon                     #### balcon light 2 gang tuya esp-12f switch. 
-      - switch.sonoff_debug
-      - light.wled                      #### led strip via esp8266 nodemcu
+#      - switch.sonoff_debug
+      - light.wled_segment_0                      #### led strip via esp8266 nodemcu
 
 
   Cameras_view:
@@ -39,7 +39,7 @@
     entities:
       - group.Temperature_sensors
       - group.DarkSky
-      - sensor.yr_symbol
+#      - sensor.yr_symbol
       - sensor.USD_RUB_rate
 #      - sensor.badlogin      
 
@@ -77,9 +77,9 @@
   Balcon:
     name: Свет на балконе
     entities:
-      - switch.mqtt_6e000d_rl_1
+      - switch.balconytasmota  # right switch
       - switch.mqtt_6e000d_rl_2
-#      - switch.balconytasmota # right switch
+
       
   Cameras:
     name: Камеры
@@ -182,8 +182,8 @@
       - sensor.last_motion_bathroom_sensor
 #      - automation.check_mqtttemp_sensor_value_and_show_notification
 #      - automation.check_bathmqtthumidity_sensor_value_and_show_notification
-      - sensor.aeon_labs_zw100_multisensor_6_temperature
-      - sensor.aeon_labs_zw100_multisensor_6_relative_humidity
+      - sensor.multisensor_6_air_temperature
+      - sensor.multisensor_6_humidity
 #      - sensor.raspvideotemp
 #      - sensor.cpu_temp
 
@@ -194,9 +194,9 @@
       - sensor.hass_uptime
       - sensor.time
       - sensor.date
-      - sensor.ssl_certificate_expiry
+      - sensor.cert_expiry_timestamp_hellad_myds_me
       - group.family_members
-      - sensor.cpu_use
+      - sensor.nas_cpu_load_total
       - sensor.disk_use_percent
       - sensor.swap_use_percent
       - sensor.memory_free
@@ -204,7 +204,7 @@
       - sensor.db_size
       - sensor.network_in_eth0
       - sensor.network_out_eth0
-      - device_tracker.ad_iphone
+#
       - device_tracker.andrey
       - device_tracker.irina
       - device_tracker.pavel
@@ -254,12 +254,12 @@
       - input_number.ampvol
       - media_player.kitchen
       - media_player.bedroom
-      - media_player.dune_hd_3
       - media_player.home_theater
       - media_player.home_theater_zone2
       - media_player.yandex_station_94007890870c640d0acf
       - media_player.yandex_station_210d8400a818973072efca94ef519c6a
-      - media_player.bedroom_lg_tv
+      - media_player.yandex_station_m00t8c500rkshb
+      - media_player.bedroom_lg_tv_3
 
   family_bithday:
     entities:
@@ -270,7 +270,7 @@
   family_members:
     name: Члены семьи 
     entities:
-      - device_tracker.ad_iphone
+#      - device_tracker.ad_iphone
       - device_tracker.andrey
       - device_tracker.irina
 #      - device_tracker.irina_g7
@@ -323,7 +323,7 @@
     entities:  
       - sensor.Kitchen_temperature  
       - sensor.Kitchen_humidity    
-      - sensor.sn1_pir  
+#      - sensor.sn1_pir  
       - light.sn1_led
       - sensor.kitchen_last_motion_multisensor
 

@@ -6,6 +6,7 @@ import re
 import uuid
 from datetime import datetime
 from logging import Logger
+from typing import List
 
 from aiohttp import web, ClientSession
 from homeassistant.components import frontend
@@ -16,6 +17,9 @@ from homeassistant.helpers import network
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.typing import HomeAssistantType
+from yarl import URL
+
+from .const import *
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -299,10 +303,9 @@ def fix_cloud_text(text: str) -> str:
     2. Команда Алисе должна быть не длиннее 100 символов
     3. Нельзя использовать 2 пробела подряд (PS: что с ними не так?!)
     """
-    text = text.strip()
     text = RE_CLOUD_TEXT.sub('', text)
     text = RE_CLOUD_SPACE.sub(' ', text)
-    return text[:100]
+    return text.strip()[:100]
 
 
 # https://music.yandex.ru/users/alexey.khit/playlists
@@ -352,22 +355,50 @@ def load_token_from_json(hass: HomeAssistant):
 
 
 @callback
-def get_media_players(hass: HomeAssistant) -> list:
+def get_media_players(hass: HomeAssistant) -> List[dict]:
     """Get all Hass media_players not from yandex_station with support
     play_media service.
     """
     # check entity_components because MPD not in entity_registry and DLNA has
     # wrong supported_features
     try:
+        conf = hass.data[DOMAIN][DATA_CONFIG].get(CONF_MEDIA_PLAYERS)
+        if conf:
+            if isinstance(conf, dict):
+                return [{"entity_id": k, "name": v} for k, v in conf.items()]
+            assert all("entity_id" in i and "name" in i for i in conf), conf
+            return conf
+
         ec: EntityComponent = hass.data["entity_components"]["media_player"]
-        return [
-            entity.entity_id
-            for entity in ec.entities
-            if entity.platform.platform_name != "yandex_station"
-               and entity.supported_features & SUPPORT_PLAY_MEDIA
-        ]
-    except:
+        return [{
+            "entity_id": entity.entity_id,
+            "name": (
+                    (entity.registry_entry and entity.registry_entry.name) or
+                    entity.name
+            ),
+        } for entity in ec.entities if (
+                entity.platform.platform_name != DOMAIN and
+                entity.supported_features & SUPPORT_PLAY_MEDIA
+        )]
+    except Exception:
         return []
+
+
+def encode_media_source(query: dict) -> str:
+    """Convert message param as URL query and all other params as hex path."""
+    if "message" in query:
+        message = query.pop("message")
+        return encode_media_source(query) + "?message=" + message
+    return URL.build(query=query).query_string.encode().hex()
+
+
+def decode_media_source(media_id: str) -> dict:
+    url = URL(media_id)
+    try:
+        url = URL(f"?{bytes.fromhex(url.name).decode()}&{url.query_string}")
+    except Exception:
+        pass
+    return dict(url.query)
 
 
 class StreamingView(HomeAssistantView):
@@ -403,13 +434,15 @@ class StreamingView(HomeAssistantView):
             return web.HTTPNotFound()
 
         try:
-            r = await self.session.get(url)
+            headers = {k: v for k, v in request.headers.items() if k == "Range"}
+            r = await self.session.get(url, headers=headers)
 
             response = web.StreamResponse()
             response.headers.update(r.headers)
             await response.prepare(request)
 
-            async for chunk in r.content.iter_chunked(8192):
+            # same chunks as default web.FileResponse
+            async for chunk in r.content.iter_chunked(256 * 1024):
                 await response.write(chunk)
         except:
             pass

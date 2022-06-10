@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 
@@ -7,19 +8,25 @@ from homeassistant.components.media_player import ATTR_MEDIA_CONTENT_ID, \
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import CONF_USERNAME, CONF_PASSWORD, ATTR_ENTITY_ID, \
     EVENT_HOMEASSISTANT_STOP, CONF_TOKEN, CONF_INCLUDE, CONF_DEVICES, \
-    CONF_HOST, CONF_PORT
+    CONF_HOST, CONF_PORT, CONF_NAME
 from homeassistant.core import ServiceCall, HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv, discovery
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 from .core import utils
+from .core.const import *
 from .core.yandex_glagol import YandexIOListener
 from .core.yandex_quasar import YandexQuasar
 from .core.yandex_session import YandexSession
 
 _LOGGER = logging.getLogger(__name__)
 
-DOMAIN = 'yandex_station'
+MAIN_DOMAINS = ['media_player', 'select']
+SUB_DOMAINS = [
+    'climate', 'light', 'remote', 'switch', 'vacuum', 'humidifier', 'sensor',
+    'water_heater'
+]
 
 CONF_TTS_NAME = 'tts_service_name'
 CONF_INTENTS = 'intents'
@@ -27,7 +34,6 @@ CONF_DEBUG = 'debug'
 CONF_RECOGNITION_LANG = 'recognition_lang'
 CONF_PROXY = 'proxy'
 
-DATA_CONFIG = 'config'
 DATA_SPEAKERS = 'speakers'
 
 CONFIG_SCHEMA = vol.Schema({
@@ -44,6 +50,7 @@ CONFIG_SCHEMA = vol.Schema({
                 vol.Optional(CONF_PORT, default=1961): cv.port,
             }, extra=vol.ALLOW_EXTRA),
         },
+        vol.Optional(CONF_MEDIA_PLAYERS): vol.Any(dict, list),
         vol.Optional(CONF_RECOGNITION_LANG): cv.string,
         vol.Optional(CONF_PROXY): cv.string,
         vol.Optional(CONF_DEBUG, default=False): cv.boolean,
@@ -53,10 +60,13 @@ CONFIG_SCHEMA = vol.Schema({
 
 async def async_setup(hass: HomeAssistant, hass_config: dict):
     """Main setup of component."""
+    config: dict = hass_config.get(DOMAIN) or {}
     hass.data[DOMAIN] = {
-        DATA_CONFIG: hass_config.get(DOMAIN) or {},
+        DATA_CONFIG: config,
         DATA_SPEAKERS: {}
     }
+
+    YandexSession.proxy = config.get(CONF_PROXY)
 
     await _init_local_discovery(hass)
     await _init_services(hass)
@@ -75,10 +85,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     yandex = YandexSession(session, **entry.data)
     yandex.add_update_listener(update_cookie_and_token)
 
-    config = hass.data[DOMAIN][DATA_CONFIG]
-    yandex.proxy = config.get(CONF_PROXY)
+    try:
+        ok = await yandex.refresh_cookies()
+    except Exception as e:
+        raise ConfigEntryNotReady from e
 
-    if not await yandex.refresh_cookies():
+    if not ok:
         hass.components.persistent_notification.async_create(
             "Необходимо заново авторизоваться в Яндексе. Для этого [добавьте "
             "новую интеграцию](/config/integrations) с тем же логином.",
@@ -93,11 +105,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     # add stations to global list
     speakers = hass.data[DOMAIN][DATA_SPEAKERS]
-    for speaker in quasar.speakers:
-        did = speaker['quasar_info']['device_id']
+    for device in quasar.speakers + quasar.modules:
+        did = device['quasar_info']['device_id']
         if did in speakers:
-            speaker.update(speakers[did])
-        speakers[did] = speaker
+            device.update(speakers[did])
+        speakers[did] = device
 
     await _setup_intents(hass, quasar)
     await _setup_include(hass, entry)
@@ -108,9 +120,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     quasar.handle_updates(speaker_update)
 
-    hass.async_create_task(hass.config_entries.async_forward_entry_setup(
-        entry, 'media_player'
-    ))
+    for domain in MAIN_DOMAINS:
+        hass.async_create_task(hass.config_entries.async_forward_entry_setup(
+            entry, domain
+        ))
+    return True
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    quasar: YandexQuasar = hass.data[DOMAIN][entry.unique_id]
+    quasar.stop()
+    await asyncio.gather(*[
+        hass.config_entries.async_forward_entry_unload(entry, domain)
+        for domain in MAIN_DOMAINS + SUB_DOMAINS
+    ])
     return True
 
 
@@ -122,7 +145,9 @@ async def _init_local_discovery(hass: HomeAssistant):
         speaker = speakers.setdefault(info['device_id'], {})
         speaker.update(info)
         if 'entity' in speaker:
-            await speaker['entity'].init_local_mode()
+            entity: "YandexStation" = speaker['entity']
+            await entity.init_local_mode()
+            entity.async_write_ha_state()
 
     zeroconf = await utils.get_zeroconf_singleton(hass)
 
@@ -200,8 +225,8 @@ async def _setup_entry_from_config(hass: HomeAssistant):
         return
 
     # check if already configured
-    for entrie in hass.config_entries.async_entries(DOMAIN):
-        if entrie.unique_id == config[CONF_USERNAME]:
+    for entry in hass.config_entries.async_entries(DOMAIN):
+        if entry.unique_id == config[CONF_USERNAME]:
             return
 
     # load config/.yandex_station.json
@@ -248,10 +273,12 @@ async def _setup_devices(hass: HomeAssistant, quasar: YandexQuasar):
 
     confdevices = config[CONF_DEVICES]
 
-    for device in quasar.speakers:
+    for device in quasar.speakers + quasar.modules:
         did = device['quasar_info']['device_id']
-        if did in confdevices:
-            device.update(confdevices[did])
+        # support device_id in upper/lower cases
+        upd = confdevices.get(did) or confdevices.get(did.lower())
+        if upd:
+            device.update(upd)
 
 
 async def _setup_include(hass: HomeAssistant, entry: ConfigEntry):
@@ -260,7 +287,7 @@ async def _setup_include(hass: HomeAssistant, entry: ConfigEntry):
     if CONF_INCLUDE not in config:
         return
 
-    for domain in ('climate', 'light', 'remote', 'switch', 'vacuum'):
+    for domain in SUB_DOMAINS:
         hass.async_create_task(hass.config_entries.async_forward_entry_setup(
             entry, domain
         ))
