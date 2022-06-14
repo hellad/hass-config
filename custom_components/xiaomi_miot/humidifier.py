@@ -36,10 +36,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
+<<<<<<< HEAD
+    config['hass'] = hass
+    model = str(config.get(CONF_MODEL) or '')
+    entities = []
+    if miot := config.get('miot_type'):
+=======
     model = str(config.get(CONF_MODEL) or '')
     entities = []
     miot = config.get('miot_type')
     if miot:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         spec = await MiotSpec.async_from_type(hass, miot)
         for srv in spec.get_services(ENTITY_DOMAIN, 'dehumidifier'):
             if not srv.get_property('on'):
@@ -59,12 +66,33 @@ class MiotHumidifierEntity(MiotToggleEntity, HumidifierEntity):
         self._prop_mode = miot_service.get_property('mode')
         self._prop_fan_level = miot_service.get_property('fan_level')
         self._prop_water_level = miot_service.get_property('water_level')
+<<<<<<< HEAD
+        self._prop_temperature = miot_service.get_property('temperature')
+        self._prop_target_humi = miot_service.get_property('target_humidity')
+=======
         self._prop_target_humi = miot_service.get_property('target_humidity')
         self._prop_temperature = miot_service.get_property('temperature')
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         self._prop_humidity = miot_service.get_property('relative_humidity', 'humidity')
         self._environment = miot_service.spec.get_service('environment')
         if self._environment:
             self._prop_temperature = self._environment.get_property('temperature') or self._prop_temperature
+<<<<<<< HEAD
+            self._prop_target_humi = self._environment.get_property('target_humidity') or self._prop_target_humi
+            self._prop_humidity = self._environment.get_property('relative_humidity', 'humidity') or self._prop_humidity
+
+        self._humidifier_mode = None
+        self._mode_props = [self._prop_mode, self._prop_fan_level]
+        self._mode_props = list(filter(lambda x: x, self._mode_props))
+        if self._mode_props:
+            self._humidifier_mode = self._mode_props.pop(0)
+            self._supported_features = SUPPORT_MODES
+
+    async def async_added_to_hass(self):
+        await super().async_added_to_hass()
+        self._vars['target_humidity_ratio'] = self.custom_config_number('target_humidity_ratio')
+
+=======
             self._prop_humidity = self._environment.get_property('relative_humidity', 'humidity') or self._prop_humidity
 
         self._humidifier_mode = None
@@ -74,10 +102,19 @@ class MiotHumidifierEntity(MiotToggleEntity, HumidifierEntity):
             self._humidifier_mode = self._mode_props[0]
             self._supported_features = SUPPORT_MODES
 
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     async def async_update(self):
         await super().async_update()
         if not self._available:
             return
+<<<<<<< HEAD
+        if self._prop_water_level:
+            self._update_sub_entities(
+                [self._prop_water_level.name],
+                domain='number_select',
+            )
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         add_fans = self._add_entities.get('fan')
         for p in self._mode_props:
             pnm = p.full_name
@@ -87,7 +124,11 @@ class MiotHumidifierEntity(MiotToggleEntity, HumidifierEntity):
                 self._subs[pnm].update()
             elif add_fans:
                 self._subs[pnm] = MiotModesSubEntity(self, p)
+<<<<<<< HEAD
+                add_fans([self._subs[pnm]], update_before_add=True)
+=======
                 add_fans([self._subs[pnm]])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def device_class(self):
@@ -100,7 +141,14 @@ class MiotHumidifierEntity(MiotToggleEntity, HumidifierEntity):
     def target_humidity(self):
         if not self._prop_target_humi:
             return None
+<<<<<<< HEAD
+        num = int(self._prop_target_humi.from_dict(self._state_attrs) or 0)
+        if fac := self._vars.get('target_humidity_ratio'):
+            num = round(num * fac)
+        return num
+=======
         return int(self._prop_target_humi.from_dict(self._state_attrs) or 0)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     def set_humidity(self, humidity: int):
         if not self._prop_target_humi:
@@ -109,6 +157,11 @@ class MiotHumidifierEntity(MiotToggleEntity, HumidifierEntity):
         if self._prop_target_humi.value_range:
             stp = self._prop_target_humi.range_step()
             num = round(humidity / stp) * stp
+<<<<<<< HEAD
+            if fac := self._vars.get('target_humidity_ratio'):
+                num = round(num / fac)
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         elif self._prop_target_humi.value_list:
             num = None
             vls = self._prop_target_humi.list_value(None)
@@ -123,22 +176,44 @@ class MiotHumidifierEntity(MiotToggleEntity, HumidifierEntity):
     @property
     def min_humidity(self):
         if not self._prop_target_humi:
+<<<<<<< HEAD
+            return DEFAULT_MIN_HUMIDITY
+=======
             return None
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if self._prop_target_humi.value_list:
             vls = self._prop_target_humi.list_value(None)
             vls.sort()
             return vls[0]
+<<<<<<< HEAD
+        num = self._prop_target_humi.range_min()
+        if fac := self._vars.get('target_humidity_ratio'):
+            num = round(num * fac)
+        return num
+=======
         return self._prop_target_humi.range_min()
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def max_humidity(self):
         if not self._prop_target_humi:
+<<<<<<< HEAD
+            return DEFAULT_MAX_HUMIDITY
+=======
             return None
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if self._prop_target_humi.value_list:
             vls = self._prop_target_humi.list_value(None)
             vls.sort()
             return vls[-1]
+<<<<<<< HEAD
+        num = self._prop_target_humi.range_max()
+        if fac := self._vars.get('target_humidity_ratio'):
+            num = round(num * fac)
+        return num
+=======
         return self._prop_target_humi.range_max()
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def mode(self):

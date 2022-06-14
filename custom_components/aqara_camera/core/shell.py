@@ -57,13 +57,10 @@ class TelnetShell(Telnet):
     def file_exist(self, filename: str) -> bool:
         """ check file exit """
         raw = self.run_command("ls -al {}".format(filename))
+        time.sleep(.1)
         if "No such" not in str(raw):
             return True
         return False
-
-    def get_running_ps(self) -> str:
-        """ get processes list """
-        return self.run_command("ps")
 
     def check_bin(self, filename: str, md5: str, url=None) -> bool:
         """Check binary md5 and download it if needed."""
@@ -137,5 +134,4 @@ class TelnetShellG3(TelnetShell):
         self.write(command.encode() + b"\n")
         command = "cd /"
         self.write(command.encode() + b"\n")
-        self.read_until(b"/ # ", timeout=10)
         return True

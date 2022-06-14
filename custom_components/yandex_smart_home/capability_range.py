@@ -135,7 +135,7 @@ class CoverLevelCapability(RangeCapability):
         """Test if capability is supported."""
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
-        return self.state.domain == cover.DOMAIN and features & cover.CoverEntityFeature.SET_POSITION
+        return self.state.domain == cover.DOMAIN and features & cover.SUPPORT_SET_POSITION
 
     @property
     def support_random_access(self) -> bool:
@@ -188,8 +188,7 @@ class TemperatureCapabilityWaterHeater(TemperatureCapability):
         """Test if capability is supported."""
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
-        return self.state.domain == water_heater.DOMAIN and \
-            features & water_heater.WaterHeaterEntityFeature.TARGET_TEMPERATURE
+        return self.state.domain == water_heater.DOMAIN and features & water_heater.SUPPORT_TARGET_TEMPERATURE
 
     def get_value(self) -> float | None:
         """Return the state value of this capability for this entity."""
@@ -225,7 +224,7 @@ class TemperatureCapabilityClimate(TemperatureCapability):
         """Test if capability is supported."""
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
-        return self.state.domain == climate.DOMAIN and features & climate.ClimateEntityFeature.TARGET_TEMPERATURE
+        return self.state.domain == climate.DOMAIN and features & climate.SUPPORT_TARGET_TEMPERATURE
 
     def get_value(self) -> float | None:
         """Return the state value of this capability for this entity."""
@@ -266,8 +265,13 @@ class HumidityCapabilityHumidifier(HumidityCapability):
         super().__init__(hass, config, state)
 
         self.default_range = (
+<<<<<<< HEAD
             self.state.attributes.get(humidifier.ATTR_MIN_HUMIDITY, 0),
             self.state.attributes.get(humidifier.ATTR_MAX_HUMIDITY, 100),
+=======
+            self.state.attributes.get(humidifier.ATTR_MIN_HUMIDITY),
+            self.state.attributes.get(humidifier.ATTR_MAX_HUMIDITY),
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             1
         )
 
@@ -386,10 +390,10 @@ class VolumeCapability(RangeCapability):
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
         if self.state.domain == media_player.DOMAIN:
-            if features & media_player.MediaPlayerEntityFeature.VOLUME_STEP:
+            if features & media_player.SUPPORT_VOLUME_STEP:
                 return True
 
-            if features & media_player.MediaPlayerEntityFeature.VOLUME_SET:
+            if features & media_player.SUPPORT_VOLUME_SET:
                 return True
 
             if const.MEDIA_PLAYER_FEATURE_VOLUME_SET in self.entity_config.get(const.CONF_FEATURES, []):
@@ -405,8 +409,7 @@ class VolumeCapability(RangeCapability):
         if const.MEDIA_PLAYER_FEATURE_VOLUME_SET in self.entity_config.get(const.CONF_FEATURES, []):
             return True
 
-        return not (features & media_player.MediaPlayerEntityFeature.VOLUME_STEP and
-                    not features & media_player.MediaPlayerEntityFeature.VOLUME_SET)
+        return not (features & media_player.SUPPORT_VOLUME_STEP and not features & media_player.SUPPORT_VOLUME_SET)
 
     def get_value(self) -> float | None:
         """Return the state value of this capability for this entity."""
@@ -465,14 +468,13 @@ class ChannelCapability(RangeCapability):
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
         if self.state.domain == media_player.DOMAIN:
-            if features & media_player.MediaPlayerEntityFeature.PREVIOUS_TRACK and \
-                    features & media_player.MediaPlayerEntityFeature.NEXT_TRACK:
+            if features & media_player.SUPPORT_PREVIOUS_TRACK and features & media_player.SUPPORT_NEXT_TRACK:
                 return True
 
             if const.MEDIA_PLAYER_FEATURE_NEXT_PREVIOUS_TRACK in self.entity_config.get(const.CONF_FEATURES, []):
                 return True
 
-            if features & media_player.MediaPlayerEntityFeature.PLAY_MEDIA:
+            if features & media_player.SUPPORT_PLAY_MEDIA:
                 if self.entity_config.get(const.CONF_SUPPORT_SET_CHANNEL) is False:
                     return False
 
@@ -489,8 +491,7 @@ class ChannelCapability(RangeCapability):
         if self.entity_config.get(const.CONF_SUPPORT_SET_CHANNEL) is False:
             return False
 
-        return bool(features & media_player.MediaPlayerEntityFeature.PLAY_MEDIA and
-                    device_class == media_player.DEVICE_CLASS_TV)
+        return bool(features & media_player.SUPPORT_PLAY_MEDIA and device_class == media_player.DEVICE_CLASS_TV)
 
     def get_value(self) -> float | None:
         """Return the state value of this capability for this entity."""
@@ -505,8 +506,7 @@ class ChannelCapability(RangeCapability):
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
         if state.get('relative'):
-            if features & media_player.MediaPlayerEntityFeature.PREVIOUS_TRACK and \
-                    features & media_player.MediaPlayerEntityFeature.NEXT_TRACK:
+            if features & media_player.SUPPORT_PREVIOUS_TRACK and features & media_player.SUPPORT_NEXT_TRACK:
                 if state['value'] >= 0:
                     service = media_player.SERVICE_MEDIA_NEXT_TRACK
                 else:

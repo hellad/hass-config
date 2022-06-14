@@ -1,12 +1,19 @@
 """Constants for HACS"""
+<<<<<<< HEAD
 from typing import TypeVar
 
 from aiogithubapi.common.const import ACCEPT_HEADERS
 
+=======
+from aiogithubapi.common.const import ACCEPT_HEADERS
+
+NAME_LONG = "HACS (Home Assistant Community Store)"
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 NAME_SHORT = "HACS"
 DOMAIN = "hacs"
 CLIENT_ID = "395a8e669c5de9f7c6e8"
-MINIMUM_HA_VERSION = "2022.4.0"
+MINIMUM_HA_VERSION = "2021.9.0"
+<<<<<<< HEAD
 
 TV = TypeVar("TV")
 
@@ -14,22 +21,56 @@ PACKAGE_NAME = "custom_components.hacs"
 
 DEFAULT_CONCURRENT_TASKS = 15
 DEFAULT_CONCURRENT_BACKOFF_TIME = 1
+=======
+PROJECT_URL = "https://github.com/hacs/integration/"
+
+
+ISSUE_URL = f"{PROJECT_URL}issues"
+DOMAIN_DATA = f"{NAME_SHORT.lower()}_data"
+
+PACKAGE_NAME = "custom_components.hacs"
+
+REPOSITORY_HACS_DEFAULT = "hacs/default"
+REPOSITORY_HACS_INTEGRATION = "hacs/integration"
+
+PLATFORMS = ["sensor"]
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 HACS_ACTION_GITHUB_API_HEADERS = {
     "User-Agent": "HACS/action",
     "Accept": ACCEPT_HEADERS["preview"],
 }
 
+<<<<<<< HEAD
 VERSION_STORAGE = "6"
 STORENAME = "hacs"
 
 HACS_SYSTEM_ID = "0717a0cd-745c-48fd-9b16-c8534c9704f9-bc944b0f-fd42-4a58-a072-ade38d1444cd"
+=======
+IFRAME = {
+    "title": "HACS",
+    "icon": "hacs:hacs",
+    "url": "/community_overview",
+    "path": "community",
+    "require_admin": True,
+}
+
+VERSION_STORAGE = "6"
+STORENAME = "hacs"
+
+# Messages
+NO_ELEMENTS = "No elements to show, open the store to install some awesome stuff."
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 STARTUP = """
 -------------------------------------------------------------------
 HACS (Home Assistant Community Store)
 
+<<<<<<< HEAD
 Version: %s
+=======
+Version: {version}
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 This is a custom integration
 If you have any issues with this you need to open an issue here:
 https://github.com/hacs/integration/issues

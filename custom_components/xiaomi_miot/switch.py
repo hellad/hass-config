@@ -42,12 +42,21 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
+<<<<<<< HEAD
+    config['hass'] = hass
+    model = str(config.get(CONF_MODEL) or '')
+    entities = []
+    if model in ['pwzn.relay.banana']:
+        entities.append(PwznRelaySwitchEntity(config))
+    elif miot := config.get('miot_type'):
+=======
     model = str(config.get(CONF_MODEL) or '')
     miot = config.get('miot_type')
     entities = []
     if model in ['pwzn.relay.banana']:
         entities.append(PwznRelaySwitchEntity(config))
     elif miot:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         spec = await MiotSpec.async_from_type(hass, miot)
         if model in ['pwzn.switch.apple']:
             srv = spec.get_service('relays')
@@ -55,8 +64,13 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
                 entities.append(MiotPwznRelaySwitchEntity(config, srv))
         else:
             for srv in spec.get_services(
+<<<<<<< HEAD
+                ENTITY_DOMAIN, 'outlet', 'massager', 'towel_rack', 'fish_tank',
+                'pet_drinking_fountain', 'mosquito_dispeller', 'electric_blanket',
+=======
                 ENTITY_DOMAIN, 'outlet', 'massager', 'towel_rack',
                 'fish_tank', 'pet_drinking_fountain', 'mosquito_dispeller',
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             ):
                 if not srv.get_property('on'):
                     continue
@@ -87,13 +101,19 @@ class MiotSwitchEntity(MiotToggleEntity, SwitchEntity):
             if prop and add_switches:
                 fnm = prop.unique_name
                 self._subs[fnm] = MiotSwitchActionSubEntity(self, prop, act)
+<<<<<<< HEAD
+                add_switches([self._subs[fnm]], update_before_add=True)
+=======
                 add_switches([self._subs[fnm]])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     async def async_update(self):
         await super().async_update()
         if not self._available:
             return
         self._update_sub_entities(
+<<<<<<< HEAD
+=======
             ['water_pump', 'automatic_feeding', 'heating'],
             domain='switch',
         )
@@ -103,6 +123,7 @@ class MiotSwitchEntity(MiotToggleEntity, SwitchEntity):
             domain='number',
         )
         self._update_sub_entities(
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             ['heat_level'],
             ['massager'],
             domain='fan',
@@ -112,7 +133,11 @@ class MiotSwitchEntity(MiotToggleEntity, SwitchEntity):
         )
         self._update_sub_entities(
             ['mode', 'massage_strength', 'massage_part', 'massage_manipulation'],
+<<<<<<< HEAD
+            ['massager'],
+=======
             ['fish_tank', 'pet_drinking_fountain', 'massager'],
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             domain='number_select' if self.entry_config_version >= 0.3 else 'fan',
         )
 
@@ -139,7 +164,11 @@ class MiotSwitchSubEntity(MiotPropertySubEntity, SwitchSubEntity):
         if self._miot_property.value_list:
             val = self._miot_property.from_dict(self._state_attrs)
             if val is not None:
+<<<<<<< HEAD
+                self._state = val in self._miot_property.list_search('On', 'Open', '开')
+=======
                 self._state = val in self._miot_property.list_search('On', '开')
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return self._state
 
     @property
@@ -149,7 +178,11 @@ class MiotSwitchSubEntity(MiotPropertySubEntity, SwitchSubEntity):
     def turn_on(self, **kwargs):
         val = True
         if self._miot_property.value_list:
+<<<<<<< HEAD
+            ret = self._miot_property.list_first('On', 'Open', '开')
+=======
             ret = self._miot_property.list_first('On', '开')
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             if ret is not None:
                 val = ret
         return self.set_parent_property(val)
@@ -157,7 +190,11 @@ class MiotSwitchSubEntity(MiotPropertySubEntity, SwitchSubEntity):
     def turn_off(self, **kwargs):
         val = False
         if self._miot_property.value_list:
+<<<<<<< HEAD
+            ret = self._miot_property.list_first('Off', 'Close', 'Closed', '关')
+=======
             ret = self._miot_property.list_first('Off', '关')
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             if ret is not None:
                 val = ret
         return self.set_parent_property(val)
@@ -295,7 +332,11 @@ class MiotPwznRelaySwitchEntity(MiotToggleEntity, SwitchEntity):
                     'attr': k,
                     'index': idx,
                 })
+<<<<<<< HEAD
+                add_switches([self._subs[k]], update_before_add=True)
+=======
                 add_switches([self._subs[k]])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     def relay_ctrl(self, select, ctrl):
         act = self._miot_service.get_action('relay_ctrl')
@@ -392,7 +433,11 @@ class PwznRelaySwitchEntity(MiioEntity, SwitchEntity):
                             'attr': k,
                             'index': idx,
                         })
+<<<<<<< HEAD
+                        add_switches([self._subs[k]], update_before_add=True)
+=======
                         add_switches([self._subs[k]])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                     b <<= 1
                     idx += 1
 
@@ -407,7 +452,11 @@ class PwznRelaySwitchEntity(MiioEntity, SwitchEntity):
                         self._subs[k] = PwznRelaySwitchSubEntity(self, 0, 0, {
                             'attr': k,
                         })
+<<<<<<< HEAD
+                        add_switches([self._subs[k]], update_before_add=True)
+=======
                         add_switches([self._subs[k]])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     def turn_on(self, **kwargs):
         ret = self.send_miio_command('power_all', [1])

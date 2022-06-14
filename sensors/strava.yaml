@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Rate Limits 	600 requests every 15 minutes, 30000 daily
 
 
@@ -172,3 +173,179 @@
 # {{ states.sensor.strava_last_activity.attributes["map"]["summary_polyline"] }}
 
 
+=======
+# Rate Limits 	600 requests every 15 minutes, 30000 daily
+
+
+  - platform: command_line
+    name: Strava Access Token
+    command: "python3 /config/python_scripts/strava.py"
+    scan_interval: 900
+    
+####  https://developers.strava.com/docs/reference/#api-models-DetailedActivity
+# https://www.home-assistant.io/integrations/rest/#fetch-multiple-json-values-and-present-them-as-attributes
+# This configuration shows how to extract multiple values from a dictionary with json_attributes and template. 
+# It helps you to avoid flooding the REST service and only ask once the results and separate them in multiple templates referring to it. 
+#(No need for a specific state on the REST sensor and it’s default state will be the full JSON value which will be longer than the 255 max length. 
+# It’s why we’ll used a static value)    
+  - platform: rest
+    name: Strava Last Activity
+    json_attributes_path: '$.[0]'
+    json_attributes:
+      - distance
+      - total_elevation_gain
+      - average_speed    # The activity's average speed, in meters per second
+      - max_speed      # The activity's average speed, in meters per second
+      - average_watts
+      - average_heartrate
+      - max_heartrate
+      - moving_time
+      - elapsed_time
+      - start_date_local
+      - elev_high
+      - elev_low
+      - achievement_count
+      - kudos_count
+      - comment_count
+      - visibility
+      - map
+    resource_template: https://www.strava.com/api/v3/athlete/activities?access_token={{ states('sensor.strava_access_token') }}
+    method: GET
+    value_template: '{{ value_json[0].name }}'
+    scan_interval: 600   
+
+# https://www.home-assistant.io/docs/configuration/templating/#processing-incoming-data
+
+
+  - platform: template
+    sensors:  
+      strava_last_distance:
+        friendly_name: 'Strava Last Distance'
+        value_template: "{{ ((state_attr('sensor.strava_last_activity', 'distance'))/1000) | round(2) }}"
+        unit_of_measurement: "km"
+        entity_id: sensor.strava_last_activity
+        
+      strava_last_elevation:
+        friendly_name: 'Strava Last Elevation'
+        value_template: "{{ (state_attr('sensor.strava_last_activity', 'total_elevation_gain')) | round(1) }}"
+        unit_of_measurement: "m"
+        entity_id: sensor.strava_last_activity
+        
+      strava_last_moving_time:
+        friendly_name: 'Strava Last Moving Time'
+        entity_id: sensor.strava_last_activity
+        value_template: >- 
+          {% set time = (state_attr('sensor.strava_last_activity', 'moving_time') | int) | int %}
+          {% set minutes = ((time % 3600) / 60) | int %}
+          {% set hours = ((time % 86400) / 3600) | int %}
+          {% set days = (time / 86400) | int %}
+    
+          {%- if time < 60 -%}
+            Less than a minute
+            {%- else -%}
+            {%- if days > 0 -%}
+              {{ days }}d
+            {%- endif -%}
+            {%- if hours > 0 -%}
+              {%- if days > 0 -%}
+                {{ ' ' }}
+              {%- endif -%}
+              {{ hours }}h
+            {%- endif -%}
+            {%- if minutes > 0 -%}
+              {%- if days > 0 or hours > 0 -%}
+                {{ ' ' }}
+              {%- endif -%}
+              {{ minutes }}m
+            {%- endif -%}
+          {%- endif -%}
+
+      strava_last_total_time:
+        friendly_name: 'Strava Last Total Time'
+        entity_id: sensor.strava_last_activity
+        value_template: >- 
+          {% set time = (state_attr('sensor.strava_last_activity', 'elapsed_time') | int) | int %}
+          {% set minutes = ((time % 3600) / 60) | int %}
+          {% set hours = ((time % 86400) / 3600) | int %}
+          {% set days = (time / 86400) | int %}
+    
+          {%- if time < 60 -%}
+            Less than a minute
+            {%- else -%}
+            {%- if days > 0 -%}
+              {{ days }}d
+            {%- endif -%}
+            {%- if hours > 0 -%}
+              {%- if days > 0 -%}
+                {{ ' ' }}
+              {%- endif -%}
+              {{ hours }}h
+            {%- endif -%}
+            {%- if minutes > 0 -%}
+              {%- if days > 0 or hours > 0 -%}
+                {{ ' ' }}
+              {%- endif -%}
+              {{ minutes }}m
+            {%- endif -%}
+          {%- endif -%}
+
+      strava_last_average_speed:
+        friendly_name: 'Strava Last Average Speed'
+        value_template: "{{ ((state_attr('sensor.strava_last_activity', 'average_speed'))*3.6)  | round(2)}}"
+        unit_of_measurement: "km/h"
+        entity_id: sensor.strava_last_activity
+
+      strava_last_max_speed:
+        friendly_name: 'Strava Last Max Speed'
+        value_template: "{{ ((state_attr('sensor.strava_last_activity', 'max_speed'))*3.6)  | round(2) }}"
+        unit_of_measurement: "km/h"
+        entity_id: sensor.strava_last_activity
+
+      strava_last_average_heartrate:
+        friendly_name: 'Strava Last Average Heartrate'
+        value_template: "{{ (state_attr('sensor.strava_last_activity', 'average_heartrate')) }}"
+        unit_of_measurement: "bpm"
+        entity_id: sensor.strava_last_activity
+
+      strava_last_max_heartrate:
+        friendly_name: 'Strava Last Max Heartrate'
+        value_template: "{{ (state_attr('sensor.strava_last_activity', 'max_heartrate')) }}"
+        unit_of_measurement: "bpm"
+        entity_id: sensor.strava_last_activity
+        
+      strava_last_kudos:
+        friendly_name: 'Strava Last Kudos'
+        value_template: "{{ (state_attr('sensor.strava_last_activity', 'kudos_count')) }}"
+        entity_id: sensor.strava_last_activity  
+
+      strava_last_date:
+        friendly_name: 'Strava Last Date'
+        value_template: >-
+          {{ as_timestamp(state_attr('sensor.strava_last_activity','start_date_local'))| timestamp_custom('%d-%m-%Y %X',local_time) }}
+        entity_id: sensor.strava_last_activity  
+
+# https://www.home-assistant.io/docs/configuration/state_object/
+      strava_last_name:
+        friendly_name: 'Strava Last Name'
+        value_template: "{{ states.sensor.strava_last_activity.state }}"
+        entity_id: sensor.strava_last_activity  
+
+      strava_last_visibility:
+        friendly_name: 'Strava Last Visibility'
+        value_template: "{{ (state_attr('sensor.strava_last_activity', 'visibility')) }}"
+        entity_id: sensor.strava_last_activity 
+
+      strava_last_map_polyline:
+        friendly_name: 'Strava Last Map polyline'
+        value_template: "{{ states.sensor.strava_last_activity.attributes['map']['summary_polyline'] }}"
+        entity_id: sensor.strava_last_activity 
+
+#start_date_local: '2020-06-24T15:02:34Z'    
+# you use the google maps static api. Where you will input a polyline, and get an image with a route drawn. 
+# The static api will look like
+#	https://maps.googleapis.com/maps/api/staticmap?size=600x600&maptype=roadmap&path=enc:_jrrIasmdFv@tDl@r@`C`Kz@hBjAxAde@fMx@nABvBj@X`A`B~@`GnAjBEfCwA|NqAtGeApLBhC|A`F?fXBdB\\hCArC{@xOJrJo@fFs@dCUzD{@jDWLS]QFBJkM_Cc@UkAcC~@oQFeFMm@d@}Dl@mL[aOc@aBUY@mBb@oEnAiDtAoBz@kBOu@s@]yHh@qGdAi@Tc@fBdBxFFIJHIC@T`BvE|AtIJhDc@zN{@vMgAzDc@v@e@lEeCt@gBuAS{@c@gKWo@OyD}HZw@TyAtBuG_E_DdCy@~@c@bA{@IuBhAqDhEm@XsCi@kBr@m@`A{@xBr@dBbBnAhCNjE~EtCh@vBlB~AfDV~DLZU`AV^v@g@XeB|AkEIFESPP_@BHc@jAg@VJtBeGpADfA{ArB}Ar@QjElAjB_E|@Qn@f@jBf@tBxCtDx@~BzAbCjJv@~@[SqD^yAi@C]SJa@nEgBd\\CrA^xBRn@ShJCdILdBROz@gEtDuVfAkFpBqHzCqHhAqFj@sFJA\\rE~AtIAbBQdAVhBDVn@STXUlBB`ARXQnCNx@EjBdAhEN|APnFKZr@jBpAhB^hBn@zAAt@zBhMHjAz@pDT`@rD}AxByD~@e@l@DzE|Cr@CDZGMLOHf@B{@lC{CfAmC^_EfAuDh@{M|@aE^Ov@aCr@mFxByE|BoAzB}Bh@}@vDaAbFZtB`AfBQfCcDdBHj@sBd@o@rMhAfFjAv@MrB}ApEgBjD}C|@Qx@nAh@L|EmC|EwA~@oAlEgCjCoChAcEPOpAbBtAZGObA?`CzAdBT`GlDlFrEhBzBLd@zAYfCr@lASzDzAo@dFl@`DlNhGpA|@tJrK~FfFbBr@tFBfAgAdCmAnGoKrByEh@}BbAwBTiDDRM`@yQ}FS}@AeAz@yGwCiAcGYiAR?aAYQA_@d@Kd@f@K?d@Q`@aAPAQAPJ[I?YJDJR]b@W|AeAh@Q|@w@ToCQuIqEyAZScAyCHoBd@_@SYaAOcH}BcLg@{@{FqB{DKeQ{BeVsAcJu@sAgD_CeAuBAuC{D_FvCsFnFaJlH{@ScCLcCsC}AaF{IsDiBkD{CcB}BsBiIiJoBMwEbAaBGwAkDoBwCkCaCcF}GcGwKaDkAmJoHoBgA{@T_@dCMSb@cBwD{AX{Gj@{HKe@eAwA}@yFw@uA{@w@BgBSo@uLgEcXuGgAcAeAmBw@iCqAoGi@k@w@aEMB&key=AIzaSyCipklZ_X6obzlozMeBpiXkqwgOixK4P0o
+
+# {{ states.sensor.strava_last_activity.attributes["map"]["summary_polyline"] }}
+
+
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1

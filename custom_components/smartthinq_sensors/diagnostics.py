@@ -6,6 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_TOKEN
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr, entity_registry as er
+from homeassistant.helpers.device_registry import DeviceEntry
 
 from . import UNSUPPORTED_DEVICES
 from .const import DOMAIN, LGE_DEVICES
@@ -22,7 +23,7 @@ async def async_get_config_entry_diagnostics(
 
 
 async def async_get_device_diagnostics(
-    hass: HomeAssistant, entry: ConfigEntry, device: dr.DeviceEntry
+    hass: HomeAssistant, entry: ConfigEntry, device: DeviceEntry
 ) -> dict:
     """Return diagnostics for a device entry."""
     return _async_get_diagnostics(hass, entry, device)
@@ -32,7 +33,7 @@ async def async_get_device_diagnostics(
 def _async_get_diagnostics(
     hass: HomeAssistant,
     entry: ConfigEntry,
-    device: dr.DeviceEntry | None = None,
+    device: DeviceEntry | None = None,
 ) -> dict:
     """Return diagnostics for a config or a device entry."""
     diag_data = {"entry": async_redact_data(entry.as_dict(), TO_REDACT)}

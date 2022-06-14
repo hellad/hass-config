@@ -52,6 +52,18 @@ SERVICE_TO_METHOD = {
             },
         ),
     },
+<<<<<<< HEAD
+    'xiaoai_wakeup': {
+        'method': 'async_xiaoai_wakeup',
+        'schema': XIAOMI_MIIO_SERVICE_SCHEMA.extend(
+            {
+                vol.Optional('text', default=None): cv.string,
+                vol.Optional('throw', default=False): cv.boolean,
+            },
+        ),
+    },
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 }
 
 
@@ -62,10 +74,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
+<<<<<<< HEAD
+    config['hass'] = hass
+    model = str(config.get(CONF_MODEL) or '')
+    entities = []
+    if miot := config.get('miot_type'):
+=======
     model = str(config.get(CONF_MODEL) or '')
     entities = []
     miot = config.get('miot_type')
     if miot:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         spec = await MiotSpec.async_from_type(hass, miot)
         for srv in spec.get_services('play_control', 'doorbell'):
             if not srv.mapping() and not srv.get_action('play'):
@@ -174,7 +193,14 @@ class BaseMediaPlayerEntity(MediaPlayerEntity, MiotEntityInterface):
     @property
     def volume_level(self):
         if self._prop_volume:
+<<<<<<< HEAD
+            try:
+                return round(self._prop_volume.from_dict(self._state_attrs) or 0) / 100
+            except (TypeError, ValueError):
+                pass
+=======
             return round(self._prop_volume.from_dict(self._state_attrs) or 0) / 100
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return None
 
     def set_volume_level(self, volume):
@@ -284,12 +310,15 @@ class MiotMediaPlayerEntity(MiotEntity, BaseMediaPlayerEntity):
         if not self._available:
             return
         self._update_sub_entities('on', domain='switch')
+<<<<<<< HEAD
+=======
         # deprecated
         self._update_sub_entities(
             ['input_control'],
             ['television', 'projector'],
             domain='fan',
         )
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     def turn_on(self):
         if self._act_turn_on:
@@ -318,13 +347,21 @@ class MiotMediaPlayerEntity(MiotEntity, BaseMediaPlayerEntity):
                     pms.append(sil)
                 return self.miot_action(srv.iid, act.iid, pms, **kwargs)
             else:
+<<<<<<< HEAD
+                _LOGGER.warning('%s does not have action: %s', self.name_model, anm)
+=======
                 _LOGGER.warning('%s have no action: %s', self.name, anm)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         elif self._message_router:
             act = self._message_router.get_action('post')
             if act and execute:
                 return self.call_action(act, [text], **kwargs)
         else:
+<<<<<<< HEAD
+            _LOGGER.error('%s does not have service: %s', self.name_model, 'intelligent_speaker/message_router')
+=======
             _LOGGER.error('%s have no service: %s', self.name, 'intelligent_speaker/message_router')
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return False
 
     async def async_intelligent_speaker(self, text, execute=False, silent=False, **kwargs):
@@ -332,6 +369,25 @@ class MiotMediaPlayerEntity(MiotEntity, BaseMediaPlayerEntity):
             partial(self.intelligent_speaker, text, execute, silent, **kwargs)
         )
 
+<<<<<<< HEAD
+    def xiaoai_wakeup(self, text=None, **kwargs):
+        if srv := self._intelligent_speaker:
+            if act := srv.get_action('wake_up'):
+                pms = [text or ''] if act.ins else []
+                return self.miot_action(srv.iid, act.iid, pms, **kwargs)
+            else:
+                _LOGGER.warning('%s does not have action: %s', self.name_model, 'wake_up')
+        else:
+            _LOGGER.error('%s does not have service: %s', self.name_model, 'intelligent_speaker')
+        return False
+
+    async def async_xiaoai_wakeup(self, text=None, **kwargs):
+        return await self.hass.async_add_executor_job(
+            partial(self.xiaoai_wakeup, text, **kwargs)
+        )
+
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 class MitvMediaPlayerEntity(MiotMediaPlayerEntity):
     def __init__(self, config: dict, miot_service: MiotService):
@@ -365,23 +421,41 @@ class MitvMediaPlayerEntity(MiotMediaPlayerEntity):
                 'options': self._keycodes,
                 'select_option': self.press_key,
             })
+<<<<<<< HEAD
+            add_selects([self._subs[sub]], update_before_add=False)
+        await self.async_update_apps()
+=======
             add_selects([self._subs[sub]])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     async def async_update(self):
         await super().async_update()
         if not self._available:
             return
         adt = {}
+<<<<<<< HEAD
+=======
 
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         pms = self.with_opaque({
             'action': 'capturescreen',
             'compressrate': 100,
         })
+<<<<<<< HEAD
+        prev_6095 = self._state_attrs.get('6095_state')
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         rdt = await self.async_request_mitv_api('controller', params=pms)
         if 'url' in rdt:
             url = rdt.get('url', '')
             pms = urlparse(url).query
+<<<<<<< HEAD
+            url = f'{url}'.replace(pms, '')
+            url = url.replace('//null:', f'//{self._host}:')
+            url = url.replace('//0.0.0.0:', f'//{self._host}:')
+=======
             url = f'{url}'.replace(pms, '').replace('//null:', f'//{self._host}:')
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             pms = dict(parse_qsl(pms))
             pms = self.with_opaque(pms, token=rdt.get('token'))
             self._attr_media_image_url = url + urlencode(pms)
@@ -393,6 +467,43 @@ class MitvMediaPlayerEntity(MiotMediaPlayerEntity):
                 'app_current': f'{self._attr_app_name} - {self._attr_app_id}',
                 'app_page': rdt.get('clz'),
             })
+<<<<<<< HEAD
+        self._state_attrs.update(adt)
+
+        if prev_6095 != self._state_attrs.get('6095_state'):
+            await self.async_update_apps()
+
+    async def async_update_apps(self):
+        if not self._state_attrs.get('6095_state', True):
+            return
+        pms = {
+            'action': 'getinstalledapp',
+            'count': 999,
+            'changeIcon': 1,
+        }
+        rdt = await self.async_request_mitv_api('controller', params=pms)
+        if lst := rdt.get('AppInfo', []):
+            ias = {
+                a.get('PackageName'): a.get('AppName')
+                for a in lst
+            }
+            als = [
+                f'{v} - {k}'
+                for k, v in ias.items()
+            ]
+            add_selects = self._add_entities.get('select')
+            sub = 'apps'
+            if sub in self._subs:
+                self._subs[sub].update_options(als)
+                self._subs[sub].update()
+            elif add_selects:
+                from .select import SelectSubEntity
+                self._subs[sub] = SelectSubEntity(self, 'app_current', option={
+                    'options': als,
+                    'select_option': self.start_app,
+                })
+                add_selects([self._subs[sub]], update_before_add=False)
+=======
 
         if self._state_attrs.get('6095_state'):
             pms = {
@@ -424,6 +535,7 @@ class MitvMediaPlayerEntity(MiotMediaPlayerEntity):
                     add_selects([self._subs[sub]])
 
         self._state_attrs.update(adt)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def state(self):
@@ -464,7 +576,11 @@ class MitvMediaPlayerEntity(MiotMediaPlayerEntity):
             'sign': hashlib.md5(f'mitvsignsalt{media_id}{self._api_key}{tim[-5:]}'.encode()).hexdigest(),
         }
         rdt = self.request_mitv_api('controller', params=pms)
+<<<<<<< HEAD
+        self.logger.debug('%s: Play media: %s', self.name_model, [pms, rdt])
+=======
         self.logger.debug('%s: Play media: %s', self.name, [pms, rdt])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return not not rdt
 
     def start_app(self, app, **kwargs):
@@ -495,17 +611,36 @@ class MitvMediaPlayerEntity(MiotMediaPlayerEntity):
         return pms
 
     def request_mitv_api(self, path, **kwargs):
+<<<<<<< HEAD
+        kwargs.setdefault('timeout', 5)
+        req = None
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         try:
             req = requests.get(f'{self._mitv_api}{path}', **kwargs)
             rdt = json.loads(req.content or '{}') or {}
             self._state_attrs['6095_state'] = True
             if 'success' not in rdt.get('msg', ''):
+<<<<<<< HEAD
+                self.logger.warning('%s: Request mitv api error: %s', self.name_model, req.text)
+        except requests.exceptions.RequestException as exc:
+            rdt = {}
+            if self._state_attrs.get('6095_state'):
+                log = self.logger.info if 'NewConnectionError' in f'{exc}' else self.logger.warning
+                log('%s: Request mitv api error: %s', self.name_model, exc)
+            self._state_attrs['6095_state'] = False
+        except json.decoder.JSONDecodeError:
+            rdt = {}
+            if req:
+                self.logger.warning('%s: Invalid response data: %s with %s', req.content, kwargs)
+=======
                 self.logger.warning('%s: Request mitv api error: %s', self.name, req.text)
         except requests.exceptions.RequestException as exc:
             rdt = {}
             if self._state_attrs.get('6095_state'):
                 self.logger.warning('%s: Request mitv api error: %s', self.name, exc)
             self._state_attrs['6095_state'] = False
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return rdt.get('data') or {}
 
     async def async_request_mitv_api(self, path, **kwargs):

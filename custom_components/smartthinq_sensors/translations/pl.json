@@ -2,6 +2,7 @@
     "config": {
         "abort": {
             "single_instance_allowed": "Dozwolona jest tylko jedna konfiguracja SmartThinQ LGE Sensors.",
+<<<<<<< HEAD
             "no_smartthinq_devices": "Nie znaleziono urządzeń SmartThinQ. Konfiguracja komponentów przerwana.",
             "unsupported_version": "Ta integracja wymaga HomeAssistanta w wersji co najmniej {req_ver}, Ty używasz wersji {run_ver}."
         },
@@ -12,10 +13,20 @@
             "invalid_url": "Nieprawidłowy adres URL przekierowania.",
             "invalid_credentials": "Nieprawidłowe dane logowania SmartThinQ.",
             "no_user_info": "Nazwa użytkownika i hasło są wymagane."
+=======
+            "no_smartthinq_devices": "Nie znaleziono urządzeń SmartThinQ. Konfiguracja komponentów przerwana."
+        },
+        "error": {
+            "invalid_region": "Nieprawidłowy format regionu.",
+            "invalid_language": "Niepoprawny format języka.",
+            "invalid_url": "Nieprawidłowy adres URL przekierowania.",
+            "invalid_credentials": "Nieprawidłowe dane logowania SmartThinQ."
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         },
         "step": {
             "user": {
                 "data": {
+<<<<<<< HEAD
                     "username": "Nazwa użytkownika konta LG",
                     "password": "Hasło",
                     "region": "Region",
@@ -23,6 +34,10 @@
                     "use_redirect": "Użyj metody bezpośredniego uwierzytelniania",
                     "use_tls_v1": "Wymuś użycie protokołu TLSv1 (czasami wymagane)",
                     "exclude_dh": "Nie używaj szyfrowania DH (w przypadku błędu 'dh key too small')"
+=======
+                    "region": "Region",
+                    "language": "Język"
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 },
                 "description": "Podaj swoje ustawienia regionalne dla SmartThinQ.",
                 "title": "SmartThinQ LGE Sensors"
@@ -37,7 +52,11 @@
             },
             "token": {
                 "data": {
+<<<<<<< HEAD
                     "token": "Odśwież Token"
+=======
+                    "token": "Wpisz Token"
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 },
                 "description": "Zapisz wygenerowany token, może się przydać w przyszłości, a następnie potwierdź, aby zakończyć konfigurację.",
                 "title": "SmartThinQ LGE Sensors - token został zapisany"

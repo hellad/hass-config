@@ -10,6 +10,8 @@
 *.log
 *.save
 *.old
+**platformio.ini
+*.pyc
 
 # You can whitelist files/folders with !, these will not be ignored.
 !*.yaml
@@ -17,17 +19,36 @@
 !*.md
 
 # Ignore folders.
+# ** — Два соседних символа звездочки соответствуют любому файлу или нулю или более каталогам. Если за ним следует косая черта ( / ), он соответствует только каталогам.
 .storage/
 .cloud/
 .google.token/
 certificate/
+**/__pycache__
+custom_components/yandex_station/core/__pycache__/
+custom_components/yandex_station/__pycache__/
+custom_components/yandex_smart_home/__pycache__/
+custom_components/yandex_dialogs/__pycache__/
+custom_components/xiaomi_miot/core/__pycache__/
+custom_components/xiaomi_miot/__pycache__/
+custom_components/xiaomi_gateway3/util/__pycache__/
+custom_components/xiaomi_gateway3/core/__pycache__/
+custom_components/xiaomi_gateway3/__pycache__/
+custom_components/webrtc/__pycache__/
+custom_components/sonoff/__pycache__/
+custom_components/hacs/validate/__pycache__/
+custom_components/hacs/utils/__pycache__/
+custom_components/hacs/tasks/__pycache__/
+custom_components/hacs/repositories/__pycache__/
+custom_components/hacs/hacs_frontend/__pycache__/
+custom_components/hacs/__pycache__/
 www/
 esphome/.esphome/
 **/.pioenvs/
 **/.piolibdeps/
 **/lib/
 **/src/
-**/platformio.ini
+
 esphome/esp32sensors.yaml
 sensors/yandex_maps.yaml
 sensors/yandex_transport.yaml
@@ -35,7 +56,11 @@ sensors/yandex_transport.yaml
 # Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
 ip_bans.yaml
 secrets.yaml
+<<<<<<< HEAD
 known_devices.*
+=======
+known_devices.yaml*
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 .google_maps_location_sharing.cookies.ad6170epson_gmail_com
 options.xml
 plex.conf

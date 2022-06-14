@@ -1,8 +1,9 @@
 """------------------for Oven"""
 import logging
+
 from typing import Optional
 
-from .const import (
+from . import (
     FEAT_COOKTOP_LEFT_FRONT_STATE,
     FEAT_COOKTOP_LEFT_REAR_STATE,
     FEAT_COOKTOP_CENTER_STATE,
@@ -12,23 +13,24 @@ from .const import (
     FEAT_OVEN_LOWER_STATE,
     FEAT_OVEN_UPPER_CURRENT_TEMP,
     FEAT_OVEN_UPPER_STATE,
-    STATE_OPTIONITEM_NONE,
-    STATE_OPTIONITEM_OFF,
-    UNIT_TEMP_CELSIUS,
-    UNIT_TEMP_FAHRENHEIT,
 )
+
 from .device import (
-    BIT_OFF,
     Device,
     DeviceStatus,
-    UnitTempModes,
+    BIT_OFF,
+    UNITTEMPMODES,
+    UNIT_TEMP_FAHRENHEIT,
+    UNIT_TEMP_CELSIUS,
+    STATE_OPTIONITEM_NONE,
+    STATE_OPTIONITEM_OFF,
 )
 
 OVEN_TEMP_UNIT = {
-    "0": UnitTempModes.Fahrenheit,
-    "1": UnitTempModes.Celsius,
-    "FAHRENHEIT": UnitTempModes.Fahrenheit,
-    "CELSIUS": UnitTempModes.Celsius,
+    "0": UNITTEMPMODES.Fahrenheit,
+    "1": UNITTEMPMODES.Celsius,
+    "FAHRENHEIT": UNITTEMPMODES.Fahrenheit,
+    "CELSIUS": UNITTEMPMODES.Celsius,
 }
 
 ITEM_STATE_OFF = "@OV_STATE_INITIAL_W"
@@ -46,10 +48,10 @@ class RangeDevice(Device):
         self._status = RangeStatus(self, None)
         return self._status
 
-    async def poll(self) -> Optional["RangeStatus"]:
+    def poll(self) -> Optional["RangeStatus"]:
         """Poll the device's current state."""
 
-        res = await self.device_poll("ovenState")
+        res = self.device_poll("ovenState")
         if not res:
             return None
 
@@ -75,7 +77,7 @@ class RangeStatus(DeviceStatus):
                 self._oven_temp_unit = STATE_OPTIONITEM_NONE
             else:
                 self._oven_temp_unit = (
-                    OVEN_TEMP_UNIT.get(oven_temp_unit, UnitTempModes.Celsius)
+                    OVEN_TEMP_UNIT.get(oven_temp_unit, UNITTEMPMODES.Celsius)
                 ).value
         return self._oven_temp_unit
 
@@ -230,7 +232,7 @@ class RangeStatus(DeviceStatus):
         )
 
     def _update_features(self):
-        _ = [
+        result = [
             self.cooktop_left_front_state,
             self.cooktop_left_rear_state,
             self.cooktop_center_state,

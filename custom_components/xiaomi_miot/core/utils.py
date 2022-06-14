@@ -47,6 +47,12 @@ class RC4:
 
 
 def analytics_track_event(event, action, label, value=0, **kwargs):
+<<<<<<< HEAD
+    if True:
+        # disabled
+        return False
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     pag = f'https://miot-spec.com/s/{label}'
     if kwargs:
         pms = '&'.join([

@@ -1,16 +1,12 @@
-# https://www.home-assistant.io/integrations/update/
-# sensor.version
+- platform: template
+  sensors:
+    version:
+      friendly_name: 'Последняя версия - '
+      value_template: '{{ states.binary_sensor.updater.attributes["newest_version"] }}'
 
-# old code
-# - platform: template
-#   sensors:
-#     version:
-#       friendly_name: 'Последняя версия - '
-#       value_template: '{{ states.binary_sensor.updater.attributes["newest_version"] }}'
-
-# - platform: version
-#   name: current_ha
-#   scan_interval: 1800
+- platform: version
+  name: current_ha
+  scan_interval: 1800
 
 - platform: systemmonitor                   # https://www.home-assistant.io/components/systemmonitor/
   resources:
@@ -43,13 +39,13 @@
 #    - /config/home-assistant_v2.db
 
 # Maria DB size
-# - platform: sql
-#   db_url: !secret db_url
-#   queries:
-#     - name: DB size
-#       query: 'SELECT table_schema "database", Round(Sum(data_length + index_length) / 1048576, 2) "value" FROM information_schema.tables WHERE table_schema="hassdb" GROUP BY table_schema;'
-#       column: 'value'
-#       unit_of_measurement: MB
+- platform: sql
+  db_url: !secret db_url
+  queries:
+    - name: DB size
+      query: 'SELECT table_schema "database", Round(Sum(data_length + index_length) / 1048576, 2) "value" FROM information_schema.tables WHERE table_schema="hassdb" GROUP BY table_schema;'
+      column: 'value'
+      unit_of_measurement: MB
 
 - platform: uptime
   name: online

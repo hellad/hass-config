@@ -36,10 +36,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
+<<<<<<< HEAD
+    config['hass'] = hass
+    model = str(config.get(CONF_MODEL) or '')
+    entities = []
+    if miot := config.get('miot_type'):
+=======
     model = str(config.get(CONF_MODEL) or '')
     entities = []
     miot = config.get('miot_type')
     if miot:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         spec = await MiotSpec.async_from_type(hass, miot)
         for srv in spec.get_services('none_service'):
             if not srv.get_property('none_property'):
@@ -81,6 +88,11 @@ class MiotNumberSubEntity(MiotPropertySubEntity, NumberEntity):
 
     def set_value(self, value: float):
         """Set new value."""
+<<<<<<< HEAD
+        if self._miot_property.is_integer:
+            value = int(value)
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return self.set_parent_property(value)
 
     @property

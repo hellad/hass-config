@@ -29,6 +29,7 @@ SOFTWARE.
 import asyncio
 import base64
 import hashlib
+import hmac
 import json
 import logging
 import os
@@ -107,12 +108,16 @@ class MiCloud:
         return service_token
 
     async def get_devices(self):
+<<<<<<< HEAD
         payload = {
             "getVirtualModel": True,
             "getHuamiDevices": 1,
             "get_split_device": False,
             "support_smart_home": True
         }
+=======
+        payload = {'getVirtualModel': False, 'getHuamiDevices': 0}
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         total = []
         for server in self.servers:
@@ -152,25 +157,30 @@ class MiCloud:
 
         nonce = gen_nonce()
         signed_nonce = gen_signed_nonce(self.auth['ssecurity'], nonce)
+<<<<<<< HEAD
 
         try:
             params = {
                 'data': data
             }
             params['rc4_hash__'] = gen_signature(url, signed_nonce, params)
-            params = {
-                k: encrypt_rc4(signed_nonce, v) for (k, v) in params.items()
-            }
+            params = {k:encrypt_rc4(signed_nonce, v) for (k,v) in params.items()}
             params.update({
                 'signature': gen_signature(url, signed_nonce, params),
                 'ssecurity': self.auth['ssecurity'],
                 '_nonce': nonce
             })
+=======
+        signature = gen_signature(url, signed_nonce, nonce, data)
+
+        try:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             r = await self.session.post(baseurl + url, cookies={
                 'userId': self.auth['user_id'],
                 'serviceToken': self.auth['service_token'],
                 'locale': 'en_US'
             }, headers={
+<<<<<<< HEAD
                 'Accept-Encoding': 'identity',
                 'User-Agent': UA,
                 'x-xiaomi-protocal-flag-cli': 'PROTOCAL-HTTP2',
@@ -179,18 +189,29 @@ class MiCloud:
 
             resp = await r.text()
             resp = json.loads(decrypt_rc4(signed_nonce, resp))
+=======
+                'User-Agent': UA,
+                'x-xiaomi-protocal-flag-cli': 'PROTOCAL-HTTP2'
+            }, data={
+                'signature': signature,
+                '_nonce': nonce,
+                'data': data
+            }, timeout=10)
+
+            resp = await r.json(content_type=None)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             # _LOGGER.debug(f"Response from MIoT API {url}: {resp}")
             assert resp['code'] == 0, resp
             return resp['result']
 
         except asyncio.TimeoutError:
             _LOGGER.error(f"Timeout while requesting MIoT api {url}")
-        except Exception as e:
-            _LOGGER.error(f"Can't request MIoT API {url}", exc_info=e)
+        except:
+            _LOGGER.exception(f"Can't request MIoT API {url}")
 
         return None
 
-
+<<<<<<< HEAD
 class RC4:
     _idx = 0
     _jdx = 0
@@ -231,7 +252,8 @@ class RC4:
     def init1024(self):
         self.crypt(bytes(1024))
         return self
-
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 def get_random_string(length: int):
     seq = string.ascii_uppercase + string.digits
@@ -252,13 +274,14 @@ def gen_signed_nonce(ssecret: str, nonce: str) -> str:
     return base64.b64encode(m.digest()).decode()
 
 
+<<<<<<< HEAD
 def gen_signature(url: str, signed_nonce: str, data: dict) -> str:
     """Request signature based on url, signed_nonce, nonce and data."""
     sign = '&'.join(
         (
-                ['POST', url]
-                + [f"{k}={v}" for k, v in data.items()]
-                + [signed_nonce]
+            ['POST', url]
+            + [f"{k}={v}" for k, v in data.items()]
+            + [signed_nonce]
         )
     )
     signature = hashlib.sha1(sign.encode()).digest()
@@ -272,5 +295,13 @@ def encrypt_rc4(pwd, data):
 
 
 def decrypt_rc4(pwd, data):
-    return RC4(base64.b64decode(pwd.encode())).init1024(). \
-        crypt(base64.b64decode(data))
+    return RC4(base64.b64decode(pwd.encode())).init1024().crypt(base64.b64decode(data))
+=======
+def gen_signature(url: str, signed_nonce: str, nonce: str, data: str) -> str:
+    """Request signature based on url, signed_nonce, nonce and data."""
+    sign = '&'.join([url, signed_nonce, nonce, 'data=' + data])
+    signature = hmac.new(key=base64.b64decode(signed_nonce),
+                         msg=sign.encode(),
+                         digestmod=hashlib.sha256).digest()
+    return base64.b64encode(signature).decode()
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1

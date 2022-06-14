@@ -46,11 +46,19 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
+<<<<<<< HEAD
+    config['hass'] = hass
+    did = str(config.get('miot_did') or '')
+    model = str(config.get(CONF_MODEL) or '')
+    entities = []
+    if miot := config.get('miot_type'):
+=======
     did = str(config.get('miot_did') or '')
     model = str(config.get(CONF_MODEL) or '')
     entities = []
     miot = config.get('miot_type')
     if miot:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         spec = await MiotSpec.async_from_type(hass, miot)
         for srv in spec.get_services('toilet', 'seat', 'motion_sensor', 'magnet_sensor', 'submersion_sensor'):
             if spec.get_service('nobody_time'):
@@ -63,7 +71,11 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
                 continue
             if srv.name in ['toilet']:
                 entities.append(MiotToiletEntity(config, srv))
+<<<<<<< HEAD
+            elif srv.name in ['seat'] and spec.name in ['toilet'] and not spec.get_service('toilet'):
+=======
             elif srv.name in ['seat'] and spec.name in ['toilet']:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 # tinymu.toiletlid.v1
                 entities.append(MiotToiletEntity(config, srv))
             elif 'blt.' in did:
@@ -103,6 +115,12 @@ class MiotBinarySensorEntity(MiotToggleEntity, BinarySensorEntity):
 
         if miot_service.name in ['magnet_sensor']:
             self._prop_state = miot_service.get_property('contact_state') or self._prop_state
+<<<<<<< HEAD
+            if self._prop_state and self._prop_state.name in ['contact_state']:
+                # https://github.com/al-one/hass-xiaomi-miot/issues/270
+                self._vars['reverse_state'] = True
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             self._vars['device_class'] = DEVICE_CLASS_DOOR
 
         if miot_service.name in ['submersion_sensor']:
@@ -113,6 +131,15 @@ class MiotBinarySensorEntity(MiotToggleEntity, BinarySensorEntity):
             'state_property': self._prop_state.full_name if self._prop_state else None,
         })
 
+<<<<<<< HEAD
+    async def async_added_to_hass(self):
+        await super().async_added_to_hass()
+        rev = self.custom_config_bool('reverse_state', None)
+        if rev is not None:
+            self._vars['reverse_state'] = rev
+
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     async def async_update(self):
         await super().async_update()
         if not self._available:
@@ -121,6 +148,27 @@ class MiotBinarySensorEntity(MiotToggleEntity, BinarySensorEntity):
 
     @property
     def is_on(self):
+<<<<<<< HEAD
+        ret = self._state
+        if self._prop_state:
+            val = self._prop_state.from_dict(self._state_attrs)
+            if val is None:
+                pass
+            elif self._prop_state.name in ['no_motion_duration', 'nobody_time']:
+                dur = self.custom_config_integer('motion_timeout')
+                if dur is None and self._prop_state.value_range:
+                    stp = self._prop_state.range_step()
+                    if stp >= 10:
+                        dur = self._prop_state.range_min() + stp
+                if dur is None:
+                    dur = 60
+                ret = val <= dur
+            else:
+                ret = val
+        if self._vars.get('reverse_state'):
+            ret = not ret
+        return ret
+=======
         if not self._prop_state:
             return self._state
         val = self._prop_state.from_dict(self._state_attrs)
@@ -136,6 +184,7 @@ class MiotBinarySensorEntity(MiotToggleEntity, BinarySensorEntity):
                 dur = 60
             return val <= dur
         return val and True
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def state(self):
@@ -173,7 +222,11 @@ class BleBinarySensorEntity(MiotBinarySensorEntity):
         await super().async_update()
         if not self._available:
             return
+<<<<<<< HEAD
+        if self.custom_config_bool('use_ble_object', True):
+=======
         if self.custom_config_bool('use_ble_object'):
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             await self.async_update_ble_data()
 
     async def async_update_ble_data(self):
@@ -188,7 +241,11 @@ class BleBinarySensorEntity(MiotBinarySensorEntity):
         rdt = await self.hass.async_add_executor_job(
             mic.request_miot_api, 'device/batchdevicedatas', [pms],
         ) or {}
+<<<<<<< HEAD
+        self.logger.debug('%s: Got miio cloud props: %s', self.name_model, rdt)
+=======
         self.logger.debug('%s: Got miio cloud props: %s', self.name, rdt)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         props = (rdt.get('result') or {}).get(did, {})
         sta = None
         adt = {}
@@ -206,7 +263,11 @@ class BleBinarySensorEntity(MiotBinarySensorEntity):
                     val = int.from_bytes(bytes.fromhex(val), 'little')
                 except (TypeError, ValueError):
                     val = None
+<<<<<<< HEAD
+                    self.logger.warning('%s: BLE object data invalid: %s (%s)', self.name_model, k, vls)
+=======
                     self.logger.warning('%s: BLE object data invalid: %s (%s)', self.name, k, vls)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             if ise and not tim:
                 continue
 
@@ -254,17 +315,30 @@ class BleBinarySensorEntity(MiotBinarySensorEntity):
         if sta is not None:
             self._state = sta
         if adt:
+<<<<<<< HEAD
+            await self.async_update_attrs(adt)
+=======
             self.update_attrs(adt)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 class MiotToiletEntity(MiotBinarySensorEntity):
     def __init__(self, config, miot_service: MiotService):
+<<<<<<< HEAD
+        super().__init__(config, miot_service)
+        self._prop_state = None
+        for s in miot_service.spec.get_services('toilet', 'seat'):
+            if p := s.get_property('seating_state'):
+                self._prop_state = p
+                break
+=======
         mapping = None
         model = f'{config.get(CONF_MODEL)}'
         if model.find('xjx.toilet.') >= 0:
             mapping = miot_service.spec.services_mapping('toilet', 'seat')
         super().__init__(config, miot_service, mapping=mapping)
         self._prop_state = miot_service.get_property('seating_state')
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if not self._prop_state:
             self._prop_state = miot_service.get_property(
                 'mode', self._prop_state.name if self._prop_state else 'status',
@@ -304,7 +378,11 @@ class MiotToiletEntity(MiotBinarySensorEntity):
                         'power_property': p.service.bool_property('heating'),
                     }
                 self._subs[p.name] = MiotModesSubEntity(self, p, opt)
+<<<<<<< HEAD
+                add_fans([self._subs[p.name]], update_before_add=True)
+=======
                 add_fans([self._subs[p.name]])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         add_switches = self._add_entities.get('switch')
         if self._prop_power:
@@ -313,7 +391,11 @@ class MiotToiletEntity(MiotBinarySensorEntity):
                 self._subs[pnm].update()
             elif add_switches:
                 self._subs[pnm] = SwitchSubEntity(self, pnm)
+<<<<<<< HEAD
+                add_switches([self._subs[pnm]], update_before_add=True)
+=======
                 add_switches([self._subs[pnm]])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def icon(self):
@@ -361,6 +443,15 @@ class LumiBinarySensorEntity(MiotBinarySensorEntity):
         elif typ in ['event.leak', 'event.no_leak']:
             self._state = typ == 'event.leak'
         elif self._prop_state and self._prop_state.full_name in self._state_attrs:
+<<<<<<< HEAD
+            _LOGGER.info('%s: Get miio data failed: %s', self.name_model, dlg)
+        else:
+            _LOGGER.warning('%s: Get miio data failed: %s', self.name_model, dlg)
+        if self._prop_state and self._state is not None:
+            adt[self._prop_state.full_name] = self._state
+        if adt:
+            await self.async_update_attrs(adt)
+=======
             _LOGGER.info('Get miio data for %s failed: %s', self.name, dlg)
         else:
             _LOGGER.warning('Get miio data for %s failed: %s', self.name, dlg)
@@ -368,6 +459,7 @@ class LumiBinarySensorEntity(MiotBinarySensorEntity):
             adt[self._prop_state.full_name] = self._state
         if adt:
             self.update_attrs(adt)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 class MiotBinarySensorSubEntity(MiotPropertySubEntity, ToggleSubEntity, BinarySensorEntity):

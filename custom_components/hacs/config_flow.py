@@ -10,6 +10,7 @@ from homeassistant.helpers.event import async_call_later
 from homeassistant.loader import async_get_integration
 import voluptuous as vol
 
+<<<<<<< HEAD
 from .base import HacsBase
 from .const import CLIENT_ID, DOMAIN, MINIMUM_HA_VERSION
 from .enums import ConfigurationType
@@ -18,6 +19,18 @@ from .utils.logger import get_hacs_logger
 
 
 class HacsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+=======
+from custom_components.hacs.const import CLIENT_ID, DOMAIN, MINIMUM_HA_VERSION
+from custom_components.hacs.enums import ConfigurationType
+from custom_components.hacs.helpers.functions.configuration_schema import (
+    RELEASE_LIMIT,
+    hacs_config_option_schema,
+)
+from custom_components.hacs.mixin import HacsMixin
+
+
+class HacsFlowHandler(HacsMixin, config_entries.ConfigFlow, domain=DOMAIN):
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     """Config flow for HACS."""
 
     VERSION = 1
@@ -28,10 +41,12 @@ class HacsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self._errors = {}
         self.device = None
         self.activation = None
+<<<<<<< HEAD
         self.log = get_hacs_logger()
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         self._progress_task = None
         self._login_device = None
-        self._reauth = False
 
     async def async_step_user(self, user_input):
         """Handle a flow initialized by the user."""
@@ -86,17 +101,26 @@ class HacsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     },
                 )
             except GitHubException as exception:
+<<<<<<< HEAD
                 self.log.error(exception)
+=======
+                self.hacs.log.error(exception)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 return self.async_abort(reason="github")
 
         return self.async_show_progress_done(next_step_id="device_done")
 
     async def _show_config_form(self, user_input):
         """Show the configuration form to edit location data."""
+<<<<<<< HEAD
 
         if not user_input:
             user_input = {}
 
+=======
+        if not user_input:
+            user_input = {}
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if AwesomeVersion(HAVERSION) < MINIMUM_HA_VERSION:
             return self.async_abort(
                 reason="min_ha_version",
@@ -119,29 +143,7 @@ class HacsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_device_done(self, _user_input):
         """Handle device steps"""
-        if self._reauth:
-            existing_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
-            self.hass.config_entries.async_update_entry(
-                existing_entry, data={"token": self.activation.access_token}
-            )
-            await self.hass.config_entries.async_reload(existing_entry.entry_id)
-            return self.async_abort(reason="reauth_successful")
-
         return self.async_create_entry(title="", data={"token": self.activation.access_token})
-
-    async def async_step_reauth(self, user_input=None):
-        """Perform reauth upon an API authentication error."""
-        return await self.async_step_reauth_confirm()
-
-    async def async_step_reauth_confirm(self, user_input=None):
-        """Dialog that informs the user that reauth is required."""
-        if user_input is None:
-            return self.async_show_form(
-                step_id="reauth_confirm",
-                data_schema=vol.Schema({}),
-            )
-        self._reauth = True
-        return await self.async_step_device(None)
 
     @staticmethod
     @callback
@@ -149,7 +151,11 @@ class HacsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return HacsOptionsFlowHandler(config_entry)
 
 
+<<<<<<< HEAD
 class HacsOptionsFlowHandler(config_entries.OptionsFlow):
+=======
+class HacsOptionsFlowHandler(HacsMixin, config_entries.OptionsFlow):
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     """HACS config flow options handler."""
 
     def __init__(self, config_entry):
@@ -162,17 +168,27 @@ class HacsOptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
+<<<<<<< HEAD
         hacs: HacsBase = self.hass.data.get(DOMAIN)
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if user_input is not None:
             limit = int(user_input.get(RELEASE_LIMIT, 5))
             if limit <= 0 or limit > 100:
                 return self.async_abort(reason="release_limit_value")
             return self.async_create_entry(title="", data=user_input)
 
+<<<<<<< HEAD
         if hacs is None or hacs.configuration is None:
             return self.async_abort(reason="not_setup")
 
         if hacs.configuration.config_type == ConfigurationType.YAML:
+=======
+        if self.hacs.configuration is None:
+            return self.async_abort(reason="not_setup")
+
+        if self.hacs.configuration.config_type == ConfigurationType.YAML:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             schema = {vol.Optional("not_in_use", default=""): str}
         else:
             schema = hacs_config_option_schema(self.config_entry.options)

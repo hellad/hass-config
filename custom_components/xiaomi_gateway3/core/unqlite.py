@@ -3,7 +3,10 @@ python sqlite3 library can't read DB from memory.
 """
 
 
+<<<<<<< HEAD
 # noinspection PyUnusedLocal
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 class Unqlite:
     page_size = 0
     pos = 0
@@ -79,7 +82,10 @@ class Unqlite:
         return result
 
 
+<<<<<<< HEAD
 # noinspection PyUnusedLocal
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 class SQLite:
     page_size = 0
     pos = 0

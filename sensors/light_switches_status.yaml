@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ################################################################################
 #
 #### Listen for MQTT topic and timestamp the light switch sensors changes
@@ -46,4 +47,54 @@
 #Object ID                                         : mqtt_6e0052_rl_2
 #Last Updated                                      : 2021-06-23 19:09:36.754014+00:00
 #Last Changed                                      : 2021-06-23 19:09:36.754014+00:00
+=======
+################################################################################
+#
+#### Listen for MQTT topic and timestamp the light switch sensors changes
+#
+################################################################################
+  - platform: template
+    sensors: 
+      entrance_light_last_switched:
+        friendly_name: "entrance light last switched" # "Entrance Light switched"   binary_sensor
+        value_template: >-
+          {{ as_timestamp(states.binary_sensor.entrance_light_switched.last_changed) | timestamp_custom("%Y-%m-%d %X") }}
+          
+################################################################################
+#### Template sensor to control entrance_light_switched timeout
+#### ON if turned on less then 5 minutes
+#### custom timestamp 2021-06-23 19:40:07 
+################################################################################
+  - platform: template
+    sensors:
+      entrance_light_switched_timeout:
+        friendly_name: "entrance light switched timeout"  
+# timedelta returns a timedelta object and accepts the same arguments as the Python datetime.timedelta function – days, seconds, microseconds, milliseconds, minutes, hours, weeks.
+# https://www.home-assistant.io/docs/configuration/templating/
+# 77 minutes before curret time. {{ now() - timedelta( hours = 1, minutes = 17 ) }}
+        value_template: >-
+          {{(as_timestamp(now()) - as_timestamp(states.binary_sensor.entrance_light_switched.last_changed)) | int > 300}}
+
+# {{ as_timestamp(now()) - as_timestamp(states.binary_sensor.entrance_light_switched.last_changed) }}
+# 0.007418155670166016 сразу после включения света
+# 55.51262712478638  спустя минуту примерно
+# 89.7947039604187   через полторы минуты
+# проверка 5 минутной паузы после включения света {{ (as_timestamp(now()) - as_timestamp(states.binary_sensor.entrance_light_switched.last_changed)) | int > 300}}
+
+
+#switch.corridortasmota                            
+#State                                             : off
+#Domain                                            : switch
+#Object ID                                         : corridortasmota
+#Last Updated                                      : 2021-06-23 19:09:36.753714+00:00
+#Last Changed                                      : 2021-06-23 19:09:36.753714+00:00
+#friendly_name                                     : Storeroom light switch
+
+#switch.mqtt_6e0052_rl_2                           
+#State                                             : off
+#Domain                                            : switch
+#Object ID                                         : mqtt_6e0052_rl_2
+#Last Updated                                      : 2021-06-23 19:09:36.754014+00:00
+#Last Changed                                      : 2021-06-23 19:09:36.754014+00:00
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 #friendly_name                                     : Entrance light switch

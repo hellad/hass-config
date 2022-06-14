@@ -2,20 +2,30 @@
     "config": {
         "abort": {
             "single_instance_allowed": "Apenas é permitida uma única configuração do SmartThinQ LGE Sensors.",
+<<<<<<< HEAD
             "no_smartthinq_devices": "Não foram encontrados dispositivos SmartThinQ. Configuração do componente interrompida.",
             "unsupported_version": "Esta integração requer pelo menos a versão {req_ver} do HomeAssistant. A versão atual é {run_ver}."
+=======
+            "no_smartthinq_devices": "Não foram encontrados dispositivos SmartThinQ. Configuração do componente interrompida."
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         },
         "error": {
             "error_url": "Ocorreu um erro a tentar encontrar o endereço do ThinQ.",
             "invalid_region": "Formato da região inválido.",
             "invalid_language": "Formato do idioma inválido.",
+<<<<<<< HEAD
             "invalid_url": "URL de redirecionamento inválido. Certifique-se que tem acesso à app ThinQ através do smartphone. Pode obter ajuda [aqui](https://git.io/JTjid).",
             "invalid_credentials": "Credenciais SmartThinQ inválidas. Tente novamente e verifique se tem acesso à app ThinQ através do seu smartphone.",
             "no_user_info": "O nome de utilizador e senha são obrigatórios."
+=======
+            "invalid_url": "URL de redirecionamento inválido. Certifique-se que tem acesso à app ThinQ através do telemóvel. Pode obter ajuda [aqui](https://git.io/JTjid).",
+            "invalid_credentials": "Credenciais SmartThinQ inválidas."
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         },
         "step": {
             "user": {
                 "data": {
+<<<<<<< HEAD
                     "username": "Utilizador da conta LG",
                     "password": "Senha",
                     "region": "Código do país",
@@ -23,6 +33,10 @@
                     "use_redirect": "Use o método de autenticação de URL de redirecionamento.",
                     "use_tls_v1": "Forçar o uso do protocolo TLSv1 (às vezes é necessário)",
                     "exclude_dh": "Não use a cifra DH (no caso de erro 'chave dh muito pequena')"
+=======
+                    "region": "Código do país",
+                    "language": "Código do idioma"
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 },
                 "description": "Selecione a localização da sua conta SmartThinQ.",
                 "title": "Sensores SmartThinQ LGE"
@@ -39,7 +53,11 @@
                 "data": {
                     "token": "Atualizar Token"
                 },
+<<<<<<< HEAD
                 "description": "Guarde o token gerado para uso futuro e confirmar para concluir a configuração.",
+=======
+                "description": "Guarde o token gerado para uso no futuro, depois confirmar para completar a configuração.",
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 "title": "SmartThinQ LGE Sensors - Actualizar token"
             }
         },

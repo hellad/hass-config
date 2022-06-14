@@ -34,7 +34,7 @@ class EzspUtils:
     def read(self, size: int = 1):
         try:
             return self.sock.recv(size)
-        except Exception:
+        except:
             return b''
 
     def readline(self):
@@ -52,8 +52,8 @@ class EzspUtils:
     def state(self) -> Optional[str]:
         try:
             resp = self.ezsp.initEzspProtocol()
-        except Exception as e:
-            _LOGGER.debug("NCP init error", exc_info=e)
+        except:
+            _LOGGER.debug("NCP init error")
             return None
 
         if resp == 0:

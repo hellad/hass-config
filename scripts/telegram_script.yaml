@@ -50,28 +50,28 @@
           password: ismart12
 
   # Notify component
-#   test_notify_telegram_location:
-#     alias: Test notify.telegram location template
-#     sequence:
-#       - service: notify.telegram_bot
-#         data:
-#           message: "Not used here but needed..."
-#           data:
-#             location:
-#               latitude: '{{ states.device_tracker.iphone.attributes.latitude|float }}'
-#               longitude: '{{ states.device_tracker.iphone.attributes.longitude|float }}'
+  test_notify_telegram_location:
+    alias: Test notify.telegram location template
+    sequence:
+      - service: notify.telegram_bot
+        data:
+          message: "Not used here but needed..."
+          data:
+            location:
+              latitude: '{{ states.device_tracker.iphone.attributes.latitude|float }}'
+              longitude: '{{ states.device_tracker.iphone.attributes.longitude|float }}'
 
-#   test_notify_telegram_image:
-#     alias: Test notify.telegram multiple image
-#     sequence:
-#       - service: notify.telegram_bot
-#         data:
-#           message: "Not used here but needed..."
-#           data:
-#             photo:
-#               - url: 'http://sputniknews-uz.com/images/437/86/4378687.jpg'
-#                 caption: 'Test img 1. C1'
-#               - url: 'http://localhost:8123{{ states.camera.adcamera.attributes.entity_picture}}'
-#                 caption: 'Test img 1. C2'
+  test_notify_telegram_image:
+    alias: Test notify.telegram multiple image
+    sequence:
+      - service: notify.telegram_bot
+        data:
+          message: "Not used here but needed..."
+          data:
+            photo:
+              - url: 'http://sputniknews-uz.com/images/437/86/4378687.jpg'
+                caption: 'Test img 1. C1'
+              - url: 'http://localhost:8123{{ states.camera.adcamera.attributes.entity_picture}}'
+                caption: 'Test img 1. C2'
 
 

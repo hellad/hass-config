@@ -1,24 +1,36 @@
+<<<<<<< HEAD
 import binascii
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 import json
 import re
 import time
 import uuid
+<<<<<<< HEAD
 from datetime import timedelta
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from typing import Optional
 
 import yaml
 from homeassistant.components import shopping_list
 from homeassistant.components.media_player import *
-from homeassistant.components.media_player.const import (
-    MEDIA_TYPE_TVSHOW, MEDIA_TYPE_CHANNEL, MEDIA_CLASS_APP
-)
-from homeassistant.components.media_source.models import BrowseMediaSource
+from homeassistant.components.media_player import MediaPlayerEntity
+from homeassistant.components.media_player.const import MEDIA_TYPE_TVSHOW, \
+    MEDIA_TYPE_CHANNEL
+<<<<<<< HEAD
 from homeassistant.const import STATE_PLAYING, STATE_PAUSED, STATE_IDLE
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceRegistry
+=======
+from homeassistant.config_entries import CONN_CLASS_LOCAL_PUSH, \
+    CONN_CLASS_LOCAL_POLL, CONN_CLASS_ASSUMED
+from homeassistant.const import STATE_PLAYING, STATE_PAUSED, STATE_IDLE
+from homeassistant.core import callback
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.template import Template
 from homeassistant.util import dt
 
 from . import DOMAIN, DATA_CONFIG, CONF_INCLUDE, CONF_INTENTS
@@ -28,17 +40,21 @@ from .core.yandex_quasar import YandexQuasar
 
 _LOGGER = logging.getLogger(__name__)
 
+<<<<<<< HEAD
 # update speaker online state once per 5 minutes
 SCAN_INTERVAL = timedelta(minutes=5)
 
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 RE_EXTRA = re.compile(br'{".+?}\n')
 RE_MUSIC_ID = re.compile(r'^\d+(:\d+)?$')
 RE_SHOPPING = re.compile(r'^\d+\) (.+)\.$', re.MULTILINE)
 
+<<<<<<< HEAD
 BASE_FEATURES = (
         SUPPORT_TURN_OFF | SUPPORT_VOLUME_SET | SUPPORT_VOLUME_STEP |
-        SUPPORT_VOLUME_MUTE | SUPPORT_PLAY_MEDIA | SUPPORT_TURN_ON |
-        SUPPORT_BROWSE_MEDIA
+        SUPPORT_VOLUME_MUTE | SUPPORT_PLAY_MEDIA | SUPPORT_SELECT_SOUND_MODE |
+        SUPPORT_TURN_ON
 )
 
 CLOUD_FEATURES = (
@@ -48,17 +64,27 @@ CLOUD_FEATURES = (
 LOCAL_FEATURES = (
         BASE_FEATURES | SUPPORT_PLAY | SUPPORT_PAUSE | SUPPORT_SELECT_SOURCE
 )
+=======
+BASE_FEATURES = (SUPPORT_TURN_OFF | SUPPORT_VOLUME_SET | SUPPORT_VOLUME_STEP |
+                 SUPPORT_VOLUME_MUTE | SUPPORT_PLAY_MEDIA |
+                 SUPPORT_SELECT_SOUND_MODE | SUPPORT_TURN_ON)
 
-MEDIA_DEFAULT = [{
-    "title": "Произнеси текст", "media_content_type": "text",
-    "thumbnail": "https://brands.home-assistant.io/_/tts/icon.png",
-}, {
-    "title": "Выполни команду", "media_content_type": "command",
-    "thumbnail": "https://brands.home-assistant.io/_/automation/icon.png",
-}]
+LOCAL_FEATURES = BASE_FEATURES | SUPPORT_PLAY | SUPPORT_PAUSE | SUPPORT_SEEK
+CLOUD_FEATURES = (BASE_FEATURES | SUPPORT_PLAY | SUPPORT_PAUSE |
+                  SUPPORT_PREVIOUS_TRACK | SUPPORT_NEXT_TRACK)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
+SOUND_MODE1 = "Произнеси текст"
+SOUND_MODE2 = "Выполни команду"
+
+<<<<<<< HEAD
 SOURCE_STATION = 'Станция'
 SOURCE_HDMI = 'HDMI'
+=======
+SOUND_MODE_LIST = [SOUND_MODE1, SOUND_MODE2]
+
+EXCEPTION_100 = Exception("Нельзя произнести более 100 симоволов :(")
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 # Thanks to: https://github.com/iswitch/ha-yandex-icons
 CUSTOM = {
@@ -84,15 +110,27 @@ DEVICES = ['devices.types.media_device.tv']
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
+<<<<<<< HEAD
     quasar: YandexQuasar = hass.data[DOMAIN][entry.unique_id]
+=======
+    quasar = hass.data[DOMAIN][entry.unique_id]
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     # add Yandex stations
     entities = []
     for speaker in await quasar.load_speakers():
+<<<<<<< HEAD
         speaker['entity'] = entity = YandexStation(quasar, speaker)
         entities.append(entity)
     for module in quasar.modules:
         module['entity'] = entity = YandexModule(quasar, module)
+=======
+        has_hdmi = speaker['quasar_info']['platform'] in (
+            'yandexstation', 'yandexstation_2'
+        )
+        cls = YandexStationHDMI if has_hdmi else YandexStation
+        speaker['entity'] = entity = cls(quasar, speaker)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         entities.append(entity)
     async_add_entities(entities, True)
 
@@ -117,62 +155,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
 
 # noinspection PyAbstractClass
-class YandexSource(BrowseMediaSource):
-    def __init__(self, **kwargs):
-        query = {}
-        if kwargs.get("media_content_id"):
-            query["message"] = kwargs.pop("media_content_id")
-            kwargs.setdefault("can_expand", False)
-        if kwargs.get("template"):
-            query["template"] = template = kwargs.pop("template")
-            kwargs.setdefault("can_expand", "message" in template)
-        if kwargs.get("extra"):
-            extra = kwargs.pop("extra")
-            query["volume_level"] = extra["volume_level"]
-        if query:
-            kwargs["identifier"] = utils.encode_media_source(query)
-
-        kwargs = {
-            "domain": "tts",  # will show message/say dialog
-            "identifier": DOMAIN,  # may be any but not empty
-            "media_class": MEDIA_CLASS_APP,  # needs for icon
-            "can_play": False,  # show play button in
-            "can_expand": True,  # true - show say dialog, false - run command
-            **kwargs  # override all default values
-        }
-        super().__init__(**kwargs)
-
-
-# noinspection PyAbstractClass
-class MediaBrowser(MediaPlayerEntity):
-    media_cache: list = None
-
-    async def async_browse_media(
-            self, media_content_type: str = None, media_content_id: str = None,
-    ) -> BrowseMedia:
-        if not MediaBrowser.media_cache:
-            conf = self.hass.data[DOMAIN][DATA_CONFIG]
-            conf = conf.get("media_source") or MEDIA_DEFAULT
-            MediaBrowser.media_cache = [YandexSource(**item) for item in conf]
-
-        for media in MediaBrowser.media_cache:
-            if (media.media_content_id == media_content_id and
-                    media.media_content_type == media_content_type):
-                return media
-
-        return BrowseMediaSource(
-            title=self.name, children=MediaBrowser.media_cache,
-            domain=None, identifier=None, media_class=None,
-            media_content_type=None, can_play=False, can_expand=True,
-        )
-
-
-# noinspection PyAbstractClass
-class YandexStation(MediaBrowser):
+class YandexStation(MediaPlayerEntity):
     _attr_extra_state_attributes: dict = None
 
     local_state: Optional[dict] = None
     # для управления громкостью Алисы
+<<<<<<< HEAD
     alice_volume: Optional[dict] = None
 
     # true of false if device has HDMI
@@ -189,12 +177,23 @@ class YandexStation(MediaBrowser):
     sync_volume: Optional[float] = None
 
     glagol: YandexGlagol = None
+=======
+    alice_volume = None
+
+    sync_state = None
+    sync_id = None
+    sync_mute = None
+    sync_volume = None
+
+    glagol = None
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     def __init__(self, quasar: YandexQuasar, device: dict):
         self.quasar = quasar
         self.device = device
         self.requests = {}
 
+<<<<<<< HEAD
         self._attr_assumed_state = True
         self._attr_extra_state_attributes = {}
         self._attr_is_volume_muted = False
@@ -202,7 +201,21 @@ class YandexStation(MediaBrowser):
         self._attr_name = device['name']
         self._attr_should_poll = True
         self._attr_state = STATE_IDLE
+        self._attr_sound_mode_list = [SOUND_MODE1, SOUND_MODE2]
+        self._attr_sound_mode = SOUND_MODE1
         self._attr_supported_features = CLOUD_FEATURES
+=======
+        self._attr_extra_state_attributes = {}
+        self._attr_is_volume_muted = False
+        self._attr_media_image_remotely_accessible = True
+        # имя колонки, есть в обоих режимах
+        self._attr_name = device['name']
+        self._attr_should_poll = True
+        self._attr_state = STATE_IDLE
+        self._attr_sound_mode_list = SOUND_MODE_LIST
+        # режим звука, есть в обоих режимах
+        self._attr_sound_mode = SOUND_MODE1
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         self._attr_volume_level = 0.5
         self._attr_unique_id = device['quasar_info']['device_id']
 
@@ -214,6 +227,7 @@ class YandexStation(MediaBrowser):
             info["manufacturer"] = CUSTOM[self.device_platform][1]
             info["model"] = CUSTOM[self.device_platform][2]
 
+<<<<<<< HEAD
         # backward compatibility
         self.entity_id = "media_player.yandex_station_" + \
                          self._attr_unique_id.lower()
@@ -229,19 +243,37 @@ class YandexStation(MediaBrowser):
 
     async def init_local_mode(self):
         # self.debug(f"Init local mode (hass: {self.hass is not None})")
+=======
+    def debug(self, text: str):
+        _LOGGER.debug(f"{self.name} | {text}")
+
+    async def async_added_to_hass(self):
+        if (await utils.has_custom_icons(self.hass) and
+                self.device_platform in CUSTOM):
+            self._attr_icon = CUSTOM[self.device_platform][0]
+            self.debug(f"Установка кастомной иконки: {self._attr_icon}")
+
+        if 'host' in self.device:
+            await self.init_local_mode()
+
+    async def async_will_remove_from_hass(self):
+        if self.glagol:
+            await self.glagol.stop()
+
+    async def init_local_mode(self):
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if not self.glagol:
             self.glagol = YandexGlagol(self.quasar.session, self.device)
             self.glagol.update_handler = self.async_set_state
 
         await self.glagol.start_or_restart()
 
+<<<<<<< HEAD
         # init sources only once
         if self.sync_sources is not None:
             return
 
-        self.sync_sources = {
-            src["name"]: src for src in utils.get_media_players(self.hass)
-        }
+        self.sync_sources = utils.get_media_players(self.hass)
 
         # for HomeKit source list support
         self._attr_device_class = DEVICE_CLASS_TV
@@ -258,8 +290,8 @@ class YandexStation(MediaBrowser):
         # load state if unknown
         if self.hdmi_audio is None:
             try:
-                conf = await self.quasar.get_device_config(self.device)
-                self.hdmi_audio = conf.get('hdmiAudio', False)
+                device_config = await self.quasar.get_device_config(self.device)
+                self.hdmi_audio = device_config.get('hdmiAudio', False)
             except:
                 _LOGGER.warning("Не получается получить настройки HDMI")
                 return
@@ -303,6 +335,305 @@ class YandexStation(MediaBrowser):
             return
 
         self.debug(f"{card['text']} | {request_id}")
+=======
+        self._attr_sound_mode_list = \
+            SOUND_MODE_LIST + utils.get_media_players(self.hass)
+
+    @property
+    def device_platform(self):
+        return self.device['quasar_info']['platform']
+
+    @callback
+    def async_sync_state(self, service: str, **kwargs):
+        if service == "play_media":
+            self.hass.async_create_task(self.async_media_seek(0))
+
+            kwargs["media_content_id"] = utils.StreamingView.get_url(
+                self.hass, self._attr_unique_id, kwargs["media_content_id"]
+            )
+
+        kwargs["entity_id"] = self._attr_sound_mode
+
+        self.hass.async_create_task(self.hass.services.async_call(
+            "media_player", service, kwargs
+        ))
+
+    @callback
+    def async_set_state(self, data: dict):
+        if data is None:
+            self.debug("Возврат в облачный режим")
+            self.local_state = None
+
+            self._attr_extra_state_attributes.pop("alice_state", None)
+            self._attr_extra_state_attributes["connection_class"] = \
+                CONN_CLASS_ASSUMED
+
+            self._attr_media_artist = None
+            self._attr_media_content_type = None
+            self._attr_media_duration = None
+            self._attr_media_image_url = None
+            self._attr_media_position = None
+            self._attr_media_position_updated_at = None
+            self._attr_media_title = None
+            self._attr_supported_features = CLOUD_FEATURES
+            self._attr_should_poll = True
+
+            self.async_write_ha_state()
+            return
+
+        is_send_by_speaker = 'requestId' not in data
+
+        state = data['state']
+        state['local_push'] = is_send_by_speaker
+        state.pop('timeSinceLastVoiceActivity', None)
+
+        # skip same state
+        if self.local_state == state:
+            return
+
+        self.local_state = state
+
+        # возвращаем из состояния mute, если нужно
+        # if self.prev_volume and state['volume']:
+        #     self.prev_volume = None
+
+        if self.alice_volume:
+            self._process_alice_volume(state['aliceState'])
+
+        extra_item = extra_stream = None
+
+        try:
+            astate = data['extra']['appState'].encode('ascii')
+            astate = base64.b64decode(astate)
+            for m in RE_EXTRA.findall(astate):
+                m = json.loads(m)
+                if "item" in m:
+                    extra_item = m["item"]
+                if "stream" in m:
+                    extra_stream = m["stream"]
+        except:
+            pass
+
+        mctp = miur = mpos = mart = mdur = mtit = vlvl = None
+        stat = STATE_IDLE
+        spft = LOCAL_FEATURES
+
+        pstate = state.get("playerState")
+        if pstate:
+            try:
+                if pstate.get('liveStreamText') == "Прямой эфир":
+                    mctp = MEDIA_TYPE_CHANNEL  # radio
+                elif pstate["extra"]:
+                    # music, podcast also shows as music
+                    mctp = pstate['extra']['stateType']
+                elif extra_item:
+                    extra_type = extra_item['type']
+                    mctp = MEDIA_TYPE_TVSHOW \
+                        if extra_type == 'tv_show_episode' \
+                        else extra_type
+            except:
+                pass
+
+            try:
+                if self._attr_media_content_type == 'music':
+                    url = pstate['extra']['coverURI']
+                    miur = 'https://' + url.replace('%%', '400x400')
+                elif extra_item:
+                    miur = extra_item['thumbnail_url_16x9']
+            except:
+                pass
+
+            mdur = pstate["duration"]
+            mpos = pstate["progress"]
+            mart = pstate["subtitle"]
+            mtit = pstate["title"]
+
+            stat = STATE_PLAYING if state["playing"] else STATE_PAUSED
+            if pstate["hasPrev"]:
+                spft |= SUPPORT_PREVIOUS_TRACK
+            if pstate["hasNext"]:
+                spft |= SUPPORT_NEXT_TRACK
+
+            # в прошивке Яндекс.Станции Мини есть косяк - звук всегда (int) 0
+            if isinstance(state['volume'], float) and 0 <= state['volume'] <= 1:
+                vlvl = state['volume']
+
+            if self.sync_state:
+                # синхронизируем статус, если выбран такой режим
+                if self.sync_state != stat:
+                    # синхронизируем статус, если он не совпадает
+                    if stat == STATE_PLAYING:
+                        if self.sync_id != pstate["id"]:
+                            # запускаем новую песню, если ID изменился
+                            if extra_stream:
+                                self.async_sync_state(
+                                    "play_media",
+                                    media_content_id=extra_stream["url"],
+                                    media_content_type="music"
+                                )
+                            self.sync_id = pstate["id"]
+                        else:
+                            # продолжаем играть, если ID не изменился
+                            self.async_sync_state("media_play")
+
+                    else:
+                        # останавливаем, если ничего не играет
+                        self.async_sync_state("media_pause")
+
+                    self.sync_state = stat
+
+                if self.sync_state == STATE_PLAYING:
+                    if vlvl and self.sync_volume != vlvl:
+                        self.sync_mute = None
+                        self.sync_volume = vlvl
+                        self.async_sync_state("volume_set", volume_level=vlvl)
+
+                    # если музыка играет - глушим колонку Яндекса
+                    if self.sync_mute is True:
+                        # включаем громкость колонки, когда с ней разговариваем
+                        if state["aliceState"] != "IDLE":
+                            self.sync_mute = False
+                            self.hass.create_task(self.async_mute_volume(False))
+                    else:
+                        # выключаем громкость колонки, когда с ней не
+                        # разговариваем
+                        if state["aliceState"] == "IDLE":
+                            self.sync_mute = True
+                            self.hass.create_task(self.async_mute_volume(True))
+
+        self._attr_available = True
+        self._attr_media_artist = mart
+        self._attr_media_content_type = mctp
+        self._attr_media_duration = mdur
+        self._attr_media_image_url = miur
+        self._attr_media_position = mpos
+        self._attr_media_position_updated_at = dt.utcnow()  # TODO: check this
+        self._attr_media_title = mtit
+        self._attr_state = stat
+        self._attr_supported_features = spft
+        self._attr_should_poll = False
+
+        if vlvl != 0:
+            self._attr_is_volume_muted = False
+            self._attr_volume_level = vlvl
+        else:
+            self._attr_is_volume_muted = True
+
+        self._attr_extra_state_attributes["alice_state"] = state['aliceState']
+        self._attr_extra_state_attributes["connection_class"] = (
+            CONN_CLASS_LOCAL_PUSH if is_send_by_speaker else
+            CONN_CLASS_LOCAL_POLL
+        )
+
+        if self.hass:
+            self.async_write_ha_state()
+
+    async def async_select_sound_mode(self, sound_mode: str):
+        if self.sync_mute is True:
+            # включаем звук колонке, если выключали его
+            self.hass.create_task(self.async_mute_volume(False))
+
+        if self.sync_state:
+            # сбрасываем синхронизацию
+            self.sync_state = self.sync_id = self.sync_volume = \
+                self.sync_mute = None
+            # останавливаем внешний медиаплеер
+            self.async_sync_state("media_pause")
+
+        self.sync_state = sound_mode.startswith("media_player.")
+
+        self._attr_sound_mode = sound_mode
+        self.async_write_ha_state()
+
+    async def async_mute_volume(self, mute: bool):
+        volume = 0 if mute else self._attr_volume_level
+        await self.async_set_volume_level(volume)
+
+        if not self.local_state:
+            self._attr_is_volume_muted = mute
+            self.async_write_ha_state()
+
+    async def async_set_volume_level(self, volume: float):
+        if self.local_state:
+            # у станции округление громкости до десятых
+            await self.glagol.send({
+                'command': 'setVolume',
+                'volume': round(volume, 1)
+            })
+
+        else:
+            await self.quasar.send(
+                self.device, f"громкость на {round(10 * volume)}"
+            )
+            self._attr_is_volume_muted = False
+            self._attr_volume_level = volume
+            self.async_write_ha_state()
+
+    async def async_media_seek(self, position):
+        if self.local_state:
+            await self.glagol.send({
+                'command': 'rewind', 'position': position})
+
+    async def async_media_play(self):
+        if self.local_state:
+            await self.glagol.send({'command': 'play'})
+
+        else:
+            await self.quasar.send(self.device, "продолжить")
+            self._attr_state = STATE_PLAYING
+            self.async_write_ha_state()
+
+    async def async_media_pause(self):
+        if self.local_state:
+            await self.glagol.send({'command': 'stop'})
+
+        else:
+            await self.quasar.send(self.device, "пауза")
+            self._attr_state = STATE_PAUSED
+            self.async_write_ha_state()
+
+    async def async_media_stop(self):
+        await self.async_media_pause()
+
+    async def async_media_previous_track(self):
+        if self.local_state:
+            await self.glagol.send({'command': 'prev'})
+        else:
+            await self.quasar.send(self.device, "прошлый трек")
+
+    async def async_media_next_track(self):
+        if self.local_state:
+            await self.glagol.send({'command': 'next'})
+        else:
+            await self.quasar.send(self.device, "следующий трек")
+
+    async def async_turn_on(self):
+        if self.local_state:
+            await self.glagol.send(utils.update_form(
+                'personal_assistant.scenarios.player_continue'))
+        else:
+            await self.async_media_play()
+
+    async def async_turn_off(self):
+        if self.local_state:
+            await self.glagol.send(utils.update_form(
+                'personal_assistant.scenarios.quasar.go_home'))
+        else:
+            await self.async_media_pause()
+
+    async def async_update(self):
+        # update online only while cloud connected
+        if self.local_state:
+            return
+        try:
+            await self.quasar.update_online_stats()
+            self._attr_available = self.device.get('online')
+        except:
+            pass
+
+    async def response(self, card: dict, request_id: str):
+        _LOGGER.debug(f"{self.name} | {card['text']} | {request_id}")
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         if card['type'] == 'simple_text':
             text = card['text']
@@ -385,7 +716,11 @@ class YandexStation(MediaBrowser):
         card = await self.glagol.send({'command': 'sendText',
                                        'text': "Что в списке покупок"})
         alice_list = RE_SHOPPING.findall(card['text'])
+<<<<<<< HEAD
         self.debug(f"Список покупок: {alice_list}")
+=======
+        _LOGGER.debug(f"Список покупок: {alice_list}")
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         remove_from = [
             alice_list.index(item['name'])
@@ -414,7 +749,11 @@ class YandexStation(MediaBrowser):
             card = await self.glagol.send({'command': 'sendText',
                                            'text': "Что в списке покупок"})
             alice_list = RE_SHOPPING.findall(card['text'])
+<<<<<<< HEAD
             self.debug(f"Новый список покупок: {alice_list}")
+=======
+            _LOGGER.debug(f"Новый список покупок: {alice_list}")
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         data.items = [
             {'name': name, 'id': 'alice' + uuid.uuid4().hex, 'complete': False}
@@ -422,31 +761,39 @@ class YandexStation(MediaBrowser):
         ]
         await self.hass.async_add_executor_job(data.save)
 
-    def _check_set_alice_volume(self, volume: int):
-        # если уже есть активная громкость, или громкость голоса равна текущей
-        # громкости колонки - ничего не делаем
-        if self.alice_volume or volume == self.volume_level:
+    def _check_set_alice_volume(self, extra: dict, dialog: bool):
+        alice_volume = extra.get('volume_level')
+        # если громкости голоса нет, или уже есть активная громкость, или
+        # громкость голоса равна текущей громкости колонки - ничего не делаем
+        if (not alice_volume or self.alice_volume or
+                alice_volume == self.volume_level):
             return
 
         self.alice_volume = {
-            'prev_volume': self.volume_level,
-            'wait_state': 'SPEAKING',
+            'volume_level': alice_volume,
+            'wait_state': 'BUSY',
             'wait_ts': time.time() + 30
         }
 
-        self.hass.create_task(self.async_set_volume_level(volume))
+        # для локального TTS не жём статус BUSY
+        if dialog:
+            self._process_alice_volume('BUSY')
 
     def _process_alice_volume(self, alice_state: str):
         volume = None
 
         # если что-то пошло не так, через 30 секунд возвращаем громкость
         if time.time() > self.alice_volume['wait_ts']:
-            if 'prev_volume' in self.alice_volume:
-                volume = self.alice_volume['prev_volume']
+            volume = self.alice_volume['prev_volume']
             self.alice_volume = None
 
         elif self.alice_volume['wait_state'] == alice_state:
-            if alice_state == 'SPEAKING':
+            if alice_state == 'BUSY':
+                volume = self.alice_volume['volume_level']
+                self.alice_volume['prev_volume'] = self.volume_level
+                self.alice_volume['wait_state'] = 'SPEAKING'
+
+            elif alice_state == 'SPEAKING':
                 self.alice_volume['wait_state'] = 'IDLE'
 
             elif alice_state == 'IDLE':
@@ -454,8 +801,10 @@ class YandexStation(MediaBrowser):
                 self.alice_volume = None
 
         if volume:
-            self.hass.create_task(self.async_set_volume_level(volume))
+            coro = self.async_set_volume_level(volume)
+            self.hass.create_task(coro)
 
+<<<<<<< HEAD
     @callback
     def yandex_dialog(self, media_type: str, media_id: str):
         """Passes TTS data to YandexDialogs component and return text command to
@@ -491,10 +840,7 @@ class YandexStation(MediaBrowser):
                 self.hass, self._attr_unique_id, kwargs["media_content_id"]
             )
 
-        source = self.sync_sources[self._attr_source]
-        if source.get("sync_volume") is False and service == "volume_set":
-            return
-        kwargs["entity_id"] = source["entity_id"]
+        kwargs["entity_id"] = self.sync_sources[self._attr_source]
 
         self.hass.async_create_task(self.hass.services.async_call(
             "media_player", service, kwargs
@@ -502,8 +848,6 @@ class YandexStation(MediaBrowser):
 
     @callback
     def update_device_info(self, sw_version: str):
-        if not self.hass:
-            return
         registry: DeviceRegistry = self.hass.data['device_registry']
         device = registry.async_get_device(
             {(DOMAIN, self._attr_unique_id)}, None
@@ -591,9 +935,10 @@ class YandexStation(MediaBrowser):
                 pass
 
             try:
-                if pstate['extra'].get('stateType') in ('music', 'radio'):
+                if mctp == 'music':
                     url = pstate['extra']['coverURI']
-                    miur = 'https://' + url.replace('%%', '400x400')
+                    if url:
+                        miur = 'https://' + url.replace('%%', '400x400')
                 elif extra_item:
                     miur = extra_item['thumbnail_url_16x9']
             except:
@@ -602,7 +947,9 @@ class YandexStation(MediaBrowser):
             mdur = pstate["duration"]
             mpos = pstate["progress"]
             mart = pstate["subtitle"]
-            mtit = pstate["title"]
+
+            mtit = pstate["title"] + ". " + pstate["subtitle"] \
+                if pstate.get("subtitle") else pstate["title"]
 
             stat = STATE_PLAYING if state["playing"] else STATE_PAUSED
             if pstate["hasPrev"]:
@@ -647,9 +994,7 @@ class YandexStation(MediaBrowser):
                         # включаем громкость колонки, когда с ней разговариваем
                         if state["aliceState"] != "IDLE":
                             self.sync_mute = False
-                            self.hass.create_task(
-                                self.async_mute_volume(False)
-                            )
+                            self.hass.create_task(self.async_mute_volume(False))
                     else:
                         # выключаем громкость колонки, когда с ней не
                         # разговариваем
@@ -717,7 +1062,7 @@ class YandexStation(MediaBrowser):
         self.sync_state = self.sync_sources and source in self.sync_sources
 
         self._attr_source = source
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
         await self.sync_hdmi_audio()
 
@@ -806,35 +1151,21 @@ class YandexStation(MediaBrowser):
         await self.quasar.update_online_stats()
         self._attr_available = self.device.get('online', False)
 
-    async def async_play_media(
-            self, media_type: str, media_id: str, extra: dict = None, **kwargs
-    ):
-        # backward support Hass lower than v2022.3
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
+    async def async_play_media(self, media_type: str, media_id: str, **kwargs):
         if '/api/tts_proxy/' in media_id:
             session = async_get_clientsession(self.hass)
             media_id = await utils.get_tts_message(session, media_id)
             media_type = 'tts'
 
-        if media_id.startswith("media-source://tts/"):
-            query = utils.decode_media_source(media_id)
-            if query.get("template"):
-                template = Template(query.pop("template"), self.hass)
-                media_id = template.async_render(query)
-            else:
-                media_id = query["message"]
-            if query.get("volume_level"):
-                extra.setdefault("volume_level", float(query["volume_level"]))
-            # provider, music - from 3rd party TTS (ex google)
-            if media_type in ("provider", "music"):
-                media_type = "text"
-
         if not media_id:
             _LOGGER.warning(f"Получено пустое media_id")
             return
 
-        # tts for backward compatibility
-        if media_type == "tts":
-            media_type = "text"
+        if media_type == 'tts':
+            media_type = 'text' if self.sound_mode == SOUND_MODE1 \
+                else 'command'
         elif media_type == 'brightness':
             await self._set_brightness(media_id)
             return
@@ -853,6 +1184,7 @@ class YandexStation(MediaBrowser):
                     _LOGGER.warning(f"Unsupported url: {media_id}")
                     return
 
+<<<<<<< HEAD
             elif media_type.startswith(("text:", "dialog:")):
                 payload = {
                     'command': 'sendText',
@@ -862,11 +1194,22 @@ class YandexStation(MediaBrowser):
             elif media_type == 'text':
                 # даже в локальном режиме делам TTS через облако, чтоб колонка
                 # не продолжала слушать
-                force_local: bool = extra and extra.get("force_local")
-                if self.quasar.session.x_token and not force_local:
+                extra = kwargs.get("extra")
+                if self.quasar.session.x_token and not extra.get("force_local"):
                     media_id = utils.fix_cloud_text(media_id)
-                    if extra and extra.get("volume_level") is not None:
-                        self._check_set_alice_volume(extra["volume_level"])
+                    if extra:
+                        self._check_set_alice_volume(extra, False)
+=======
+            elif media_type == 'text':
+                # даже в локальном режиме делам TTS через облако, чтоб колонка
+                # не продолжала слушать
+                if self.quasar.session.x_token:
+                    media_id = utils.fix_cloud_text(media_id)
+                    if len(media_id) > 100:
+                        raise EXCEPTION_100
+                    if 'extra' in kwargs:
+                        self._check_set_alice_volume(kwargs['extra'], False)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                     await self.quasar.send(self.device, media_id, is_tts=True)
                     return
 
@@ -878,8 +1221,8 @@ class YandexStation(MediaBrowser):
                 payload = {'command': 'sendText', 'text': media_id}
 
             elif media_type == 'dialog':
-                if extra and extra.get("volume_level") is not None:
-                    self._check_set_alice_volume(extra["volume_level"])
+                if 'extra' in kwargs:
+                    self._check_set_alice_volume(kwargs['extra'], True)
                 payload = utils.update_form(
                     'personal_assistant.scenarios.repeat_after_me',
                     request=media_id)
@@ -910,11 +1253,15 @@ class YandexStation(MediaBrowser):
             await self.glagol.send(payload)
 
         else:
+<<<<<<< HEAD
             if media_type.startswith(("text:", "dialog:")):
                 media_id = self.yandex_dialog(media_type, media_id)
                 await self.quasar.send(self.device, media_id)
 
             elif media_type == 'text':
+=======
+            if media_type == 'text':
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 media_id = utils.fix_cloud_text(media_id)
                 await self.quasar.send(self.device, media_id, is_tts=True)
 
@@ -932,6 +1279,7 @@ class YandexStation(MediaBrowser):
 
 
 # noinspection PyAbstractClass
+<<<<<<< HEAD
 class YandexModule(YandexStation):
     """YandexModule support only local control."""
 
@@ -977,6 +1325,8 @@ class YandexModule(YandexStation):
 
 
 # noinspection PyAbstractClass
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 class YandexIntents(MediaPlayerEntity):
     def __init__(self, intents: list):
         self.intents = intents
@@ -1010,6 +1360,61 @@ class YandexIntents(MediaPlayerEntity):
         pass
 
 
+<<<<<<< HEAD
+=======
+SOURCE_STATION = 'Станция'
+SOURCE_HDMI = 'HDMI'
+
+
+# noinspection PyAbstractClass
+class YandexStationHDMI(YandexStation):
+    device_config = None
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.device_config = await self.quasar.get_device_config(self.device)
+
+    @property
+    def device_class(self) -> Optional[str]:
+        return DEVICE_CLASS_TV
+
+    @property
+    def supported_features(self):
+        features = super().supported_features
+        if self.device_config:
+            features |= SUPPORT_SELECT_SOURCE
+        return features
+
+    @property
+    def source(self):
+        if self.device_config:
+            hdmi = self.device_config.get('hdmiAudio')
+            return SOURCE_HDMI if hdmi else SOURCE_STATION
+        return None
+
+    @property
+    def source_list(self):
+        return [SOURCE_STATION, SOURCE_HDMI]
+
+    async def async_select_source(self, source):
+        # update config to actual state
+        device_config = await self.quasar.get_device_config(self.device)
+        if not device_config:
+            _LOGGER.warning("Не получается получить настройки станции")
+            return
+
+        if source == SOURCE_STATION:
+            device_config.pop('hdmiAudio', None)
+        else:
+            device_config['hdmiAudio'] = True
+
+        await self.quasar.set_device_config(self.device, device_config)
+
+        self.device_config = device_config
+        self.async_schedule_update_ha_state()
+
+
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 # noinspection PyAbstractClass
 class YandexTV(MediaPlayerEntity):
     _sources = None

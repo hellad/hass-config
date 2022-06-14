@@ -1,18 +1,20 @@
 #### https://home-assistant.io/components/device_tracker/
-#### https://www.home-assistant.io/integrations/nmap_tracker/
 #device_tracker:
-#   - platform: nmap_tracker
-#     hosts: 192.168.192.1-100     # see IP pool setup in mikrotik router
-#     home_interval: 6  # The number of minutes nmap will not scan this device, assuming it is home, in order to preserve the device battery.
-#     exclude: 
-# #      - 192.168.192.42  # Scanning the host where Home Assistant is running can cause problems (websocket error), so excluding that host is a good idea.
-#       - 192.168.192.25  # Scanning the host where Home Assistant is running can cause problems (websocket error), so excluding that host is a good idea.
+  - platform: nmap_tracker
+    hosts: 192.168.192.1-100     # see IP pool setup in mikrotik router
+    home_interval: 6  # The number of minutes nmap will not scan this device, assuming it is home, in order to preserve the device battery.
+    exclude: 
+#      - 192.168.192.42  # Scanning the host where Home Assistant is running can cause problems (websocket error), so excluding that host is a good idea.
+      - 192.168.192.25  # Scanning the host where Home Assistant is running can cause problems (websocket error), so excluding that host is a good idea.
+#      - 192.168.192.22
+      - 192.168.192.8  #temp. disable SAP Lenovo X1 Carbon check. Security block notebook.Should be permanent dhcp assignment
+#      - 192.168.192.3  #temp. disable dune check
 
-#     interval_seconds: 120  # Seconds between each scan for new devices
-#     track_new_devices: yes
+    interval_seconds: 120  # Seconds between each scan for new devices
+    track_new_devices: yes
 
 # https://www.home-assistant.io/integrations/bluetooth_tracker/
-  - platform: bluetooth_tracker
+#  - platform: bluetooth_tracker
 # device_id integer (Optional)
 # The ID of the Bluetooth adapter to be used by the tracker, e.g., use 0 for hci0, 1 for hci1, and so on.
 # Default: -1 (The first available Bluetooth adapter)

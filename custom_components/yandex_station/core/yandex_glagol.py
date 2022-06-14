@@ -4,7 +4,11 @@ import json
 import logging
 import time
 import uuid
+<<<<<<< HEAD
 from asyncio import Future
+=======
+from asyncio import Future, Task
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from typing import Callable, Optional, Dict
 
 from aiohttp import ClientWebSocketResponse, WSMsgType, ClientConnectorError
@@ -21,8 +25,13 @@ class YandexGlagol:
     url: Optional[str] = None
     ws: Optional[ClientWebSocketResponse] = None
 
+<<<<<<< HEAD
     # next_ping_ts = 0
     # keep_task: Task = None
+=======
+    next_ping_ts = 0
+    keep_task: Task = None
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     update_handler: Callable = None
 
     waiters: Dict[str, Future] = {}
@@ -86,13 +95,22 @@ class YandexGlagol:
 
             self.ws = await self.session.ws_connect(self.url, heartbeat=55,
                                                     ssl=False)
+<<<<<<< HEAD
             await self.ping(command="softwareVersion")
+=======
+            await self.ping()
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
             if not self.ws.closed:
                 fails = 0
 
+<<<<<<< HEAD
             # if not self.keep_task or self.keep_task.done():
             #     self.keep_task = self.loop.create_task(self._keep_connection())
+=======
+            if not self.keep_task or self.keep_task.done():
+                self.keep_task = self.loop.create_task(self._keep_connection())
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
             async for msg in self.ws:
                 if msg.type == WSMsgType.TEXT:
@@ -100,7 +118,11 @@ class YandexGlagol:
 
                     # Большая станция в режиме idle шлёт статус раз в 5 секунд,
                     # в режиме playing шлёт чаще раза в 1 секунду
+<<<<<<< HEAD
                     # self.next_ping_ts = time.time() + 6
+=======
+                    self.next_ping_ts = time.time() + 6
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
                     data = json.loads(msg.data)
 
@@ -139,7 +161,11 @@ class YandexGlagol:
                 assert e.args[0] == "Session is closed", e.args
 
             self.debug(f"Останавливаем подключение: {e}")
+<<<<<<< HEAD
             if self.ws and not self.ws.closed:
+=======
+            if not self.ws.closed:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 await self.ws.close()
             return
 
@@ -162,6 +188,7 @@ class YandexGlagol:
 
         asyncio.create_task(self._connect(fails))
 
+<<<<<<< HEAD
     # async def _keep_connection(self):
     #     _LOGGER.debug("Start keep connection task")
     #     while not self.ws.closed:
@@ -170,12 +197,26 @@ class YandexGlagol:
     #             await self.ping()
 
     async def ping(self, command="ping"):
+=======
+    async def _keep_connection(self):
+        _LOGGER.debug("Start keep connection task")
+        while not self.ws.closed:
+            await asyncio.sleep(1)
+            if time.time() > self.next_ping_ts:
+                await self.ping()
+
+    async def ping(self):
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         # _LOGGER.debug("ping")
         try:
             await self.ws.send_json({
                 'conversationToken': self.device_token,
                 'id': str(uuid.uuid4()),
+<<<<<<< HEAD
                 'payload': {'command': command},
+=======
+                'payload': {'command': 'ping'},
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 'sentTime': int(round(time.time() * 1000)),
             })
         except:
@@ -199,12 +240,20 @@ class YandexGlagol:
             # limit future wait time
             await asyncio.wait_for(self.waiters[request_id], 5)
 
+<<<<<<< HEAD
             # self.next_ping_ts = time.time() + 0.5
+=======
+            self.next_ping_ts = time.time() + 0.5
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
             return self.waiters.pop(request_id).result()
 
         except asyncio.TimeoutError:
+<<<<<<< HEAD
             _ = self.waiters.pop(request_id, None)
+=======
+            self.waiters.pop(request_id, None)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         except Exception as e:
             _LOGGER.error(e)

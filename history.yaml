@@ -24,6 +24,9 @@
       - group.Cameras
       - group.default_view
 
+      - sensor.owm_forecast
+      - group.open_weather
+      - group.weather_underground
       - group.DarkSky
       - sensor.dark_sky_summary
       - sensor.dark_sky_apparent_temperature
@@ -62,15 +65,30 @@
       - input_number.alarmhour
       - input_number.alarmminutes
       - group.temperature_sensors
-#      - sensor.yr_symbol
-      - sensor.nas_cpu_load_15_min
-      - sensor.nas_cpu_load_5_min
-      - sensor.last_boot_custom
+      - sensor.yr_symbol
+      - group.IPcamera
+      - sensor.ipcam_motion 
+      - switch.ipcam_night_vision
+      - switch.ipcam_white_balance_lock
+      - switch.ipcam_overlay
+      - switch.ipcam_torch
+      - switch.ipcam_frontfacing_camera
+      - switch.ipcam_focus
+      - switch.ipcam_gps_active
+      - sensor.average_load_15m
+      - sensor.average_load_1m
+      - sensor.average_load_5m
+      - sensor.since_last_boot
       - sensor.usd_rub_rate
       - sensor.hass_uptime
       - sensor.hyperion
+      - sensor.alexapi
       - sensor.bathroom_relay_uptime
       - sensor.bathroom_relay_firmware_version
+      - sensor.aeon_labs_zw100_multisensor_6_sourcenodeid
+      - sensor.aeon_labs_zw100_multisensor_6_ultraviolet
+      - sensor.aeon_labs_zw100_multisensor_6_alarm_level
+      - sensor.aeon_labs_zw100_multisensor_6_alarm_type
       
       - group.strava
       - sensor.strava_last_date

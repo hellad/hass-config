@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ################################################################################
 #### The dht sensor platform allows you to get the current temperature and humidity from a DHT11, DHT22, or AM2302 device.
 #### https://home-assistant.io/components/sensor.dht/
@@ -192,6 +193,202 @@
 #### https://community.home-assistant.io/t/qingping-air-monitor-lite-integration/280277
 #### https://raw.githubusercontent.com/ha0y/xiaomi_miot_raw/8aab7ec136eb130226e8e7d31c5db4cbc8417db6/config_example/sensor.yaml
 ################################################################################
+=======
+################################################################################
+#### The dht sensor platform allows you to get the current temperature and humidity from a DHT11, DHT22, or AM2302 device.
+#### https://home-assistant.io/components/sensor.dht/
+#sensor:  used for test with BRUH multisensor
+################################################################################
+#  - platform: dht
+#    sensor: DHT11
+#    pin: 21
+#    name: Hall_DHT11
+#    monitored_conditions:
+#      - temperature
+#      - humidity
+#    polling_interval: 10000
+#    scan_interval: 300        # scan every 5 minutes
+#    interval_seconds: 10
+
+################################################################################
+#### 1wire sensor DS18B20
+#### https://www.home-assistant.io/components/sensor.onewire/
+#### https://datasheets.maximintegrated.com/en/ds/DS18B20.pdf
+################################################################################
+#  - platform: onewire
+#    names:
+#      28-000008a43272: bedroom
+#    mount_dir: "/mnt/1wire"
+
+################################################################################
+#sensor1820:           #### try to use DS18B20 1wire sensor as mqtt with thingspeak_cpuram.py programm
+# local topic is 'home/temperature'
+# command in /etc/rc.local run the programm thingspeak_cpuram.py
+# !!!!!!!!!  Isn't used on NAS in Docker !!!!!!!!!!!
+################################################################################
+  - platform: mqtt
+    scan_interval: 300
+    state_topic: 'home/temperature'
+    name: 'mqtt Temp sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: '°C'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 900
+#    value_template: '{{ value_json.temperature }}'
+
+################################################################################
+#sensorBME680_NodeMCU:           #### try to use BME680 sensor on NodeMCU as mqtt in bathroom!
+# local topic is complex JSON text in 'tele/bathroom/SENSOR'
+# https://tasmota.github.io/docs/Home-Assistant/
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'tele/bathroom/SENSOR'
+    name: 'bathroom mqtt temp sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: '°C'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+    value_template: "{{ value_json.BME680.Temperature | round(1) }}"   # Names are case sensitive!
+
+################################################################################
+#sensorBME680_NodeMCU:           #### try to use BME680 sensor on NodeMCU as mqtt in bathroom!
+# local topic is complex JSON text in 'tele/bathroom/SENSOR'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'tele/bathroom/SENSOR'
+    name: 'bathroom mqtt humidity sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: '%'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+    value_template: "{{ value_json.BME680.Humidity | round(1)}}"   # Names are case sensitive!
+
+################################################################################
+# local topic is 'bathroom/analog'
+################################################################################
+#  - platform: mqtt
+#    scan_interval: 120
+#    state_topic: 'bathroom/analog'
+#    name: 'bathroom mqtt analog sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+#    unit_of_measurement: 'V'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+#    expire_after: 180
+#    value_template: '{{ value_json.temperature }}'
+
+################################################################################
+#sensorBME680_NodeMCU:           #### try to use BME680 sensor on NodeMCU as mqtt in bathroom!
+# local topic is complex JSON text in 'tele/bathroom/SENSOR'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'tele/bathroom/SENSOR'
+    name: 'bathroom mqtt pressure sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: 'mmHg'               #'mmHg'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+    value_template: "{{ value_json.BME680.Pressure | round(1) }}"      # Names are case sensitive!
+    
+################################################################################
+#sensorBME680_NodeMCU:           #### try to use BME680 sensor on NodeMCU as mqtt in bathroom!
+# local topic is complex JSON text in 'tele/bathroom/SENSOR'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'tele/bathroom/SENSOR'
+    name: 'bathroom mqtt Gas sensor'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: 'kOhm'               
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+    value_template: "{{ value_json.BME680.Gas }}"   # Names are case sensitive!
+
+
+###############################################################################
+#  !!! look into binary sensors for bathroom PIR motion sensor !!!
+
+################################################################################
+#sensorBME280_d1mini:           #### try to use BME280 sensor on D1 mini as mqtt in kitchen!
+# local topic is complex JSON text in 'tele/kitchen/SENSOR'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'tele/kitchen/SENSOR'
+    name: 'Kitchen Humidity'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: '%'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+    value_template: "{{ value_json.BME280.Humidity | round(1)}}"   # Names are case sensitive!
+
+################################################################################
+#sensorBME280_d1mini:           #### try to use BME280 sensor on D1 mini as mqtt in kitchen!
+# local topic is complex JSON text in 'tele/kitchen/SENSOR'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'tele/kitchen/SENSOR'
+    name: 'Kitchen Temperature'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: '°C'
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+    value_template: "{{ value_json.BME280.Temperature | round(1)}}"   # Names are case sensitive!
+
+################################################################################
+#sensorBME280_d1mini:           #### try to use BME280 sensor on D1 mini as mqtt in kitchen!
+# local topic is complex JSON text in 'tele/kitchen/SENSOR'
+################################################################################
+  - platform: mqtt
+    scan_interval: 120
+    state_topic: 'tele/kitchen/SENSOR'
+    name: 'Kitchen Pressure'   # the name of the sensor. Default is ‘MQTT Sensor’.
+    unit_of_measurement: 'mmHg'               #'mmHg' 	In tasmota console:	SetOption24	1 / on 0 (default) to show pressure in hPa, 1 to show pressure in mmHg
+
+#    qos (Optional): The maximum QoS level of the state topic. Default is 0.
+#    expire_after (Optional): Defines the number of seconds after the value expires if it’s not updated. Default is 0 (=never expire).
+    expire_after: 180
+    value_template: "{{ value_json.BME280.Pressure | round(1) }}"      # Names are case sensitive!
+
+
+################################################################################
+#
+#### Listen for MQTT topic: Automations.yaml will timestamp the PIR/motion sensors that go on
+#       why it does not work?
+################################################################################
+  - platform: template
+    sensors: 
+      kitchen_last_motion_multisensor:
+        friendly_name: "kitchen last motion multisensor"                                         # sensor.kitchen_last_motion_multisensor
+        value_template: >-
+          {{ as_timestamp(states.binary_sensor.sn1_pir.last_changed) | timestamp_custom("%Y-%m-%d %X") }} 
+          
+  - platform: mqtt
+    name: "Last Motion bathroom Sensor"          # sensor.last_motion_bathroom_sensor
+    state_topic: "bathroom/motion/on_time"
+
+
+# https://community.home-assistant.io/t/android-ip-webcam-as-a-camera-plus-sensors/10566/133
+# You can change the ‘scan_interval’ in the ip_webcam configuration in HA, it is default to 10 sec., 
+# but by default HA only polls binary sensors every 30 seconds I believe. You can change that value as well, but that is for everything, 
+# so not really recommended to put it too low as it will affect performance.
+# What I did was install Tasker on the phone, and detect the motion through that, and then push to HA. This gave me about a 1-2 sec. delay on motion, better.
+
+# separate sensor on ESP32 with sensAir8
+  - platform: mqtt
+    name: "CO2 Sensor"          # sensor.co2_sensor
+    state_topic: "kitchen/co2"
+
+
+################################################################################
+#### Qingping Air Monitor Lite
+#### https://community.home-assistant.io/t/qingping-air-monitor-lite-integration/280277
+#### https://raw.githubusercontent.com/ha0y/xiaomi_miot_raw/8aab7ec136eb130226e8e7d31c5db4cbc8417db6/config_example/sensor.yaml
+################################################################################
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 #  - platform: xiaomi_miot_raw
 #    name: air_monitor
 #    host: 192.168.192.81

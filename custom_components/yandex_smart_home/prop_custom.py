@@ -72,6 +72,12 @@ class CustomEntityProperty(AbstractProperty, ABC):
         return True
 
     def get_value(self) -> str | float | None:
+<<<<<<< HEAD
+=======
+        if not self.retrievable:
+            return None
+
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         value_attribute = self.property_config.get(CONF_ENTITY_PROPERTY_ATTRIBUTE)
 
         if value_attribute:
@@ -90,7 +96,11 @@ class CustomEntityProperty(AbstractProperty, ABC):
 
     @property
     def property_entity_id(self) -> str | None:
+<<<<<<< HEAD
         return self.property_config.get(CONF_ENTITY_PROPERTY_ENTITY, self.property_state.entity_id)
+=======
+        return self.property_config.get(CONF_ENTITY_PROPERTY_ENTITY)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 class CustomFloatEntityProperty(CustomEntityProperty, FloatProperty):
@@ -108,7 +118,11 @@ class CustomFloatEntityProperty(CustomEntityProperty, FloatProperty):
     def get_value(self) -> float | None:
         value = super().get_value()
 
+<<<<<<< HEAD
         if self.instance in [const.FLOAT_INSTANCE_PRESSURE, const.FLOAT_INSTANCE_TVOC, const.FLOAT_INSTANCE_AMPERAGE]:
+=======
+        if self.instance in [const.FLOAT_INSTANCE_PRESSURE, const.FLOAT_INSTANCE_TVOC]:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             value_unit = self.property_config.get(CONF_ENTITY_PROPERTY_UNIT_OF_MEASUREMENT,
                                                   self.property_state.attributes.get(ATTR_UNIT_OF_MEASUREMENT))
             return self.convert_value(value, value_unit)
@@ -117,8 +131,11 @@ class CustomFloatEntityProperty(CustomEntityProperty, FloatProperty):
 
 
 class CustomEventEntityProperty(CustomEntityProperty, EventProperty):
+<<<<<<< HEAD
     report_immediately = True
 
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     def __init__(self, hass: HomeAssistant, config: Config, state: State,
                  property_state: State, property_config: dict[str, str]):
         super().__init__(hass, config, state, property_state, property_config)
@@ -128,3 +145,6 @@ class CustomEventEntityProperty(CustomEntityProperty, EventProperty):
 
     def get_value(self) -> str | None:
         return self.event_value(super().get_value())
+
+    def supported(self) -> bool:
+        return bool(self.config.beta)

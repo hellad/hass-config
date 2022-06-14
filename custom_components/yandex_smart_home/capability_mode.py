@@ -148,11 +148,11 @@ class ThermostatCapability(ModeCapability):
 
     instance = const.MODE_INSTANCE_THERMOSTAT
     modes_map_default = {
-        const.MODE_INSTANCE_MODE_HEAT: [climate.HVACMode.HEAT],
-        const.MODE_INSTANCE_MODE_COOL: [climate.HVACMode.COOL],
-        const.MODE_INSTANCE_MODE_AUTO: [climate.HVACMode.HEAT_COOL, climate.HVACMode.AUTO],
-        const.MODE_INSTANCE_MODE_DRY: [climate.HVACMode.DRY],
-        const.MODE_INSTANCE_MODE_FAN_ONLY: [climate.HVACMode.FAN_ONLY],
+        const.MODE_INSTANCE_MODE_HEAT: [climate.const.HVAC_MODE_HEAT],
+        const.MODE_INSTANCE_MODE_COOL: [climate.const.HVAC_MODE_COOL],
+        const.MODE_INSTANCE_MODE_AUTO: [climate.const.HVAC_MODE_HEAT_COOL, climate.const.HVAC_MODE_AUTO],
+        const.MODE_INSTANCE_MODE_DRY: [climate.const.HVAC_MODE_DRY],
+        const.MODE_INSTANCE_MODE_FAN_ONLY: [climate.const.HVAC_MODE_FAN_ONLY],
     }
 
     def supported(self) -> bool:
@@ -196,7 +196,7 @@ class SwingCapability(ModeCapability):
         """Test if capability is supported."""
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
-        if self.state.domain == climate.DOMAIN and features & climate.ClimateEntityFeature.SWING_MODE:
+        if self.state.domain == climate.DOMAIN and features & climate.SUPPORT_SWING_MODE:
             return super().supported()
 
         return False
@@ -293,7 +293,7 @@ class ProgramCapabilityHumidifier(ProgramCapability):
         """Test if capability is supported."""
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
-        if self.state.domain == humidifier.DOMAIN and features & humidifier.HumidifierEntityFeature.MODES:
+        if self.state.domain == humidifier.DOMAIN and features & humidifier.SUPPORT_MODES:
             return super().supported()
 
         return False
@@ -325,7 +325,11 @@ class ProgramCapabilityHumidifier(ProgramCapability):
 class ProgramCapabilityFan(ProgramCapability):
     modes_map_default = {
         const.MODE_INSTANCE_MODE_AUTO: [
+<<<<<<< HEAD
             climate.const.FAN_AUTO,
+=======
+            fan._NOT_SPEED_AUTO,
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         ],
         const.MODE_INSTANCE_MODE_ECO: [
             const.XIAOMI_AIRPURIFIER_PRESET_IDLE,
@@ -361,8 +365,8 @@ class ProgramCapabilityFan(ProgramCapability):
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
         if self.state.domain == fan.DOMAIN:
-            if features & fan.FanEntityFeature.PRESET_MODE:
-                if features & fan.FanEntityFeature.SET_SPEED and fan.ATTR_PERCENTAGE_STEP in self.state.attributes:
+            if features & fan.SUPPORT_PRESET_MODE:
+                if features & fan.SUPPORT_SET_SPEED and fan.ATTR_PERCENTAGE_STEP in self.state.attributes:
                     return super().supported()
 
         return False
@@ -412,7 +416,7 @@ class InputSourceCapability(ModeCapability):
         """Test if capability is supported."""
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
-        if self.state.domain == media_player.DOMAIN and features & media_player.MediaPlayerEntityFeature.SELECT_SOURCE:
+        if self.state.domain == media_player.DOMAIN and features & media_player.SUPPORT_SELECT_SOURCE:
             return super().supported()
 
         return False
@@ -481,17 +485,26 @@ class FanSpeedCapabilityClimate(FanSpeedCapability):
         const.MODE_INSTANCE_MODE_MEDIUM: [
             climate.const.FAN_MEDIUM,
             climate.const.FAN_MIDDLE,
+<<<<<<< HEAD
             const.FAN_SPEED_MID,
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             const.TION_FAN_SPEED_3,
         ],
         const.MODE_INSTANCE_MODE_HIGH: [
             climate.const.FAN_HIGH,
+<<<<<<< HEAD
             const.FAN_SPEED_MAX,
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             const.TION_FAN_SPEED_4,
         ],
         const.MODE_INSTANCE_MODE_TURBO: [
             climate.const.FAN_FOCUS,
+<<<<<<< HEAD
             const.FAN_SPEED_HIGHEST,
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             const.TION_FAN_SPEED_5,
         ],
         const.MODE_INSTANCE_MODE_MAX: [
@@ -503,7 +516,7 @@ class FanSpeedCapabilityClimate(FanSpeedCapability):
         """Test if capability is supported."""
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
-        if self.state.domain == climate.DOMAIN and features & climate.ClimateEntityFeature.FAN_MODE:
+        if self.state.domain == climate.DOMAIN and features & climate.SUPPORT_FAN_MODE:
             return super().supported()
 
         return False
@@ -535,24 +548,41 @@ class FanSpeedCapabilityClimate(FanSpeedCapability):
 class FanSpeedCapabilityFanViaPreset(FanSpeedCapability):
     modes_map_default = {
         const.MODE_INSTANCE_MODE_AUTO: [
+<<<<<<< HEAD
             climate.const.FAN_AUTO,
             climate.const.FAN_ON,
+=======
+            fan._NOT_SPEED_AUTO,
+            fan._NOT_SPEED_ON,
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         ],
         const.MODE_INSTANCE_MODE_ECO: [
             const.XIAOMI_AIRPURIFIER_PRESET_IDLE,
         ],
         const.MODE_INSTANCE_MODE_QUIET: [
+<<<<<<< HEAD
             const.FAN_SPEED_OFF,
+=======
+            fan._NOT_SPEED_OFF,
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             const.XIAOMI_AIRPURIFIER_PRESET_SILENT,
             const.XIAOMI_FAN_PRESET_LEVEL_1,
         ],
         const.MODE_INSTANCE_MODE_LOW: [
+<<<<<<< HEAD
             const.FAN_SPEED_LOW,
+=======
+            fan.SPEED_LOW,
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             const.FAN_SPEED_MIN,
             const.XIAOMI_FAN_PRESET_LEVEL_2,
         ],
         const.MODE_INSTANCE_MODE_MEDIUM: [
+<<<<<<< HEAD
             const.FAN_SPEED_MEDIUM,
+=======
+            fan.SPEED_MEDIUM,
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             const.XIAOMI_HUMIDIFIER_PRESET_MID,
             const.XIAOMI_FAN_PRESET_LEVEL_3,
         ],
@@ -560,7 +590,11 @@ class FanSpeedCapabilityFanViaPreset(FanSpeedCapability):
             const.XIAOMI_AIRPURIFIER_PRESET_FAVORITE,
         ],
         const.MODE_INSTANCE_MODE_HIGH: [
+<<<<<<< HEAD
             const.FAN_SPEED_HIGH,
+=======
+            fan.SPEED_HIGH,
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             const.XIAOMI_FAN_PRESET_LEVEL_4,
         ],
         const.MODE_INSTANCE_MODE_TURBO: [
@@ -575,8 +609,8 @@ class FanSpeedCapabilityFanViaPreset(FanSpeedCapability):
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
         if self.state.domain == fan.DOMAIN:
-            if features & fan.FanEntityFeature.PRESET_MODE:
-                if features & fan.FanEntityFeature.SET_SPEED and fan.ATTR_PERCENTAGE_STEP in self.state.attributes:
+            if features & fan.SUPPORT_PRESET_MODE:
+                if features & fan.SUPPORT_SET_SPEED and fan.ATTR_PERCENTAGE_STEP in self.state.attributes:
                     return False
 
                 return super().supported()
@@ -613,7 +647,7 @@ class FanSpeedCapabilityFanViaPercentage(FanSpeedCapability):
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
         if self.state.domain == fan.DOMAIN:
-            if features & fan.FanEntityFeature.SET_SPEED and fan.ATTR_PERCENTAGE_STEP in self.state.attributes:
+            if features & fan.SUPPORT_SET_SPEED and fan.ATTR_PERCENTAGE_STEP in self.state.attributes:
                 return super().supported()
 
         return False
@@ -704,18 +738,85 @@ class FanSpeedCapabilityFanViaPercentage(FanSpeedCapability):
 
 
 @register_capability
+class FanSpeedCapabilityFanLegacy(FanSpeedCapability):
+    modes_map_default = {
+<<<<<<< HEAD
+        const.MODE_INSTANCE_MODE_AUTO: [climate.const.FAN_AUTO, climate.const.FAN_ON],
+        const.MODE_INSTANCE_MODE_QUIET: [const.FAN_SPEED_OFF],
+        const.MODE_INSTANCE_MODE_LOW: [const.FAN_SPEED_LOW],
+        const.MODE_INSTANCE_MODE_MEDIUM: [const.FAN_SPEED_MEDIUM],
+        const.MODE_INSTANCE_MODE_HIGH: [const.FAN_SPEED_HIGH],
+=======
+        const.MODE_INSTANCE_MODE_AUTO: [fan._NOT_SPEED_AUTO, fan._NOT_SPEED_ON],
+        const.MODE_INSTANCE_MODE_QUIET: [fan.SPEED_OFF],
+        const.MODE_INSTANCE_MODE_LOW: [fan.SPEED_LOW],
+        const.MODE_INSTANCE_MODE_MEDIUM: [fan.SPEED_MEDIUM],
+        const.MODE_INSTANCE_MODE_HIGH: [fan.SPEED_HIGH],
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
+    }
+
+    def supported(self) -> bool:
+        """Test if capability is supported."""
+        features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
+
+        if self.state.domain == fan.DOMAIN:
+            if features & fan.SUPPORT_PRESET_MODE:
+                return False
+
+            if features & fan.SUPPORT_SET_SPEED and fan.ATTR_PERCENTAGE_STEP not in self.state.attributes:
+                return super().supported()
+
+        return False
+
+    @property
+    def state_value_attribute(self) -> str | None:
+        """Return HA attribute for state of this entity."""
+        return fan.ATTR_SPEED
+
+    @property
+    def modes_list_attribute(self) -> str | None:
+        """Return HA attribute contains modes list for this entity."""
+        return fan.ATTR_SPEED_LIST
+
+    async def set_state(self, data: RequestData, state: dict[str, Any]):
+        """Set device state."""
+        _LOGGER.warning(
+            f'Usage fan attribute "speed_list" is deprecated, use attribute "preset_modes" '
+            f'instead for {self.instance} instance of {self.state.entity_id}'
+        )
+
+        await self.hass.services.async_call(
+            fan.DOMAIN,
+            fan.SERVICE_SET_SPEED, {
+                ATTR_ENTITY_ID: self.state.entity_id,
+                fan.ATTR_SPEED: self.get_ha_mode_by_yandex_mode(state['value'])
+            },
+            blocking=True,
+            context=data.context
+        )
+
+
+@register_capability
 class CleanupModeCapability(ModeCapability):
     """Vacuum cleanup mode functionality."""
 
     instance = const.MODE_INSTANCE_CLEANUP_MODE
     modes_map_default = {
         const.MODE_INSTANCE_MODE_AUTO: ['auto', 'automatic', '102'],
+<<<<<<< HEAD
         const.MODE_INSTANCE_MODE_TURBO: ['turbo', 'high', 'performance', '104', 'full speed'],
+=======
+        const.MODE_INSTANCE_MODE_TURBO: ['turbo', 'high', 'performance', '104'],
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         const.MODE_INSTANCE_MODE_MIN: ['min', 'mop'],
         const.MODE_INSTANCE_MODE_LOW: ['gentle'],
         const.MODE_INSTANCE_MODE_MAX: ['max', 'strong'],
         const.MODE_INSTANCE_MODE_EXPRESS: ['express', '105'],
+<<<<<<< HEAD
         const.MODE_INSTANCE_MODE_NORMAL: ['normal', 'medium', 'middle', 'standard', 'basic', '103'],
+=======
+        const.MODE_INSTANCE_MODE_NORMAL: ['normal', 'medium', 'middle', 'standard', '103'],
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         const.MODE_INSTANCE_MODE_QUIET: ['quiet', 'low', 'min', 'silent', 'eco', '101'],
     }
 
@@ -723,7 +824,7 @@ class CleanupModeCapability(ModeCapability):
         """Test if capability is supported."""
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
-        if self.state.domain == vacuum.DOMAIN and features & vacuum.VacuumEntityFeature.FAN_SPEED:
+        if self.state.domain == vacuum.DOMAIN and features & vacuum.SUPPORT_FAN_SPEED:
             return super().supported()
 
         return False

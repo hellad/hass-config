@@ -1,32 +1,35 @@
 """HACS Base entities."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-from homeassistant.core import callback
-from homeassistant.helpers.device_registry import DeviceEntryType
-from homeassistant.helpers.dispatcher import async_dispatcher_connect
+from homeassistant.core import Event, callback
 from homeassistant.helpers.entity import Entity
 
-from .const import DOMAIN, HACS_SYSTEM_ID, NAME_SHORT
-from .enums import HacsDispatchEvent, HacsGitHubRepo
+from custom_components.hacs.enums import HacsGitHubRepo
 
-if TYPE_CHECKING:
-    from .base import HacsBase
-    from .repositories.base import HacsRepository
+from .base import HacsBase
+from .const import DOMAIN, HACS_SYSTEM_ID, NAME_SHORT
+from .repositories.base import HacsRepository
 
 
 def system_info(hacs: HacsBase) -> dict:
     """Return system info."""
-    return {
+    info = {
         "identifiers": {(DOMAIN, HACS_SYSTEM_ID)},
         "name": NAME_SHORT,
         "manufacturer": "hacs.xyz",
         "model": "",
         "sw_version": str(hacs.version),
         "configuration_url": "homeassistant://hacs",
-        "entry_type": DeviceEntryType.SERVICE,
     }
+    # LEGACY can be removed when min HA version is 2021.12
+    if hacs.core.ha_version >= "2021.12.0b0":
+        # pylint: disable=import-outside-toplevel
+        from homeassistant.helpers.device_registry import DeviceEntryType
+
+        info["entry_type"] = DeviceEntryType.SERVICE
+    else:
+        info["entry_type"] = "service"
+    return info
 
 
 class HacsBaseEntity(Entity):
@@ -42,10 +45,10 @@ class HacsBaseEntity(Entity):
     async def async_added_to_hass(self) -> None:
         """Register for status events."""
         self.async_on_remove(
-            async_dispatcher_connect(
-                self.hass,
-                HacsDispatchEvent.REPOSITORY,
-                self._update_and_write_state,
+            self.hass.bus.async_listen(
+                event_type="hacs/repository",
+                event_filter=self._filter_events,
+                listener=self._update_and_write_state,
             )
         )
 
@@ -58,7 +61,15 @@ class HacsBaseEntity(Entity):
         self._update()
 
     @callback
-    def _update_and_write_state(self, _: Any) -> None:
+    def _filter_events(self, event: Event) -> bool:
+        """Filter the events."""
+        if self.repository is None:
+            # System entities
+            return True
+        return event.data.get("repository_id") == self.repository.data.id
+
+    @callback
+    def _update_and_write_state(self, *_) -> None:
         """Update the entity and write state."""
         self._update()
         self.async_write_ha_state()
@@ -79,11 +90,7 @@ class HacsSystemEntity(HacsBaseEntity):
 class HacsRepositoryEntity(HacsBaseEntity):
     """Base repository entity."""
 
-    def __init__(
-        self,
-        hacs: HacsBase,
-        repository: HacsRepository,
-    ) -> None:
+    def __init__(self, hacs: HacsBase, repository: HacsRepository) -> None:
         """Initialize."""
         super().__init__(hacs=hacs)
         self.repository = repository
@@ -91,7 +98,6 @@ class HacsRepositoryEntity(HacsBaseEntity):
 
     @property
     def available(self) -> bool:
-        """Return True if entity is available."""
         return self.hacs.repositories.is_downloaded(repository_id=str(self.repository.data.id))
 
     @property
@@ -100,7 +106,7 @@ class HacsRepositoryEntity(HacsBaseEntity):
         if self.repository.data.full_name == HacsGitHubRepo.INTEGRATION:
             return system_info(self.hacs)
 
-        return {
+        info = {
             "identifiers": {(DOMAIN, str(self.repository.data.id))},
             "name": self.repository.display_name,
             "model": self.repository.data.category,
@@ -108,12 +114,13 @@ class HacsRepositoryEntity(HacsBaseEntity):
                 author.replace("@", "") for author in self.repository.data.authors
             ),
             "configuration_url": "homeassistant://hacs",
-            "entry_type": DeviceEntryType.SERVICE,
         }
+        # LEGACY can be removed when min HA version is 2021.12
+        if self.hacs.core.ha_version >= "2021.12.0b0":
+            # pylint: disable=import-outside-toplevel
+            from homeassistant.helpers.device_registry import DeviceEntryType
 
-    @callback
-    def _update_and_write_state(self, data: dict) -> None:
-        """Update the entity and write state."""
-        if data.get("repository_id") == self.repository.data.id:
-            self._update()
-            self.async_write_ha_state()
+            info["entry_type"] = DeviceEntryType.SERVICE
+        else:
+            info["entry_type"] = "service"
+        return info

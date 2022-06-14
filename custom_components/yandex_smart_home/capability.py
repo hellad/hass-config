@@ -79,6 +79,10 @@ class AbstractCapability(ABC):
         pass
 
     @abstractmethod
+<<<<<<< HEAD
     async def set_state(self, data: RequestData, state: dict[str, Any]) -> dict[str, Any] | None:
+=======
+    async def set_state(self, data: RequestData, state: dict[str, Any]):
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         """Set device state."""
         pass

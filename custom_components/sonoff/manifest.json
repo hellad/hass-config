@@ -1,12 +1,15 @@
 {
   "domain": "sonoff",
   "name": "Sonoff",
-  "config_flow": true,
   "documentation": "https://github.com/AlexxIT/SonoffLAN",
   "issue_tracker": "https://github.com/AlexxIT/SonoffLAN/issues",
   "codeowners": ["@AlexxIT"],
   "dependencies": ["http", "zeroconf"],
   "requirements": ["pycryptodome>=3.6.6"],
-  "version": "3.0.5",
+<<<<<<< HEAD
+  "version": "v2.4.7",
+=======
+  "version": "v2.4.6",
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
   "iot_class": "local_push"
 }

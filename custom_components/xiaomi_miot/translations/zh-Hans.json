@@ -18,7 +18,11 @@
                 }
             },
             "cloud": {
+<<<<<<< HEAD
+                "description": "配置小米账户\n{tip}",
+=======
                 "description": "配置小米账户",
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 "data": {
                     "username": "小米ID / 邮箱",
                     "password": "小米密码",
@@ -29,7 +33,11 @@
             },
             "cloud_filter": {
                 "title": "筛选设备",
+<<<<<<< HEAD
+                "description": "你可以通过筛选只集成想要的设备。在排除模式中，如果不勾选列表任何中的任何选项，则相当于包含所有选项。如果想集成网关子设备，请直接选择子设备，接入网关不会自动集成子设备。\n{tip}",
+=======
                 "description": "你可以通过筛选只集成想要的设备。在排除模式中，如果不勾选列表任何中的任何选项，则相当于包含所有选项。",
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 "data": {
                     "filter_model": "筛选设备型号",
                     "model_list": "设备型号列表",
@@ -45,6 +53,11 @@
         "error": {
             "cannot_connect": "连接设备失败",
             "cannot_login": "小米账户登录失败，请检查账号密码。如多次尝试仍登陆失败，请在与当前网络相同的环境下登陆小米官网(mi.com)后重试",
+<<<<<<< HEAD
+            "cannot_reach": "无法访问小米API接口",
+            "tzinfo_error": "你的Hass环境看起来有点问题，请参考: https://github.com/al-one/hass-xiaomi-miot/issues/260",
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             "none_devices": "该小米账户下没有设备"
         },
         "abort": {
@@ -65,7 +78,11 @@
                 }
             },
             "cloud": {
+<<<<<<< HEAD
+                "description": "配置小米账户\n{tip}",
+=======
                 "description": "配置小米账户",
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 "data": {
                     "username": "小米ID / 邮箱",
                     "password": "小米密码",
@@ -76,7 +93,11 @@
             },
             "cloud_filter": {
                 "title": "筛选设备",
+<<<<<<< HEAD
+                "description": "你可以通过筛选只集成想要的设备。在排除模式中，如果不勾选列表任何中的任何选项，则相当于包含所有选项。如果想集成网关子设备，请直接选择子设备，接入网关不会自动集成子设备。\n{tip}",
+=======
                 "description": "你可以通过筛选只集成想要的设备。在排除模式中，如果不勾选列表任何中的任何选项，则相当于包含所有选项。",
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 "data": {
                     "filter_model": "筛选设备型号",
                     "model_list": "设备型号列表",
@@ -92,6 +113,11 @@
         "error": {
             "cannot_connect": "连接设备失败",
             "cannot_login": "小米账户登录失败，请检查账号密码。如多次尝试仍登陆失败，请在与当前网络相同的环境下登陆小米官网(mi.com)后重试",
+<<<<<<< HEAD
+            "cannot_reach": "无法访问小米API接口",
+            "tzinfo_error": "你的Hass环境看起来有点问题，请参考: https://github.com/al-one/hass-xiaomi-miot/issues/260",
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             "none_devices": "该小米账户下没有设备"
         }
     },

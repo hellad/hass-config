@@ -1,4 +1,5 @@
-"""Support for ThinQ device sensors."""
+# REQUIREMENTS = ['wideq']
+# DEPENDENCIES = ['smartthinq']
 
 from __future__ import annotations
 
@@ -7,58 +8,53 @@ import logging
 from typing import Any, Callable, Tuple
 
 from .wideq import (
+    FEAT_DRYLEVEL,
+    FEAT_ENERGY_CURRENT,
+    FEAT_ERROR_MSG,
+    FEAT_HALFLOAD,
+    FEAT_HOT_WATER_TEMP,
+    FEAT_HUMIDITY,
+    FEAT_IN_WATER_TEMP,
+    FEAT_LOWER_FILTER_LIFE,
+    FEAT_OUT_WATER_TEMP,
+    FEAT_PRE_STATE,
+    FEAT_PROCESS_STATE,
+    FEAT_RUN_STATE,
+    FEAT_SPINSPEED,
+    FEAT_TUBCLEAN_COUNT,
+    FEAT_TEMPCONTROL,
+    FEAT_UPPER_FILTER_LIFE,
+    FEAT_WATERTEMP,
     FEAT_COOKTOP_LEFT_FRONT_STATE,
     FEAT_COOKTOP_LEFT_REAR_STATE,
     FEAT_COOKTOP_CENTER_STATE,
     FEAT_COOKTOP_RIGHT_FRONT_STATE,
     FEAT_COOKTOP_RIGHT_REAR_STATE,
-    FEAT_DRYLEVEL,
-    FEAT_ENERGY_CURRENT,
-    FEAT_ERROR_MSG,
-    FEAT_FILTER_BOTTOM_LIFE,
-    FEAT_FILTER_DUST_LIFE,
-    FEAT_FILTER_MAIN_LIFE,
-    FEAT_FILTER_MID_LIFE,
-    FEAT_FILTER_TOP_LIFE,
-    FEAT_HALFLOAD,
-    FEAT_HOT_WATER_TEMP,
-    FEAT_HUMIDITY,
-    FEAT_IN_WATER_TEMP,
-    FEAT_OUT_WATER_TEMP,
     FEAT_OVEN_LOWER_CURRENT_TEMP,
     FEAT_OVEN_LOWER_STATE,
     FEAT_OVEN_UPPER_CURRENT_TEMP,
     FEAT_OVEN_UPPER_STATE,
-    FEAT_PM1,
-    FEAT_PM10,
-    FEAT_PM25,
-    FEAT_PRE_STATE,
-    FEAT_PROCESS_STATE,
-    FEAT_RUN_STATE,
-    FEAT_SPINSPEED,
-    FEAT_TARGET_HUMIDITY,
-    FEAT_TEMPCONTROL,
-    FEAT_TUBCLEAN_COUNT,
-    FEAT_WATERTEMP,
-    WM_DEVICE_TYPES,
-    DeviceType,
 )
+from .wideq.device import WM_DEVICE_TYPES, DeviceType
 
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
+    DEVICE_CLASS_HUMIDITY,
+    DEVICE_CLASS_PM1,
+    DEVICE_CLASS_PM10,
+    DEVICE_CLASS_PM25,
+    DEVICE_CLASS_POWER,
+    DEVICE_CLASS_TEMPERATURE,
+    STATE_CLASS_MEASUREMENT,
     SensorEntity,
     SensorEntityDescription,
-    SensorStateClass,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     PERCENTAGE,
     POWER_WATT,
     STATE_UNAVAILABLE,
 )
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback, current_platform
+from homeassistant.helpers import entity_platform
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import LGEDevice
@@ -67,11 +63,11 @@ from .device_helpers import (
     DEVICE_ICONS,
     WASH_DEVICE_TYPES,
     LGEACDevice,
+    LGEAirPurifierDevice,
     LGERangeDevice,
     LGERefrigeratorDevice,
     LGEWashDevice,
     get_entity_name,
-    get_multiple_devices_types,
 )
 
 # service definition
@@ -99,6 +95,11 @@ ATTR_ROOM_TEMP = "room_temperature"
 ATTR_OVEN_LOWER_TARGET_TEMP = "oven_lower_target_temp"
 ATTR_OVEN_UPPER_TARGET_TEMP = "oven_upper_target_temp"
 ATTR_OVEN_TEMP_UNIT = "oven_temp_unit"
+
+# air purifier sensor attributes
+ATTR_PM1 = "pm1"
+ATTR_PM10 = "pm10"
+ATTR_PM25 = "pm25"
 
 # supported features
 SUPPORT_REMOTE_START = 1
@@ -211,16 +212,16 @@ REFRIGERATOR_SENSORS: Tuple[ThinQSensorEntityDescription, ...] = (
     ThinQSensorEntityDescription(
         key=ATTR_FRIDGE_TEMP,
         name="Fridge temp",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_TEMPERATURE,
         unit_fn=lambda x: x.temp_unit,
         value_fn=lambda x: x.temp_fridge,
     ),
     ThinQSensorEntityDescription(
         key=ATTR_FREEZER_TEMP,
         name="Freezer temp",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_TEMPERATURE,
         unit_fn=lambda x: x.temp_unit,
         value_fn=lambda x: x.temp_freezer,
     ),
@@ -229,8 +230,8 @@ AC_SENSORS: Tuple[ThinQSensorEntityDescription, ...] = (
     ThinQSensorEntityDescription(
         key=ATTR_ROOM_TEMP,
         name="Room temperature",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_TEMPERATURE,
         unit_fn=lambda x: x.temp_unit,
         value_fn=lambda x: x.curr_temp,
         entity_registry_enabled_default=False,
@@ -238,40 +239,40 @@ AC_SENSORS: Tuple[ThinQSensorEntityDescription, ...] = (
     ThinQSensorEntityDescription(
         key=FEAT_HOT_WATER_TEMP,
         name="Hot water temperature",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_TEMPERATURE,
         unit_fn=lambda x: x.temp_unit,
         entity_registry_enabled_default=False,
     ),
     ThinQSensorEntityDescription(
         key=FEAT_IN_WATER_TEMP,
         name="In water temperature",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_TEMPERATURE,
         unit_fn=lambda x: x.temp_unit,
         entity_registry_enabled_default=False,
     ),
     ThinQSensorEntityDescription(
         key=FEAT_OUT_WATER_TEMP,
         name="Out water temperature",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_TEMPERATURE,
         unit_fn=lambda x: x.temp_unit,
         entity_registry_enabled_default=False,
     ),
     ThinQSensorEntityDescription(
         key=FEAT_ENERGY_CURRENT,
         name="Energy current",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_POWER,
         native_unit_of_measurement=POWER_WATT,
         entity_registry_enabled_default=False,
     ),
     ThinQSensorEntityDescription(
         key=FEAT_HUMIDITY,
         name="Humidity",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.HUMIDITY,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_HUMIDITY,
         native_unit_of_measurement=PERCENTAGE,
         entity_registry_enabled_default=False,
     ),
@@ -325,148 +326,110 @@ RANGE_SENSORS: Tuple[ThinQSensorEntityDescription, ...] = (
     ThinQSensorEntityDescription(
         key=ATTR_OVEN_LOWER_TARGET_TEMP,
         name="Oven lower target temperature",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_TEMPERATURE,
         unit_fn=lambda x: x.oven_temp_unit,
         value_fn=lambda x: x.oven_lower_target_temp,
     ),
     ThinQSensorEntityDescription(
         key=FEAT_OVEN_LOWER_CURRENT_TEMP,
         name="Oven lower current temperature",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_TEMPERATURE,
         unit_fn=lambda x: x.oven_temp_unit,
     ),
     ThinQSensorEntityDescription(
         key=ATTR_OVEN_UPPER_TARGET_TEMP,
         name="Oven upper target temperature",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_TEMPERATURE,
         unit_fn=lambda x: x.oven_temp_unit,
         value_fn=lambda x: x.oven_upper_target_temp,
     ),
     ThinQSensorEntityDescription(
         key=FEAT_OVEN_UPPER_CURRENT_TEMP,
         name="Oven upper current temperature",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_TEMPERATURE,
         unit_fn=lambda x: x.oven_temp_unit,
     ),
 )
 AIR_PURIFIER_SENSORS: Tuple[ThinQSensorEntityDescription, ...] = (
     ThinQSensorEntityDescription(
-        key=FEAT_HUMIDITY,
-        name="Current Humidity",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.HUMIDITY,
-        native_unit_of_measurement=PERCENTAGE,
-    ),
-    ThinQSensorEntityDescription(
-        key=FEAT_PM1,
+        key=ATTR_PM1,
         name="PM1",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.PM1,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_PM1,
+        value_fn=lambda x: x.pm1,
         native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     ),
     ThinQSensorEntityDescription(
-        key=FEAT_PM10,
-        name="PM10",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.PM10,
-        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
-    ),
-    ThinQSensorEntityDescription(
-        key=FEAT_PM25,
+        key=ATTR_PM25,
         name="PM2.5",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.PM25,
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_PM25,
+        value_fn=lambda x: x.pm25,
         native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     ),
     ThinQSensorEntityDescription(
-        key=FEAT_FILTER_MAIN_LIFE,
-        name="Filter Remaining Life (Main)",
-        icon="mdi:air-filter",
-        state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=PERCENTAGE,
+        key=ATTR_PM10,
+        name="PM10",
+        state_class=STATE_CLASS_MEASUREMENT,
+        device_class=DEVICE_CLASS_PM10,
+        value_fn=lambda x: x.pm10,
+        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     ),
     ThinQSensorEntityDescription(
-        key=FEAT_FILTER_BOTTOM_LIFE,
+        key=FEAT_LOWER_FILTER_LIFE,
         name="Filter Remaining Life (Bottom)",
         icon="mdi:air-filter",
-        state_class=SensorStateClass.MEASUREMENT,
+        state_class=STATE_CLASS_MEASUREMENT,
         native_unit_of_measurement=PERCENTAGE,
     ),
     ThinQSensorEntityDescription(
-        key=FEAT_FILTER_DUST_LIFE,
-        name="Filter Remaining Life (Dust)",
-        icon="mdi:air-filter",
-        state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=PERCENTAGE,
-    ),
-    ThinQSensorEntityDescription(
-        key=FEAT_FILTER_MID_LIFE,
-        name="Filter Remaining Life (Middle)",
-        icon="mdi:air-filter",
-        state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=PERCENTAGE,
-    ),
-    ThinQSensorEntityDescription(
-        key=FEAT_FILTER_TOP_LIFE,
+        key=FEAT_UPPER_FILTER_LIFE,
         name="Filter Remaining Life (Top)",
         icon="mdi:air-filter",
-        state_class=SensorStateClass.MEASUREMENT,
+        state_class=STATE_CLASS_MEASUREMENT,
         native_unit_of_measurement=PERCENTAGE,
-    ),
-)
-DEHUMIDIFIER_SENSORS: Tuple[ThinQSensorEntityDescription, ...] = (
-    ThinQSensorEntityDescription(
-        key=FEAT_HUMIDITY,
-        name="Current Humidity",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.HUMIDITY,
-        native_unit_of_measurement=PERCENTAGE,
-    ),
-    ThinQSensorEntityDescription(
-        key=FEAT_TARGET_HUMIDITY,
-        name="Target Humidity",
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.HUMIDITY,
-        native_unit_of_measurement=PERCENTAGE,
-        entity_registry_enabled_default=False,
     ),
 )
 
 
-def _sensor_exist(lge_device: LGEDevice, sensor_desc: ThinQSensorEntityDescription) -> bool:
+def _sensor_exist(lge_device: LGEDevice, sensor_desc: ThinQSensorEntityDescription):
     """Check if a sensor exist for device."""
     if sensor_desc.value_fn is not None:
         return True
 
     feature = sensor_desc.key
-    if feature in lge_device.available_features:
-        return True
+    for feat_name in lge_device.available_features.keys():
+        if feat_name == feature:
+            return True
 
     return False
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
-) -> None:
+async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the LGE sensors."""
+    _LOGGER.info("Starting LGE ThinQ sensors...")
+
+    lge_sensors = []
     entry_config = hass.data[DOMAIN]
     lge_devices = entry_config.get(LGE_DEVICES)
     if not lge_devices:
         return
 
-    _LOGGER.debug("Starting LGE ThinQ sensors setup...")
-    lge_sensors = []
+    # add wash devices
+    wash_devices = []
+    for dev_type, devices in lge_devices.items():
+        if dev_type in WASH_DEVICE_TYPES:
+            wash_devices.extend(devices)
 
-    # add WASH devices
     lge_sensors.extend(
         [
             LGEWashDeviceSensor(lge_device, sensor_desc)
             for sensor_desc in WASH_DEV_SENSORS
-            for lge_device in get_multiple_devices_types(lge_devices, WASH_DEVICE_TYPES)
+            for lge_device in wash_devices
             if _sensor_exist(lge_device, sensor_desc)
         ]
     )
@@ -504,19 +467,9 @@ async def async_setup_entry(
     # add air purifiers
     lge_sensors.extend(
         [
-            LGESensor(lge_device, sensor_desc)
+            LGESensor(lge_device, sensor_desc, LGEAirPurifierDevice(lge_device))
             for sensor_desc in AIR_PURIFIER_SENSORS
             for lge_device in lge_devices.get(DeviceType.AIR_PURIFIER, [])
-            if _sensor_exist(lge_device, sensor_desc)
-        ]
-    )
-
-    # add dehumidifier
-    lge_sensors.extend(
-        [
-            LGESensor(lge_device, sensor_desc)
-            for sensor_desc in DEHUMIDIFIER_SENSORS
-            for lge_device in lge_devices.get(DeviceType.DEHUMIDIFIER, [])
             if _sensor_exist(lge_device, sensor_desc)
         ]
     )
@@ -524,7 +477,7 @@ async def async_setup_entry(
     async_add_entities(lge_sensors)
 
     # register services
-    platform = current_platform.get()
+    platform = entity_platform.current_platform.get()
     platform.async_register_entity_service(
         SERVICE_REMOTE_START,
         {},
@@ -548,7 +501,7 @@ class LGESensor(CoordinatorEntity, SensorEntity):
             self,
             api: LGEDevice,
             description: ThinQSensorEntityDescription,
-            wrapped_device=None,
+            wrapped_device,
     ):
         """Initialize the sensor."""
         super().__init__(api.coordinator)
@@ -569,7 +522,7 @@ class LGESensor(CoordinatorEntity, SensorEntity):
         return None
 
     @property
-    def native_value(self) -> float | int | str | None:
+    def native_value(self) -> float | str | None:
         """Return the state of the sensor."""
         if not self.available:
             return STATE_UNAVAILABLE
@@ -578,7 +531,7 @@ class LGESensor(CoordinatorEntity, SensorEntity):
     @property
     def native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement of the sensor, if any."""
-        if self._wrap_device and self.entity_description.unit_fn is not None:
+        if self.entity_description.unit_fn is not None:
             return self.entity_description.unit_fn(self._wrap_device)
         return super().native_unit_of_measurement
 
@@ -602,7 +555,7 @@ class LGESensor(CoordinatorEntity, SensorEntity):
 
     def _get_sensor_state(self):
         """Get current sensor state"""
-        if self._wrap_device and self.entity_description.value_fn is not None:
+        if self.entity_description.value_fn is not None:
             return self.entity_description.value_fn(self._wrap_device)
 
         if self._api.state:
@@ -615,13 +568,13 @@ class LGESensor(CoordinatorEntity, SensorEntity):
         """Call the remote start command for WM devices."""
         if self._api.type not in WM_DEVICE_TYPES:
             raise NotImplementedError()
-        await self._api.device.remote_start()
+        await self.hass.async_add_executor_job(self._api.device.remote_start)
 
     async def async_wake_up(self):
         """Call the wakeup command for WM devices."""
         if self._api.type not in WM_DEVICE_TYPES:
             raise NotImplementedError()
-        await self._api.device.wake_up()
+        await self.hass.async_add_executor_job(self._api.device.wake_up)
 
 
 class LGEWashDeviceSensor(LGESensor):

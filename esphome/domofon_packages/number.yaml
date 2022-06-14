@@ -1,6 +1,6 @@
 number:
   - platform: template
-    name: "${board_name} LED Brightness"    # number.domofon_led_brightness in system
+    name: "${board_name} LED Brightness"
     icon: "mdi:led-on"
     id: led_brightness
     optimistic: true
@@ -13,8 +13,8 @@ number:
       then:
         if:
           condition:
-            light.is_on: rgb_led              # missing
+            light.is_on: rgb_led
           then:
-            light.control:                    # missing
+            light.control:
               id: rgb_led
               brightness: !lambda "return x > 0 ? x / 10 : 0.01;"

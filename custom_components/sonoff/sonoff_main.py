@@ -15,7 +15,26 @@ from .sonoff_local import EWeLinkLocal
 _LOGGER = logging.getLogger(__name__)
 
 ATTRS = ('local', 'cloud', 'rssi', 'humidity', 'temperature', 'power',
+<<<<<<< HEAD
+         'current', 'voltage', 'consumption', 'water', ATTR_BATTERY_LEVEL,
+         'current_1', 'current_2', 'voltage_1', 'voltage_2',
+         'power_1', 'power_2')
+
+ATTRS_DUALR3 = {
+    'current_00': 'current_1',
+    'current_01': 'current_2',
+    'voltage_00': 'voltage_1',
+    'voltage_01': 'voltage_2',
+    'actPow_00': 'power_1',
+    'actPow_01': 'power_2',
+    # 'reactPow_00': 'react_power_1',
+    # 'reactPow_01': 'react_power_2',
+    # 'apparentPow_00': 'apparent_power_1',
+    # 'apparentPow_01': 'apparent_power_2',
+}
+=======
          'current', 'voltage', 'consumption', 'water', ATTR_BATTERY_LEVEL)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 def load_cache(filename: str):
@@ -35,6 +54,16 @@ def save_cache(filename: str, data: dict):
         json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
 
 
+<<<<<<< HEAD
+def fix_attrs(state: dict):
+    # fix R3 Pow attrs
+    for k, v in ATTRS_DUALR3.items():
+        if k in state:
+            state[v] = round(state[k] * 0.01, 2)
+
+
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 def get_attrs(state: dict) -> dict:
     return {k: state[k] for k in ATTRS if k in state}
 
@@ -91,6 +120,11 @@ class EWeLinkRegistry:
             # TODO: right place?
             device['available'] = device.get('online') or device.get('host')
 
+<<<<<<< HEAD
+            fix_attrs(state)
+
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             attrs = get_attrs(state)
             try:
                 for handler in device['handlers']:

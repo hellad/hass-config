@@ -23,6 +23,7 @@ async def system_health_info(hass):
 
     data = {
         "GitHub API": system_health.async_check_can_reach_url(hass, BASE_API_URL, GITHUB_STATUS),
+<<<<<<< HEAD
         "GitHub Content": system_health.async_check_can_reach_url(
             hass, "https://raw.githubusercontent.com/hacs/integration/main/hacs.json"
         ),
@@ -34,6 +35,13 @@ async def system_health_info(hass):
         "Stage": hacs.stage,
         "Available Repositories": len(hacs.repositories.list_all),
         "Downloaded Repositories": len(hacs.repositories.list_downloaded),
+=======
+        "Github API Calls Remaining": response.data.resources.core.remaining,
+        "Installed Version": hacs.version,
+        "Stage": hacs.stage,
+        "Available Repositories": len(hacs.repositories),
+        "Installed Repositories": len([repo for repo in hacs.repositories if repo.data.installed]),
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     }
 
     if hacs.system.disabled:

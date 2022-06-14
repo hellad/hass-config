@@ -40,9 +40,9 @@ def generate_device(manufacturer: str, model: str) -> Optional[Device]:
     return quirks[0](None, None, 0, device)
 
 
-###############################################################################
+################################################################################
 # Base (global) converters
-###############################################################################
+################################################################################
 
 
 @dataclass
@@ -213,10 +213,9 @@ class ZIASZoneConv(ZConverter):
     zigbee = "ias_zone"
 
     def decode(self, device: "XDevice", payload: dict, value: dict):
-        try:
-            payload[self.attr] = value["value"][0] == 1
-        except Exception:
-            pass
+        value = value.get("value")
+        if isinstance(value, list) and len(value) == 4:
+            payload[self.attr] = value[0] == 1
 
     def read(self, device: "XDevice", payload: dict):
         pass
@@ -270,9 +269,9 @@ class ZBatteryConv(ZConverter):
 #             payload[self.zattr] = value[self.zattr] * 100
 
 
-###############################################################################
+################################################################################
 # Specific defices converters
-###############################################################################
+################################################################################
 
 class ZTuyaChildModeConv(ZBoolConv):
     zigbee = "on_off"
@@ -338,7 +337,7 @@ class ZTuyaButtonConv(ZConverter):
         try:
             payload[self.attr] = value = self.map.get(value["value"][0])
             payload["action"] = self.attr + "_" + value
-        except Exception:
+        except:
             pass
 
 
@@ -522,9 +521,9 @@ class ZAqaraOppleMode(ZConverter):
         pass
 
 
-###############################################################################
+################################################################################
 # Final converter classes
-###############################################################################
+################################################################################
 
 ZSwitch = ZOnOffConv("switch", "switch")
 

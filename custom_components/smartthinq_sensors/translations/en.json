@@ -3,31 +3,37 @@
         "abort": {
             "single_instance_allowed": "Only a single configuration of SmartThinQ LGE Sensors is allowed.",
             "no_smartthinq_devices": "No SmartThinQ devices found. Component setup aborted.",
-            "unsupported_version": "This integration require at least HomeAssistant version {req_ver}, you are running version {run_ver}.",
-            "reconfigured": "Configuration successfully completed."
+            "unsupported_version": "This integration require at least HomeAssistant version {req_ver}, you are running version {run_ver}."
         },
         "error": {
             "error_url": "Error retrieving login URL from ThinQ.",
             "invalid_region": "Invalid region format.",
             "invalid_language": "Invalid language format.",
             "invalid_url": "Invalid redirection URL. Make sure you can access the ThinQ app on your phone. You can get support [over here](https://git.io/JTjid).",
+<<<<<<< HEAD
             "invalid_credentials": "Invalid SmartThinQ credentials. Try again, and make sure you can access the ThinQ app on your phone.",
-            "invalid_config": "Found invalid configuration, please reconfigure.",
-            "no_user_info": "User Name and Password are required.",
-            "unknown": "Unknown error."
+            "no_user_info": "User Name and Password are required."
+=======
+            "invalid_credentials": "Invalid SmartThinQ credentials. Try again, and make sure you can access the ThinQ app on your phone."
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         },
         "step": {
             "user": {
                 "data": {
+<<<<<<< HEAD
                     "username": "LG account user name",
                     "password": "Password",
                     "region": "Country Code",
                     "language": "Language Code",
                     "use_redirect": "Use URL redirect authentication method",
+=======
+                    "region": "Country Code",
+                    "language": "Language Code",
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                     "use_tls_v1": "Force use of protocol TLSv1 (sometimes required)",
                     "exclude_dh": "Do not use DH cypher (in case 'dh key too small' error)"
                 },
-                "description": "Insert your SmartThinQ account access information.",
+                "description": "Select your SmartThinQ account localization information.",
                 "title": "SmartThinQ LGE Sensors"
             },
             "url": {

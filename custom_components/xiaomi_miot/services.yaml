@@ -161,7 +161,11 @@ intelligent_speaker:
           domain: media_player
     text:
       description: Text content.
+<<<<<<< HEAD
+      example: Turn on light
+=======
       example: "Turn on light"
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
       required: true
       selector:
         text:
@@ -184,6 +188,32 @@ intelligent_speaker:
       selector:
         boolean:
 
+<<<<<<< HEAD
+xiaoai_wakeup:
+  description: Weak up the xiaoai speaker.
+  fields:
+    entity_id:
+      description: ID of the xiaoai entity.
+      example: media_player.xiaoai_x08c
+      required: true
+      selector:
+        entity:
+          integration: xiaomi_miot
+          domain: media_player
+    text:
+      description: Text content for weak up.
+      example: Livingroom light
+      selector:
+        text:
+    throw:
+      description: Throw result.
+      default: false
+      example: false
+      selector:
+        boolean:
+
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 get_device_data:
   description: Get xiaomi device data from cloud.
   fields:
@@ -306,7 +336,12 @@ request_xiaomi_api:
             - GET
     crypt:
       description: Crypt data.
+<<<<<<< HEAD
+      default: true
+      example: true
+=======
       default: false
       example: false
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
       selector:
         boolean:

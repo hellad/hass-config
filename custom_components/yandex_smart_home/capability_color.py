@@ -18,11 +18,14 @@ from .helpers import RequestData
 _LOGGER = logging.getLogger(__name__)
 
 CAPABILITIES_COLOR_SETTING = PREFIX_CAPABILITIES + 'color_setting'
+<<<<<<< HEAD
 COLOR_MODES_TEMP_TO_WHITE = (
-    light.ColorMode.RGBW,
-    light.ColorMode.RGB,
-    light.ColorMode.HS
+    light.COLOR_MODE_RGBW,
+    light.COLOR_MODE_RGB,
+    light.COLOR_MODE_HS
 )
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 class ColorSettingCapability(AbstractCapability, ABC):
@@ -33,6 +36,7 @@ class ColorSettingCapability(AbstractCapability, ABC):
 
     type = CAPABILITIES_COLOR_SETTING
     scenes_map_default = {
+<<<<<<< HEAD
         const.COLOR_SCENE_ALARM: ['Тревога', 'Alarm', 'Shine', 'Strobe Mega'],
         const.COLOR_SCENE_ALICE: ['Алиса', 'Alice', 'Meeting'],
         const.COLOR_SCENE_CANDLE: ['Свеча', 'Огонь', 'Candle', 'Fire'],
@@ -49,6 +53,24 @@ class ColorSettingCapability(AbstractCapability, ABC):
         const.COLOR_SCENE_REST: ['Отдых', 'Rest', 'Soft'],
         const.COLOR_SCENE_ROMANCE: ['Романтика', 'Romance', 'Leasure', 'Lake'],
         const.COLOR_SCENE_SIREN: ['Сирена', 'Siren', 'Police', 'Rainbow'],
+=======
+        const.COLOR_SCENE_ALARM: ['Тревога', 'Alarm', 'Shine'],
+        const.COLOR_SCENE_ALICE: ['Алиса', 'Alice', 'Meeting'],
+        const.COLOR_SCENE_CANDLE: ['Свеча', 'Огонь', 'Candle', 'Fire'],
+        const.COLOR_SCENE_DINNER: ['Ужин', 'Dinner'],
+        const.COLOR_SCENE_FANTASY: ['Фантазия', 'Fantasy', 'Random', 'Beautiful'],
+        const.COLOR_SCENE_GARLAND: ['Гирлянда', 'Garland'],
+        const.COLOR_SCENE_JUNGLE: ['Джунгли', 'Jungle'],
+        const.COLOR_SCENE_MOVIE: ['Кино', 'Movie'],
+        const.COLOR_SCENE_NEON: ['Неон', 'Neon'],
+        const.COLOR_SCENE_NIGHT: ['Ночь', 'Night'],
+        const.COLOR_SCENE_OCEAN: ['Океан', 'Ocean'],
+        const.COLOR_SCENE_PARTY: ['Вечеринка', 'Party'],
+        const.COLOR_SCENE_READING: ['Чтение', 'Reading', 'Read'],
+        const.COLOR_SCENE_REST: ['Отдых', 'Rest', 'Soft'],
+        const.COLOR_SCENE_ROMANCE: ['Романтика', 'Romance', 'Leasure'],
+        const.COLOR_SCENE_SIREN: ['Сирена', 'Siren', 'Rainbow'],
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         const.COLOR_SCENE_SUNRISE: ['Рассвет', 'Sunrise'],
         const.COLOR_SCENE_SUNSET: ['Закат', 'Sunset']
     }
@@ -72,10 +94,11 @@ class ColorSettingCapability(AbstractCapability, ABC):
                 'min': color_util.color_temperature_mired_to_kelvin(min_temp),
                 'max': color_util.color_temperature_mired_to_kelvin(max_temp)
             }
+<<<<<<< HEAD
         else:
             min_temp = self.default_white_temperature_k
             max_temp = self.default_white_temperature_k
-            if light.ColorMode.RGBW in supported_color_modes or light.ColorMode.WHITE in supported_color_modes:
+            if light.COLOR_MODE_RGBW in supported_color_modes or light.COLOR_MODE_WHITE in supported_color_modes:
                 max_temp = self.cold_white_temperature_k
 
             for color_mode in COLOR_MODES_TEMP_TO_WHITE:
@@ -85,11 +108,27 @@ class ColorSettingCapability(AbstractCapability, ABC):
                         'max': max_temp
                     }
                     break
+=======
+        elif light.COLOR_MODE_RGBW in supported_color_modes:
+            result['temperature_k'] = {
+                'min': self.default_white_temperature_k,
+                'max': self.cold_white_temperature_k
+            }
+        elif light.COLOR_MODE_RGB in supported_color_modes or light.COLOR_MODE_HS in supported_color_modes:
+            result['temperature_k'] = {
+                'min': self.default_white_temperature_k,
+                'max': self.default_white_temperature_k
+            }
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
-        if features & light.LightEntityFeature.EFFECT:
+        if features & light.SUPPORT_EFFECT:
             supported_scenes = self.get_supported_scenes(
                 self.get_scenes_map_from_config(self.entity_config),
+<<<<<<< HEAD
                 self.state.attributes.get(light.ATTR_EFFECT_LIST) or []
+=======
+                self.state.attributes.get(light.ATTR_EFFECT_LIST, [])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             )
             if supported_scenes:
                 result['color_scene'] = {
@@ -113,7 +152,7 @@ class ColorSettingCapability(AbstractCapability, ABC):
             return True
 
         for color_mode in supported_color_modes:
-            if color_mode in [light.ColorMode.RGB, light.ColorMode.RGBW, light.ColorMode.RGBWW, light.ColorMode.HS]:
+            if color_mode in [light.COLOR_MODE_RGB, light.COLOR_MODE_RGBW, light.COLOR_MODE_RGBWW, light.COLOR_MODE_HS]:
                 return True
 
         return False
@@ -225,10 +264,17 @@ class TemperatureKCapability(ColorSettingCapability):
 
             if features & light.SUPPORT_COLOR_TEMP or light.color_temp_supported(supported_color_modes):
                 return True
+<<<<<<< HEAD
 
             for color_mode in COLOR_MODES_TEMP_TO_WHITE:
                 if color_mode in supported_color_modes:
                     return True
+=======
+            elif light.COLOR_MODE_RGBW in supported_color_modes:
+                return True
+            elif light.COLOR_MODE_RGB in supported_color_modes or light.COLOR_MODE_HS in supported_color_modes:
+                return True
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         return False
 
@@ -236,15 +282,22 @@ class TemperatureKCapability(ColorSettingCapability):
         """Return the state value of this capability for this entity."""
         temperature_mired = self.state.attributes.get(light.ATTR_COLOR_TEMP)
         supported_color_modes = self.state.attributes.get(light.ATTR_SUPPORTED_COLOR_MODES, [])
+<<<<<<< HEAD
         color_mode = self.state.attributes.get(light.ATTR_COLOR_MODE)
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         if temperature_mired is not None:
             return color_util.color_temperature_mired_to_kelvin(temperature_mired)
 
-        if color_mode == light.ColorMode.WHITE:
+<<<<<<< HEAD
+        if color_mode == light.COLOR_MODE_WHITE:
             return self.default_white_temperature_k
 
-        if color_mode == light.ColorMode.RGBW:
+        if color_mode == light.COLOR_MODE_RGBW:
+=======
+        if light.COLOR_MODE_RGBW in supported_color_modes:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             rgbw_color = self.state.attributes.get(light.ATTR_RGBW_COLOR)
             if rgbw_color is not None:
                 if rgbw_color[:3] == (0, 0, 0) and rgbw_color[3] > 0:
@@ -254,12 +307,18 @@ class TemperatureKCapability(ColorSettingCapability):
 
             return None
 
-        if color_mode in [light.ColorMode.RGB, light.ColorMode.HS]:
+<<<<<<< HEAD
+        if color_mode in [light.COLOR_MODE_RGB, light.COLOR_MODE_HS]:
             rgb_color = self.state.attributes.get(light.ATTR_RGB_COLOR)
             if rgb_color is not None and rgb_color == (255, 255, 255):
-                if light.ColorMode.WHITE in supported_color_modes:
+                if light.COLOR_MODE_WHITE in supported_color_modes:
                     return self.cold_white_temperature_k
 
+=======
+        if light.COLOR_MODE_RGB in supported_color_modes or light.COLOR_MODE_HS in supported_color_modes:
+            rgb_color = self.state.attributes.get(light.ATTR_RGB_COLOR)
+            if rgb_color is not None and rgb_color == (255, 255, 255):
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 return self.default_white_temperature_k
 
             return None
@@ -275,16 +334,19 @@ class TemperatureKCapability(ColorSettingCapability):
                 light.color_temp_supported(self.state.attributes.get(light.ATTR_SUPPORTED_COLOR_MODES, [])):
             service_data[light.ATTR_KELVIN] = value
 
-        elif light.ColorMode.WHITE in supported_color_modes and value == self.default_white_temperature_k:
+<<<<<<< HEAD
+        elif light.COLOR_MODE_WHITE in supported_color_modes and value == self.default_white_temperature_k:
             service_data[light.ATTR_WHITE] = self.state.attributes.get(light.ATTR_BRIGHTNESS, 255)
 
-        elif light.ColorMode.RGBW in supported_color_modes:
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
+        elif light.COLOR_MODE_RGBW in supported_color_modes:
             if value == self.default_white_temperature_k:
                 service_data[light.ATTR_RGBW_COLOR] = (0, 0, 0, self.state.attributes.get(light.ATTR_BRIGHTNESS, 255))
             else:
                 service_data[light.ATTR_RGBW_COLOR] = (255, 255, 255, 0)
 
-        elif light.ColorMode.RGB in supported_color_modes or light.ColorMode.HS in supported_color_modes:
+        elif light.COLOR_MODE_RGB in supported_color_modes or light.COLOR_MODE_HS in supported_color_modes:
             service_data[light.ATTR_RGB_COLOR] = (255, 255, 255)
 
         if service_data:
@@ -313,11 +375,17 @@ class ColorSceneCapability(ColorSettingCapability):
         """Test if capability is supported."""
         features = self.state.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
 
-        if self.state.domain == light.DOMAIN and features & light.LightEntityFeature.EFFECT:
+        if self.state.domain == light.DOMAIN and features & light.SUPPORT_EFFECT:
             return bool(
+<<<<<<< HEAD
                 self.get_supported_scenes(
                     self.get_scenes_map_from_config(self.entity_config),
                     self.state.attributes.get(light.ATTR_EFFECT_LIST) or []
+=======
+                ColorSceneCapability.get_supported_scenes(
+                    ColorSceneCapability.get_scenes_map_from_config(self.entity_config),
+                    self.state.attributes.get(light.ATTR_EFFECT_LIST, [])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 )
             )
 

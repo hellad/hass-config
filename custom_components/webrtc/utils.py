@@ -64,17 +64,25 @@ async def get_stream_source(hass: HomeAssistantType, entity: str) -> str:
         return None
 
 
+<<<<<<< HEAD
 def register_static_path(app: web.Application, url_path: str, path):
+=======
+def register_static_path(app: web.Application, url_path: str, path: str):
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     """Register static path with CORS for Chromecast"""
 
     async def serve_file(request):
         return web.FileResponse(path)
 
     route = app.router.add_route("GET", url_path, serve_file)
+<<<<<<< HEAD
     if 'allow_all_cors' in app:
         app['allow_all_cors'](route)
     elif 'allow_cors' in app:
         app['allow_cors'](route)
+=======
+    app['allow_cors'](route)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 async def init_resource(hass: HomeAssistantType, url: str, ver: str) -> bool:

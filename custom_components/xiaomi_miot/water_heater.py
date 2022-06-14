@@ -39,10 +39,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
+<<<<<<< HEAD
+    config['hass'] = hass
+    model = str(config.get(CONF_MODEL) or '')
+    entities = []
+    if miot := config.get('miot_type'):
+=======
     model = str(config.get(CONF_MODEL) or '')
     entities = []
     miot = config.get('miot_type')
     if miot:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         spec = await MiotSpec.async_from_type(hass, miot)
         for srv in spec.get_services(ENTITY_DOMAIN, 'kettle'):
             if not srv.get_property('mode', 'target_temperature'):
@@ -83,7 +90,11 @@ class MiotWaterHeaterEntity(MiotToggleEntity, WaterHeaterEntity):
                 val = self._prop_status.from_dict(self._state_attrs)
                 if val is not None:
                     off = val in self._prop_status.list_search('Off')
+<<<<<<< HEAD
+                    await self.async_update_attrs({
+=======
                     self.update_attrs({
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                         self._prop_power.full_name: not off,
                     })
             self._update_sub_entities(self._prop_power.name, domain='switch')
@@ -132,9 +143,12 @@ class MiotWaterHeaterEntity(MiotToggleEntity, WaterHeaterEntity):
     @property
     def current_temperature(self):
         """Return the current temperature."""
+<<<<<<< HEAD
+=======
         if 'miio.waterTemp' in self._state_attrs:
             # viomi.waterheater.e1
             return round(self._state_attrs.get('miio.waterTemp') or 0)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if self._prop_temperature:
             return round(self._prop_temperature.from_dict(self._state_attrs) or 0, 2)
         return None
@@ -177,9 +191,12 @@ class MiotWaterHeaterEntity(MiotToggleEntity, WaterHeaterEntity):
             val = round(self._prop_target_temp.from_dict(self._state_attrs) or 0, 2)
             if val:
                 self._prev_target_temp = val
+<<<<<<< HEAD
+=======
             elif 'miio.targetTemp' in self._state_attrs:
                 # viomi.waterheater.e1
                 val = round(self._state_attrs.get('miio.targetTemp') or 0)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             elif self._prev_target_temp:
                 val = self._prev_target_temp
             return val

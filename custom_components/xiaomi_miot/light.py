@@ -62,17 +62,31 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
+<<<<<<< HEAD
+    config['hass'] = hass
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     model = str(config.get(CONF_MODEL) or '')
     entities = []
     if model.find('mrbond.airer') >= 0:
         pass
     else:
+<<<<<<< HEAD
+        if miot := config.get('miot_type'):
+            spec = await MiotSpec.async_from_type(hass, miot)
+            for srv in spec.get_services(ENTITY_DOMAIN, 'light_bath_heater'):
+                if not srv.get_property('on'):
+                    continue
+                elif srv.name in ['light_bath_heater'] and spec.get_service('ptc_bath_heater'):
+                    continue
+=======
         miot = config.get('miot_type')
         if miot:
             spec = await MiotSpec.async_from_type(hass, miot)
             for srv in spec.get_services(ENTITY_DOMAIN):
                 if not srv.get_property('on'):
                     continue
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 entities.append(MiotLightEntity(config, srv))
     for entity in entities:
         hass.data[DOMAIN]['entities'][entity.unique_id] = entity
@@ -120,11 +134,34 @@ class MiotLightEntity(MiotToggleEntity, LightEntity):
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
         self._vars['color_temp_reverse'] = self.custom_config_bool('color_temp_reverse')
+<<<<<<< HEAD
+        if self._prop_brightness:
+            self._vars['brightness_for_on'] = self.custom_config_integer('brightness_for_on')
+            self._vars['brightness_for_off'] = self.custom_config_integer('brightness_for_off')
+
+    @property
+    def is_on(self):
+        if self._prop_brightness:
+            val = self._prop_brightness.from_dict(self._state_attrs)
+            bri = self._vars.get('brightness_for_on')
+            if bri is not None:
+                return val == bri
+        return super().is_on
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     def turn_on(self, **kwargs):
         ret = False
         if not self.is_on:
+<<<<<<< HEAD
+            bri = self._vars.get('brightness_for_on')
+            if bri is not None:
+                ret = self.set_property(self._prop_brightness, bri)
+            else:
+                ret = self.set_property(self._prop_power, True)
+=======
             ret = self.set_property(self._prop_power, True)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         if self._prop_brightness and ATTR_BRIGHTNESS in kwargs:
             brightness = kwargs[ATTR_BRIGHTNESS]
@@ -132,30 +169,58 @@ class MiotLightEntity(MiotToggleEntity, LightEntity):
             val = per * 100
             if self._prop_brightness.value_range:
                 val = per * self._prop_brightness.range_max()
+<<<<<<< HEAD
+            _LOGGER.debug('%s: Setting light brightness: %s %s%%', self.name_model, brightness, per * 100)
+            ret = self.set_property(self._prop_brightness, int(val))
+=======
             _LOGGER.debug('Setting light: %s brightness: %s %s%%', self.name, brightness, per * 100)
             ret = self.set_property(self._prop_brightness, round(val))
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         if self._prop_color_temp and ATTR_COLOR_TEMP in kwargs:
             mired = kwargs[ATTR_COLOR_TEMP]
             color_temp = self.translate_mired(mired)
             if self._vars.get('color_temp_reverse'):
                 color_temp = self._vars.get('color_temp_sum') - color_temp
+<<<<<<< HEAD
+            _LOGGER.debug('%s: Setting light color temperature: %s mireds, %s ct', self.name_model, mired, color_temp)
+=======
             _LOGGER.debug('Setting light: %s color temperature: %s mireds, %s ct', self.name, mired, color_temp)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             ret = self.set_property(self._prop_color_temp, color_temp)
 
         if self._prop_color and ATTR_HS_COLOR in kwargs:
             rgb = color.color_hs_to_RGB(*kwargs[ATTR_HS_COLOR])
             num = rgb_to_int(rgb)
+<<<<<<< HEAD
+            _LOGGER.debug('%s: Setting light color: %s', self.name_model, rgb)
+=======
             _LOGGER.debug('Setting light: %s color: %s', self.name, rgb)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             ret = self.set_property(self._prop_color, num)
 
         if self._prop_mode and ATTR_EFFECT in kwargs:
             val = self._prop_mode.list_value(kwargs[ATTR_EFFECT])
+<<<<<<< HEAD
+            _LOGGER.debug('%s: Setting light effect: %s(%s)', self.name_model, kwargs[ATTR_EFFECT], val)
+=======
             _LOGGER.debug('Setting light: %s effect: %s(%s)', self.name, kwargs[ATTR_EFFECT], val)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             ret = self.set_property(self._prop_mode, val)
 
         return ret
 
+<<<<<<< HEAD
+    def turn_off(self, **kwargs):
+        bri = self._vars.get('brightness_for_off')
+        if bri is not None:
+            ret = self.set_property(self._prop_brightness, bri)
+        else:
+            ret = super().turn_off()
+        return ret
+
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     @property
     def brightness(self):
         """Return the brightness of this light between 0..255."""
@@ -181,7 +246,11 @@ class MiotLightEntity(MiotToggleEntity, LightEntity):
     def rgb_color(self):
         """Return the rgb color value [int, int, int]."""
         if self._prop_color:
+<<<<<<< HEAD
+            num = int(self._prop_color.from_dict(self._state_attrs) or 0)
+=======
             num = round(self._prop_color.from_dict(self._state_attrs) or 0)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             return int_to_rgb(num)
         return None
 
@@ -218,10 +287,29 @@ class MiotLightEntity(MiotToggleEntity, LightEntity):
 
 class MiotLightSubEntity(MiotLightEntity, ToggleSubEntity):
     def __init__(self, parent, miot_service: MiotService, option=None):
+<<<<<<< HEAD
+        parent_power = None
+        prop_power = miot_service.get_property('on')
+        if prop_power:
+            attr = prop_power.full_name
+        else:
+            attr = miot_service.desc_name
+            for s in miot_service.spec.services.values():
+                if p := s.get_property('on'):
+                    parent_power = p
+                    break
+        keys = list((miot_service.mapping() or {}).keys())
+        if parent_power:
+            keys.append(parent_power.full_name)
+        ToggleSubEntity.__init__(self, parent, attr, {
+            **(option or {}),
+            'keys': keys,
+=======
         prop_power = miot_service.get_property('on')
         ToggleSubEntity.__init__(self, parent, prop_power.full_name, {
             **(option or {}),
             'keys': list((miot_service.mapping() or {}).keys()),
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         })
         MiotLightEntity.__init__(self, {
             **parent.miot_config,
@@ -229,6 +317,16 @@ class MiotLightSubEntity(MiotLightEntity, ToggleSubEntity):
         }, miot_service, device=parent.miot_device)
         self.entity_id = miot_service.generate_entity_id(self)
         self._prop_power = prop_power
+<<<<<<< HEAD
+        if parent_power:
+            self._prop_power = parent_power
+            self._available = True
+
+    @property
+    def available(self):
+        return self._available and self._parent.available
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     def update(self, data=None):
         super().update(data)
@@ -238,6 +336,12 @@ class MiotLightSubEntity(MiotLightEntity, ToggleSubEntity):
     async def async_update(self):
         await self.hass.async_add_executor_job(partial(self.update))
 
+<<<<<<< HEAD
+    def set_property(self, field, value):
+        return self.set_parent_property(value, field)
+
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 class LightSubEntity(ToggleSubEntity, LightEntity):
     _brightness = None

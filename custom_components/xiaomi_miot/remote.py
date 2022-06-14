@@ -22,6 +22,10 @@ from . import (
     MiotEntity,
     async_setup_config_entry,
     bind_services_to_entries,
+<<<<<<< HEAD
+    TRANSLATION_LANGUAGES,
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 )
 from .core.miot_spec import (
     MiotSpec,
@@ -44,10 +48,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
+<<<<<<< HEAD
+    config['hass'] = hass
+    model = str(config.get(CONF_MODEL) or '')
+    entities = []
+    if miot := config.get('miot_type'):
+=======
     model = str(config.get(CONF_MODEL) or '')
     entities = []
     miot = config.get('miot_type')
     if miot:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         spec = await MiotSpec.async_from_type(hass, miot)
         if spec.name in ['remote_control', 'ir_remote_control']:
             if 'chuangmi.remote.' in model or 'chuangmi.ir.' in model:
@@ -56,6 +67,10 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             'xiaomi.wifispeaker.l05c',
             'xiaomi.wifispeaker.lx5a',
             'xiaomi.wifispeaker.lx06',
+<<<<<<< HEAD
+            'lumi.acpartner.mcn04',
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         ]:
             entities.append(MiotRemoteEntity(config, spec))
     for entity in entities:
@@ -72,6 +87,14 @@ class MiotRemoteEntity(MiotEntity, RemoteEntity):
         token = config.get(CONF_TOKEN)
         self._device = ChuangmiIr(host, token)
         self._attr_should_poll = False
+<<<<<<< HEAD
+        self._translations = {
+            **TRANSLATION_LANGUAGES,
+            **(TRANSLATION_LANGUAGES.get('_globals', {})),
+            **(TRANSLATION_LANGUAGES.get('ir_devices', {})),
+        }
+=======
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
@@ -93,6 +116,18 @@ class MiotRemoteEntity(MiotEntity, RemoteEntity):
                 })
                 add_selects = self._add_entities.get('select')
                 if not kys:
+<<<<<<< HEAD
+                    self.logger.info('%s: IR device %s(%s) have no keys: %s', self.name_model, ird, d.get('name'), rdt)
+                elif add_selects and ird not in self._subs:
+                    from .select import SelectSubEntity
+                    ols = []
+                    for k in kys:
+                        nam = k.get('display_name') or k.get('name')
+                        if not nam:
+                            continue
+                        nam = self._translations.get(nam, nam)
+                        ols.append(nam)
+=======
                     self.logger.info('%s: IR device %s(%s) have no keys: %s', self.name, ird, d.get('name'), rdt)
                 elif add_selects and ird not in self._subs:
                     from .select import SelectSubEntity
@@ -100,13 +135,18 @@ class MiotRemoteEntity(MiotEntity, RemoteEntity):
                         k.get('display_name') or k.get('name')
                         for k in kys
                     ]
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                     self._subs[ird] = SelectSubEntity(self, ird, option={
                         'name': d.get('name'),
                         'entity_id': f'remote_{ird}'.replace('.', '_'),
                         'options': ols,
                         'select_option': self.press_ir_key,
                     })
+<<<<<<< HEAD
+                    add_selects([self._subs[ird]], update_before_add=False)
+=======
                     add_selects([self._subs[ird]])
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if irs:
             self._state_attrs['ir_devices'] = irs
 
@@ -125,9 +165,15 @@ class MiotRemoteEntity(MiotEntity, RemoteEntity):
                         ret = self.send_cloud_command(did, cmd)
                     else:
                         ret = self._device.play(cmd)
+<<<<<<< HEAD
+                    self.logger.info('%s: Send IR command %s(%s) result: %s', self.name_model, cmd, kwargs, ret)
+                except (DeviceException, MiCloudException) as exc:
+                    self.logger.error('%s: Send IR command %s(%s) failed: %s', self.name_model, cmd, kwargs, exc)
+=======
                     self.logger.info('%s: Send IR command %s(%s) result: %s', self.name, cmd, kwargs, ret)
                 except (DeviceException, MiCloudException) as exc:
                     self.logger.error('%s: Send IR command %s(%s) failed: %s', self.name, cmd, kwargs, exc)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 time.sleep(delays)
 
     def send_cloud_command(self, did, command):
@@ -139,7 +185,11 @@ class MiotRemoteEntity(MiotEntity, RemoteEntity):
         except (TypeError, ValueError):
             key = None
         if not did or not key:
+<<<<<<< HEAD
+            self.logger.warning('%s: IR command %s to %s invalid for cloud.', self.name_model, command, did)
+=======
             self.logger.warning('%s: IR command %s to %s invalid for cloud.', self.name, command, did)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             return False
         mic = self.miot_cloud
         if not mic:
@@ -149,7 +199,11 @@ class MiotRemoteEntity(MiotEntity, RemoteEntity):
             'key_id': key,
         }) or {}
         if res.get('code'):
+<<<<<<< HEAD
+            self.logger.warning('%s: Send IR command %s(%s) failed: %s', self.name_model, command, did, res)
+=======
             self.logger.warning('%s: Send IR command %s(%s) failed: %s', self.name, command, did, res)
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return res
 
     async def async_send_command(self, command, **kwargs):
@@ -160,7 +214,17 @@ class MiotRemoteEntity(MiotEntity, RemoteEntity):
 
     def learn_command(self, **kwargs):
         """Learn a command from a device."""
+<<<<<<< HEAD
+        try:
+            key = int(kwargs.get(remote.ATTR_DEVICE))
+            return self._device.learn(key)
+        except (TypeError, ValueError, DeviceException) as exc:
+            self.logger.warning('%s: Learn command failed: %s, the device ID is used to store command '
+                                'and must between 1 and 1000000.', self.name_model, exc)
+        return False
+=======
         raise NotImplementedError()
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     def delete_command(self, **kwargs):
         """Delete commands from the database."""
@@ -173,7 +237,15 @@ class MiotRemoteEntity(MiotEntity, RemoteEntity):
             if did and did != d.get('did'):
                 continue
             for k in d.get('keys', []):
+<<<<<<< HEAD
+                if select not in [
+                    k.get('display_name'),
+                    k.get('name'),
+                    self._translations.get(k.get('display_name') or k.get('name')),
+                ]:
+=======
                 if select not in [k.get('display_name'), k.get('name')]:
+>>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                     continue
                 key = k.get('id')
         if key:
