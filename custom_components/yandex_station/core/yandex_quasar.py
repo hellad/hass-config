@@ -1,10 +1,7 @@
 import asyncio
 import json
 import logging
-<<<<<<< HEAD
-=======
-import time
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
+from typing import Optional
 
 from aiohttp import WSMsgType
 
@@ -17,10 +14,7 @@ IOT_TYPES = {
     'temperature': 'devices.capabilities.range',
     'fan_speed': 'devices.capabilities.mode',
     'thermostat': 'devices.capabilities.mode',
-<<<<<<< HEAD
     'heat': 'devices.capabilities.mode',
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     'volume': 'devices.capabilities.range',
     'pause': 'devices.capabilities.toggle',
     'mute': 'devices.capabilities.toggle',
@@ -29,15 +23,12 @@ IOT_TYPES = {
     'brightness': 'devices.capabilities.range',
     'color': 'devices.capabilities.color_setting',
     'work_speed': 'devices.capabilities.mode',
-<<<<<<< HEAD
     'humidity': 'devices.capabilities.range',
     'ionization': 'devices.capabilities.toggle',
     'backlight': 'devices.capabilities.toggle',
     # kettle:
     'keep_warm': 'devices.capabilities.toggle',
     'tea_mode': 'devices.capabilities.mode',
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     # don't work
     'hsv': 'devices.capabilities.color_setting',
     'rgb': 'devices.capabilities.color_setting',
@@ -55,15 +46,17 @@ def encode(uid: str) -> str:
     return 'ХА ' + ''.join([MASK_RU[MASK_EN.index(s)] for s in uid])
 
 
-def decode(uid: str) -> str:
+def decode(uid: str) -> Optional[str]:
     """Раскодируем UID из рус.букв."""
-    return ''.join([MASK_EN[MASK_RU.index(s)] for s in uid[3:]])
+    try:
+        return ''.join([MASK_EN[MASK_RU.index(s)] for s in uid[3:]])
+    except Exception:
+        return None
 
 
 class YandexQuasar:
     # all devices
     devices = None
-<<<<<<< HEAD
     online_updated: asyncio.Event = None
     updates_task: asyncio.Task = None
 
@@ -71,12 +64,6 @@ class YandexQuasar:
         self.session = session
         self.online_updated = asyncio.Event()
         self.online_updated.set()
-=======
-    online_update_ts = 0
-
-    def __init__(self, session: YandexSession):
-        self.session = session
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def hass_id(self):
@@ -100,7 +87,6 @@ class YandexQuasar:
     @property
     def speakers(self):
         return [
-<<<<<<< HEAD
             d for d in self.devices
             if d['type'].startswith("devices.types.smart_speaker")
         ]
@@ -110,13 +96,6 @@ class YandexQuasar:
         # modules don't have cloud scenarios
         return [d for d in self.devices if ".yandex.module" in d["type"]]
 
-=======
-            device for device in self.devices
-            if device['type'].startswith('devices.types.smart_speaker') or
-               device['type'].endswith('yandex.module')
-        ]
-
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     async def load_speakers(self) -> list:
         speakers = self.speakers
 
@@ -170,7 +149,6 @@ class YandexQuasar:
                 'type': 'scenario.trigger.voice',
                 'value': name[3:]
             }],
-<<<<<<< HEAD
             'steps': [{
                 'type': 'scenarios.steps.actions',
                 'parameters': {
@@ -186,18 +164,6 @@ class YandexQuasar:
                         }]
                     }]
                 }
-=======
-            'requested_speaker_capabilities': [],
-            'devices': [{
-                'id': device_id,
-                'capabilities': [{
-                    'type': 'devices.capabilities.quasar.server_action',
-                    'state': {
-                        'instance': 'phrase_action',
-                        'value': 'пустышка'
-                    }
-                }]
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             }]
         }
         r = await self.session.post(f"{URL_USER}/scenarios", json=payload)
@@ -226,7 +192,6 @@ class YandexQuasar:
                 'type': 'scenario.trigger.voice',
                 'value': name
             }],
-<<<<<<< HEAD
             'steps': [{
                 'type': 'scenarios.steps.actions',
                 'parameters': {
@@ -243,19 +208,6 @@ class YandexQuasar:
                         }]
                     }]
                 }
-=======
-            'requested_speaker_capabilities': speaker,
-            'devices': [{
-                'id': self.hass_id,
-                'capabilities': [{
-                    'type': 'devices.capabilities.range',
-                    'state': {
-                        'instance': 'volume',
-                        'relative': False,
-                        'value': num
-                    }
-                }]
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             }]
         }
         r = await self.session.post(f"{URL_USER}/scenarios", json=payload)
@@ -263,7 +215,6 @@ class YandexQuasar:
         assert resp['status'] == 'ok', resp
 
     async def send(self, device: dict, text: str, is_tts: bool = False):
-<<<<<<< HEAD
         """Запускает сценарий на выполнение команды или TTS."""
         # skip send for yandex modules
         if "scenario_id" not in device:
@@ -272,15 +223,6 @@ class YandexQuasar:
 
         action = 'phrase_action' if is_tts else 'text_action'
         name = encode(device['id'])
-=======
-        """Запускает сценарий на выполнение команды или TTS.
-        """
-        device_id = device['id']
-        _LOGGER.debug(f"{device['name']} => cloud | {text}")
-
-        action = 'phrase_action' if is_tts else 'text_action'
-        name = encode(device_id)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         payload = {
             'name': name,
             'icon': 'home',
@@ -288,7 +230,6 @@ class YandexQuasar:
                 'type': 'scenario.trigger.voice',
                 'value': name[3:]
             }],
-<<<<<<< HEAD
             'steps': [{
                 'type': 'scenarios.steps.actions',
                 'parameters': {
@@ -304,18 +245,6 @@ class YandexQuasar:
                         }]
                     }]
                 }
-=======
-            'requested_speaker_capabilities': [],
-            'devices': [{
-                'id': device_id,
-                'capabilities': [{
-                    'type': 'devices.capabilities.quasar.server_action',
-                    'state': {
-                        'instance': action,
-                        'value': text
-                    }
-                }]
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             }]
         }
 
@@ -396,7 +325,6 @@ class YandexQuasar:
         assert resp['status'] == 'ok', resp
 
     async def update_online_stats(self):
-<<<<<<< HEAD
         if not self.online_updated.is_set():
             await self.online_updated.wait()
             return
@@ -422,27 +350,6 @@ class YandexQuasar:
                     continue
                 device["online"] = speaker["online"]
                 break
-=======
-        if time.time() < self.online_update_ts:
-            return
-
-        _LOGGER.debug(f"Update speakers online status")
-
-        self.online_update_ts = time.time() + 30
-
-        r = await self.session.get(
-            'https://quasar.yandex.ru/devices_online_stats')
-        resp = await r.json()
-        assert resp['status'] == 'ok', resp
-
-        for speaker in resp['items']:
-            device = next(
-                p for p in self.devices
-                if 'quasar_info' in p and
-                p['quasar_info']['device_id'] == speaker['id']
-            )
-            device['online'] = speaker['online']
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     async def _updates_connection(self, handler):
         r = await self.session.get(
@@ -457,12 +364,8 @@ class YandexQuasar:
             if msg.type != WSMsgType.TEXT:
                 break
             resp = msg.json()
-<<<<<<< HEAD
             # "ping", "update_scenario_list"
             if resp.get("operation") != "update_states":
-=======
-            if not resp.get('message'):
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 continue
             try:
                 resp = json.loads(resp['message'])
@@ -496,30 +399,16 @@ class YandexQuasar:
             await asyncio.sleep(30)
 
     def handle_updates(self, handler):
-<<<<<<< HEAD
         self.updates_task = asyncio.create_task(self._updates_loop(handler))
 
     def stop(self):
         if self.updates_task:
             self.updates_task.cancel()
-=======
-        asyncio.create_task(self._updates_loop(handler))
-
-    async def set_user_settings(self, response_sound: bool):
-        # https://iot.quasar.yandex.ru/m/user/settings
-        value = 'sound' if response_sound else 'nlg'
-        r = await self.session.post(URL_USER + '/settings', json={
-            'iot': {'response_reaction_type': value}
-        })
-        resp = await r.json()
-        assert resp['status'] == 'ok', resp
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     async def set_account_config(self, key: str, value):
         kv = ACCOUNT_CONFIG.get(key)
         assert kv and value in kv['values'], f"{key}={value}"
 
-<<<<<<< HEAD
         if kv.get("api") == "user/settings":
             # https://iot.quasar.yandex.ru/m/user/settings
             r = await self.session.post(URL_USER + "/settings", json={
@@ -540,23 +429,6 @@ class YandexQuasar:
                 'https://quasar.yandex.ru/set_account_config', json=payload
             )
 
-=======
-        if kv['key'] == 'user/settings':
-            return await self.set_user_settings(kv['values'][value])
-
-        r = await self.session.get(
-            'https://quasar.yandex.ru/get_account_config'
-        )
-        resp = await r.json()
-        assert resp['status'] == 'ok', resp
-
-        payload = resp['config']
-        payload[kv['key']] = kv['values'][value]
-
-        r = await self.session.post(
-            'https://quasar.yandex.ru/set_account_config', json=payload
-        )
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         resp = await r.json()
         assert resp['status'] == 'ok', resp
 
@@ -564,7 +436,6 @@ class YandexQuasar:
 BOOL_CONFIG = {'да': True, 'нет': False}
 ACCOUNT_CONFIG = {
     'без лишних слов': {
-<<<<<<< HEAD
         'api': 'user/settings',
         'key': 'iot',
         'values': {
@@ -595,29 +466,6 @@ ACCOUNT_CONFIG = {
     },
     'взрослый голос': {
         'key': 'contentAccess',  # /get_account_config
-=======
-        'key': 'user/settings',
-        'values': BOOL_CONFIG
-    },
-    'звук активации': {
-        'key': 'jingle',
-        'values': BOOL_CONFIG
-    },
-    'одним устройством': {
-        'key': 'smartActivation',
-        'values': BOOL_CONFIG
-    },
-    'понимать детей': {
-        'key': 'useBiometryChildScoring',
-        'values': BOOL_CONFIG
-    },
-    'рассказывать о навыках': {
-        'key': 'aliceProactivity',
-        'values': BOOL_CONFIG
-    },
-    'взрослый голос': {
-        'key': 'contentAccess',
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         'values': {
             'умеренный': 'medium',
             'семейный': 'children',
@@ -626,22 +474,14 @@ ACCOUNT_CONFIG = {
         }
     },
     'детский голос': {
-<<<<<<< HEAD
         'key': 'childContentAccess',  # /get_account_config
-=======
-        'key': 'childContentAccess',
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         'values': {
             'безопасный': 'safe',
             'семейный': 'children',
         }
     },
     'имя': {
-<<<<<<< HEAD
         'key': 'spotter',  # /get_account_config
-=======
-        'key': 'spotter',
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         'values': {
             'алиса': 'alisa',
             'яндекс': 'yandex',

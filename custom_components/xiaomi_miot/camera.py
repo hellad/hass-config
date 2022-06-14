@@ -6,10 +6,6 @@ import locale
 import base64
 import requests
 import re
-<<<<<<< HEAD
-import collections
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from os import urandom
 from functools import partial
 from urllib.parse import urlencode
@@ -61,17 +57,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
-<<<<<<< HEAD
-    config['hass'] = hass
-    model = str(config.get(CONF_MODEL) or '')
-    entities = []
-    if miot := config.get('miot_type'):
-=======
     model = str(config.get(CONF_MODEL) or '')
     entities = []
     miot = config.get('miot_type')
     if miot:
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         spec = await MiotSpec.async_from_type(hass, miot)
         svs = spec.get_services(ENTITY_DOMAIN, 'camera_control', 'video_doorbell')
         if not svs and spec.name in ['video_doorbell'] and spec.services:
@@ -95,10 +84,6 @@ class BaseCameraEntity(Camera):
 
     def __init__(self, hass: HomeAssistant):
         super().__init__()
-<<<<<<< HEAD
-        self.access_tokens = collections.deque(self.access_tokens, 12 * 2)
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         self._manager = hass.data.get(DATA_FFMPEG)
         # http://ffmpeg.org/ffmpeg-all.html
         self._ffmpeg_options = ''
@@ -243,11 +228,7 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
                 self._subs[pnm].update()
             elif add_switches:
                 self._subs[pnm] = MiotSwitchSubEntity(self, self._prop_power)
-<<<<<<< HEAD
-                add_switches([self._subs[pnm]], update_before_add=True)
-=======
                 add_switches([self._subs[pnm]])
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         self._motion_enable = self.custom_config_bool('use_motion_stream', self._use_motion_stream)
         add_cameras = self._add_entities.get(ENTITY_DOMAIN)
@@ -256,11 +237,7 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
                 and self.custom_config_bool('sub_motion_stream', self._sub_motion_stream):
             self._motion_entity = MotionCameraEntity(self, self.hass)
             self._subs['motion_event'] = self._motion_entity
-<<<<<<< HEAD
-            add_cameras([self._motion_entity], update_before_add=True)
-=======
             add_cameras([self._motion_entity])
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         adt = None
         lag = locale.getdefaultlocale()[0]
@@ -295,11 +272,7 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
                     'motion_video_latest': fst,
                 }
             else:
-<<<<<<< HEAD
-                _LOGGER.warning('%s: camera alarm playlist is empty. %s', self.name_model, rdt)
-=======
                 _LOGGER.warning('%s: camera alarm playlist is empty. %s', self.name, rdt)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         else:
             api = mic.get_api_by_host('business.smartcamera.api.io.mi.com', 'common/app/get/eventlist')
             rqd = {
@@ -326,21 +299,12 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
                     'motion_video_latest': fst,
                 }
             else:
-<<<<<<< HEAD
-                _LOGGER.warning('%s: camera events is empty. %s', self.name_model, rdt)
-        if adt:
-            self._supported_features |= SUPPORT_STREAM
-            await self.async_update_attrs(adt)
-            if self._motion_enable:
-                await self.async_update_attrs(self.motion_event_attributes)
-=======
                 _LOGGER.warning('%s: camera events is empty. %s', self.name, rdt)
         if adt:
             self._supported_features |= SUPPORT_STREAM
             self.update_attrs(adt)
             if self._motion_enable:
                 self.update_attrs(self.motion_event_attributes)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             if self._motion_entity:
                 await self.hass.async_add_executor_job(self._motion_entity.update)
 
@@ -373,11 +337,7 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
         now = time.time()
         if now >= self._url_expiration:
             self._last_url = None
-<<<<<<< HEAD
-            _LOGGER.debug('%s: camera stream: %s expired: %s', self.name_model, self._last_url, self._url_expiration)
-=======
             _LOGGER.debug('%s: camera stream: %s expired: %s', self.name, self._last_url, self._url_expiration)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         result = {}
         if not self._act_start_stream:
             self.update_attrs({
@@ -403,21 +363,12 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
                     ) or {}
                     updater = 'cloud'
                 if isinstance(result, dict):
-<<<<<<< HEAD
-                    _LOGGER.debug('%s: Get miot camera stream from %s: %s', self.name_model, updater, result)
-                else:
-                    _LOGGER.warning('%s: Get miot camera stream error from %s: %s', self.name_model, updater, result)
-                    result = {}
-            except MiCloudException as exc:
-                _LOGGER.error('%s: Get miot camera stream from %s failed: %s', self.name_model, updater, exc)
-=======
                     _LOGGER.debug('%s: Get miot camera stream from %s: %s', self.name, updater, result)
                 else:
                     _LOGGER.warning('%s: Get miot camera stream error from %s: %s', self.name, updater, result)
                     result = {}
             except MiCloudException as exc:
                 _LOGGER.error('%s: Get miot camera stream from %s failed: %s', self.name, updater, exc)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             odt = self._act_start_stream.out_results(result.get('out')) or {
                 'stream_address': '',
             }
@@ -436,13 +387,8 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
                     self._schedule_stream_refresh()
             odt['expire_at'] = f'{datetime.fromtimestamp(self._url_expiration)}'
             self.update_attrs(odt)
-<<<<<<< HEAD
-        self._attr_is_streaming = self._last_url and True
-        if self._attr_is_streaming:
-=======
         self.is_streaming = self._last_url and True
         if self.is_streaming:
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             self.update_attrs({
                 'miot_error': None,
             })
@@ -508,11 +454,7 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
         pms = mic.rc4_params('GET', api, {'data': mic.json_encode(pms)})
         pms['yetAnotherServiceToken'] = mic.service_token
         url = f'{api}?{urlencode(pms)}'
-<<<<<<< HEAD
-        _LOGGER.debug('%s: Got stream url: %s', self.name_model, url)
-=======
         _LOGGER.debug('%s: Got stream url: %s', self.name, url)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return url
 
     def get_motion_video_address(self, **kwargs):
@@ -536,11 +478,7 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
         pms = mic.rc4_params('GET', api, {'data': mic.json_encode(dat)})
         pms['yetAnotherServiceToken'] = mic.service_token
         url = f'{api}?{urlencode(pms)}'
-<<<<<<< HEAD
-        _LOGGER.debug('%s: Got video url: %s', self.name_model, url)
-=======
         _LOGGER.debug('%s: Got video url: %s', self.name, url)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         if kwargs.get('debug'):
             req = requests.get(url)
@@ -548,11 +486,7 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
                 try:
                     signed_nonce = mic.signed_nonce(pms['_nonce'])
                     rdt = json.loads(MiotCloud.decrypt_data(signed_nonce, req.text).decode())
-<<<<<<< HEAD
-                    _LOGGER.info('%s: video stream content: %s', self.name_model, rdt)
-=======
                     _LOGGER.info('%s: video stream content: %s', self.name, rdt)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 except (TypeError, ValueError):
                     pass
         if kwargs.get('crypto'):
@@ -567,11 +501,7 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
             return None
         req = requests.get(url)
         if float(req.headers.get('x-xiaomi-status-code', 200)) >= 400:
-<<<<<<< HEAD
-            _LOGGER.warning('%s: camera motion stream with a failed http code: %s', self.name_model, req)
-=======
             _LOGGER.warning('%s: camera motion stream with a failed http code: %s', self.name, req)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             return url
         aes_key = None
         aes__iv = None
@@ -585,11 +515,7 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
             req = requests.get(aes_key)
             key = req.content.hex()
             mp4 = f'-decryption_key {key} -decryption_iv {aes__iv} -i "crypto+{mp4}"'
-<<<<<<< HEAD
-            _LOGGER.debug('%s: Got video url: %s', self.name_model, mp4)
-=======
             _LOGGER.debug('%s: Got video url: %s', self.name, mp4)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return mp4
 
     def get_motion_image_address(self, **kwargs):
@@ -613,11 +539,7 @@ class MiotCameraEntity(MiotToggleEntity, BaseCameraEntity):
         pms = mic.rc4_params('GET', api, {'data': mic.json_encode(dat)})
         pms['yetAnotherServiceToken'] = mic.service_token
         url = f'{api}?{urlencode(pms)}'
-<<<<<<< HEAD
-        _LOGGER.debug('%s: Got image url: %s', self.name_model, url)
-=======
         _LOGGER.debug('%s: Got image url: %s', self.name, url)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         if kwargs.get('crypto'):
             key = base64.b64decode(mic.ssecurity).hex()

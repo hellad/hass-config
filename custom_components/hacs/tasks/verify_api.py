@@ -19,11 +19,5 @@ class Task(HacsTask):
     stages = [HacsStage.SETUP]
 
     async def async_execute(self) -> None:
-<<<<<<< HEAD
-        """Execute the task."""
-        can_update = await self.hacs.async_can_update()
-        self.task_logger(self.hacs.log.debug, f"Can update {can_update} repositories")
-=======
         can_update = await self.hacs.async_can_update()
         self.log.debug("Can update %s repositories", can_update)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1

@@ -38,17 +38,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
-<<<<<<< HEAD
-    config['hass'] = hass
-    model = str(config.get(CONF_MODEL) or '')
-    entities = []
-    if miot := config.get('miot_type'):
-=======
     model = str(config.get(CONF_MODEL) or '')
     entities = []
     miot = config.get('miot_type')
     if miot:
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         spec = await MiotSpec.async_from_type(hass, miot)
         for srv in spec.get_services('ir_aircondition_control'):
             if not srv.actions:
@@ -145,10 +138,7 @@ class MiotActionSelectSubEntity(MiotSelectSubEntity):
 
     def update(self, data=None):
         self._available = True
-<<<<<<< HEAD
-=======
         time.sleep(0.2)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         self._attr_current_option = None
 
     def select_option(self, option):

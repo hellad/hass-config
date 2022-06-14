@@ -3,10 +3,7 @@ from __future__ import annotations
 
 from asyncio import TimeoutError
 from dataclasses import dataclass
-<<<<<<< HEAD
 from datetime import datetime, timedelta
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from http import HTTPStatus
 import json
 import logging
@@ -21,7 +18,6 @@ from aiohttp import (
     WSMsgType,
 )
 from homeassistant.config_entries import ConfigEntry
-<<<<<<< HEAD
 from homeassistant.core import HassJob, HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.event import async_call_later
@@ -30,15 +26,6 @@ from homeassistant.util import dt
 
 from . import const
 from .const import CLOUD_BASE_URL, CONFIG, DOMAIN
-=======
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.aiohttp_client import async_create_clientsession
-from homeassistant.helpers.event import async_call_later
-from homeassistant.helpers.json import JSONEncoder
-
-from . import const
-from .const import CONFIG, DOMAIN
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from .helpers import Config, RequestData
 from .smart_home import async_handle_message
 
@@ -46,13 +33,9 @@ _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_RECONNECTION_DELAY = 2
 MAX_RECONNECTION_DELAY = 180
-<<<<<<< HEAD
 FAST_RECONNECTION_TIME = timedelta(seconds=6)
 FAST_RECONNECTION_THRESHOLD = 5
 BASE_API_URL = f'{CLOUD_BASE_URL}/api/home_assistant/v1'
-=======
-BASE_API_URL = 'https://yaha-cloud.ru/api/home_assistant/v1'
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 @dataclass
@@ -71,12 +54,8 @@ class CloudRequest:
     @classmethod
     def from_dict(cls, data: dict[str, Any]):
         if 'message' in data:
-<<<<<<< HEAD
             if isinstance(data['message'], str):
                 data['message'] = json.loads(data['message'])
-=======
-            data['message'] = json.loads(data['message'])
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         else:
             data['message'] = {}
 
@@ -90,11 +69,8 @@ class CloudManager:
         self._token = config.cloud_connection_token
         self._user_id = config.user_id
         self._session = session
-<<<<<<< HEAD
         self._last_connection_at: datetime | None = None
         self._fast_reconnection_count = 0
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         self._ws: ClientWebSocketResponse | None = None
         self._ws_reconnect_delay = DEFAULT_RECONNECTION_DELAY
         self._ws_active = True
@@ -108,20 +84,13 @@ class CloudManager:
         # noinspection PyBroadException
         try:
             _LOGGER.debug(f'Connecting to {self._url}')
-<<<<<<< HEAD
             self._ws = await self._session.ws_connect(self._url, heartbeat=45, compress=15, headers={
-=======
-            self._ws = await self._session.ws_connect(self._url, heartbeat=45, headers={
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 'Authorization': f'Bearer {self._token}'
             })
 
             _LOGGER.debug('Connection to Yandex Smart Home cloud established')
             self._ws_reconnect_delay = DEFAULT_RECONNECTION_DELAY
-<<<<<<< HEAD
             self._last_connection_at = dt.utcnow()
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
             async for msg in self._ws:  # type: WSMessage
                 if msg.type == WSMsgType.TEXT:
@@ -162,7 +131,6 @@ class CloudManager:
 
     def _try_reconnect(self):
         self._ws_reconnect_delay = min(2 * self._ws_reconnect_delay, MAX_RECONNECTION_DELAY)
-<<<<<<< HEAD
 
         if self._last_connection_at and self._last_connection_at + FAST_RECONNECTION_TIME > dt.utcnow():
             self._fast_reconnection_count += 1
@@ -175,10 +143,6 @@ class CloudManager:
 
         _LOGGER.debug(f'Trying to reconnect in {self._ws_reconnect_delay} seconds')
         async_call_later(self._hass, self._ws_reconnect_delay, HassJob(self.connect))
-=======
-        _LOGGER.debug(f'Trying to reconnect in {self._ws_reconnect_delay} seconds')
-        async_call_later(self._hass, self._ws_reconnect_delay, self.connect)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 async def register_cloud_instance(hass: HomeAssistant) -> CloudInstanceData:

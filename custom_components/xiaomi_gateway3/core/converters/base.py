@@ -17,9 +17,9 @@ def parse_time(value: str) -> float:
     return float(value[:-1]) * TIME[value[-1]]
 
 
-################################################################################
+###############################################################################
 # Base (global) converters
-################################################################################
+###############################################################################
 
 @dataclass
 class Converter:
@@ -187,9 +187,9 @@ class ButtonMIConv(ButtonConv):
         super().decode(device, payload, self.value)
 
 
-################################################################################
+###############################################################################
 # Device converters
-################################################################################
+###############################################################################
 
 class VibrationConv(Converter):
     def decode(self, device: "XDevice", payload: dict, value: int):
@@ -332,7 +332,7 @@ class ParentConv(Converter):
             # value in did format
             device: "XDevice" = device.gateways[0].devices[value]
             payload[self.attr] = device.nwk
-        except:
+        except Exception:
             payload[self.attr] = "-"
 
 
@@ -344,18 +344,23 @@ class OTAConv(Converter):
         try:
             # noinspection PyUnresolvedReferences
             device.gateways[0].device.update(payload)
-        except:
+        except Exception:
             pass
 
 
 class OnlineConv(Converter):
     def decode(self, device: "XDevice", payload: dict, value: dict):
-        payload[self.attr] = value["status"] == "online"
-
         dt = value["time"]
-        device.available = dt < device.available_timeout
-        device.decode_ts = time.time() - dt
+        new_ts = time.time() - dt
+        # if the device will be on two gateways (by accident), the online time
+        # from "wrong" gateway could be wrong
+        if new_ts < device.decode_ts:
+            return
 
+        device.available = dt < device.available_timeout
+        device.decode_ts = new_ts
+
+        payload[self.attr] = value["status"] == "online"
         payload["zigbee"] = datetime.now(timezone.utc) - timedelta(seconds=dt)
 
 
@@ -369,9 +374,9 @@ class RemoveDIDConv(Converter):
         super().decode(device, payload, value)
 
 
-################################################################################
+###############################################################################
 # Final converter classes
-################################################################################
+###############################################################################
 
 # https://github.com/Koenkk/zigbee2mqtt/issues/798
 # https://www.maero.dk/aqara-temperature-humidity-pressure-sensor-teardown/

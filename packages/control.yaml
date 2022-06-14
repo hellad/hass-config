@@ -1,5 +1,5 @@
-<<<<<<< HEAD
 #control:
+# attempt to create switch for automations and quick turn them all off?
 
     binary_sensor:
     
@@ -34,41 +34,4 @@
                 mdi:server
               {% else %}
                 mdi:server-off
-=======
-#control:
-
-    binary_sensor:
-    
-      - platform: mqtt
-        name: control
-        state_topic: "states/contol"
-        payload_on: "ON"
-        payload_off: "OFF"
-        
-        
-    switch:
-    
-      - platform: template
-        switches:
-          control_mode:
-            friendly_name: "Режим управления"
-            value_template: "{{  is_state('binary_sensor.control', 'on') }}"
-            turn_on:
-              service: mqtt.publish
-              data_template:
-                topic: "states/contol"
-                payload_template: 'ON'
-                retain: true 
-            turn_off:
-              service: mqtt.publish
-              data_template:
-                topic: "states/contol"
-                payload_template: 'OFF'
-                retain: true 
-            icon_template: >-
-              {% if is_state('switch.control_mode', 'on') %}
-                mdi:server
-              {% else %}
-                mdi:server-off
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
               {% endif %}

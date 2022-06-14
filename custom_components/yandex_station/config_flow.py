@@ -19,20 +19,8 @@ from .core.yandex_session import YandexSession, LoginResponse
 
 _LOGGER = logging.getLogger(__name__)
 
-<<<<<<< HEAD
 
 # noinspection PyUnusedLocal
-=======
-AUTH_SCHEMA = vol.Schema({
-    vol.Required('username'): str,
-    vol.Required('password'): str,
-})
-CAPTCHA_SCHEMA = vol.Schema({
-    vol.Required('captcha_answer'): str,
-})
-
-
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 class YandexStationFlowHandler(ConfigFlow, domain=DOMAIN):
     @property
     @lru_cache()
@@ -59,15 +47,10 @@ class YandexStationFlowHandler(ConfigFlow, domain=DOMAIN):
             return self.async_show_form(
                 step_id='user',
                 data_schema=vol.Schema({
-<<<<<<< HEAD
                     vol.Required('method', default='qr'): vol.In({
                         'qr': "QR-код",
                         'auth': "Пароль или одноразовый ключ",
                         'email': "Ссылка на E-mail",
-=======
-                    vol.Required('method', default='auth'): vol.In({
-                        'auth': "Логин, пароль или одноразовый ключ",
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                         'cookies': "Cookies",
                         'token': "Токен"
                     })
@@ -75,7 +58,6 @@ class YandexStationFlowHandler(ConfigFlow, domain=DOMAIN):
             )
 
         method = user_input['method']
-<<<<<<< HEAD
         if method == "qr":
             return self.async_show_form(
                 step_id="qr", description_placeholders={
@@ -138,23 +120,6 @@ class YandexStationFlowHandler(ConfigFlow, domain=DOMAIN):
             self.cur_step["errors"] = {"base": "unauthorised"}
             return self.cur_step
 
-=======
-        if method == 'auth':
-            return self.async_show_form(
-                step_id=method, data_schema=AUTH_SCHEMA
-            )
-        else:  # cookies, token
-            return self.async_show_form(
-                step_id=method, data_schema=vol.Schema({
-                    vol.Required(method): str,
-                })
-            )
-
-    async def async_step_auth(self, user_input):
-        """User submited username and password. Or YAML error."""
-        resp = await self.yandex.login_username(user_input['username'],
-                                                user_input['password'])
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return await self._check_yandex_response(resp)
 
     async def async_step_cookies(self, user_input):
@@ -165,7 +130,6 @@ class YandexStationFlowHandler(ConfigFlow, domain=DOMAIN):
         resp = await self.yandex.validate_token(user_input['token'])
         return await self._check_yandex_response(resp)
 
-<<<<<<< HEAD
     async def async_step_captcha(self, user_input):
         """User submited captcha. Or YAML error."""
         if user_input is None:
@@ -185,19 +149,6 @@ class YandexStationFlowHandler(ConfigFlow, domain=DOMAIN):
         resp = await self.yandex.login_password(user_input['password'])
         return await self._check_yandex_response(resp)
 
-=======
-    async def async_step_capcha(self, user_input):
-        """User submited capcha. Or YAML error."""
-        if user_input is None:
-            return self.cur_step
-
-        resp = await self.yandex.login_captcha(user_input['captcha_answer'])
-        return await self._check_yandex_response(resp)
-
-    async def async_step_external(self, user_input):
-        return await self.async_step_auth(user_input)
-
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     async def _check_yandex_response(self, resp: LoginResponse):
         """Check Yandex response. Do not create entry for the same login. Show
         captcha form if captcha required. Show auth form with error if error.
@@ -208,19 +159,13 @@ class YandexStationFlowHandler(ConfigFlow, domain=DOMAIN):
             if entry:
                 # update existing entry with same login
                 self.hass.config_entries.async_update_entry(
-<<<<<<< HEAD
                     entry, data={'x_token': resp.x_token}
-=======
-                    entry,
-                    data={'x_token': resp.x_token}
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 )
                 return self.async_abort(reason='account_updated')
 
             else:
                 # create new entry for new login
                 return self.async_create_entry(
-<<<<<<< HEAD
                     title=resp.display_login, data={'x_token': resp.x_token}
                 )
 
@@ -240,36 +185,5 @@ class YandexStationFlowHandler(ConfigFlow, domain=DOMAIN):
             _LOGGER.debug(f"Config error: {resp.error}")
             self.cur_step["errors"] = {'base': resp.error}
             return self.cur_step
-=======
-                    title=resp.display_login,
-                    data={'x_token': resp.x_token})
-
-        elif resp.captcha_image_url:
-            _LOGGER.debug(f"Captcha required: {resp.captcha_image_url}")
-            return self.async_show_form(
-                step_id='capcha',
-                data_schema=CAPTCHA_SCHEMA,
-                description_placeholders={
-                    'captcha_image_url': resp.captcha_image_url
-                }
-            )
-
-        elif resp.external_url:
-            return self.async_show_form(
-                step_id='external',
-                data_schema=AUTH_SCHEMA,
-                description_placeholders={
-                    'external_url': resp.external_url
-                }
-            )
-
-        elif resp.error:
-            _LOGGER.debug(f"Config error: {resp.error}")
-            return self.async_show_form(
-                step_id='auth',
-                data_schema=AUTH_SCHEMA,
-                errors={'base': resp.error}
-            )
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         raise NotImplemented

@@ -10,7 +10,6 @@ from typing import Any
 
 from aiohttp import ContentTypeError
 from aiohttp.client_exceptions import ClientConnectionError
-<<<<<<< HEAD
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     EVENT_HOMEASSISTANT_STARTED,
@@ -18,16 +17,12 @@ from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
 )
-=======
-from homeassistant.const import ATTR_ENTITY_ID, EVENT_STATE_CHANGED, STATE_UNAVAILABLE, STATE_UNKNOWN
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from homeassistant.core import CALLBACK_TYPE, Event, HassJob, HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.event import async_call_later
 
 from . import const
-<<<<<<< HEAD
 from .const import (
     CONF_NOTIFIER_OAUTH_TOKEN,
     CONF_NOTIFIER_SKILL_ID,
@@ -38,20 +33,12 @@ from .const import (
     NOTIFIERS,
 )
 from .entity import YandexEntity, YandexEntityCallbackState
-=======
-from .const import CONF_NOTIFIER_OAUTH_TOKEN, CONF_NOTIFIER_SKILL_ID, CONF_NOTIFIER_USER_ID, CONFIG, DOMAIN, NOTIFIERS
-from .entity import YandexEntity
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from .helpers import Config
 
 _LOGGER = logging.getLogger(__name__)
 
-<<<<<<< HEAD
 DISCOVERY_REQUEST_DELAY = 15
 DISCOVERY_REQUEST_DELAY_ON_CONFIG_RELOAD = 5
-=======
-DISCOVERY_REQUEST_DELAY = 10
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 REPORT_STATE_WINDOW = 1
 
 
@@ -65,12 +52,8 @@ class YandexNotifier(ABC):
         self._session = async_create_clientsession(hass)
 
         self._unsub_pending: CALLBACK_TYPE | None = None
-<<<<<<< HEAD
         self._unsub_send_discovery: CALLBACK_TYPE | None = None
         self._pending: deque[YandexEntityCallbackState] = deque()
-=======
-        self._pending = deque()
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         self._report_states_job = HassJob(self._report_states)
 
     @property
@@ -123,7 +106,6 @@ class YandexNotifier(ABC):
 
     async def _report_states(self, *_):
         devices = {}
-<<<<<<< HEAD
         attrs = ['properties', 'capabilities']
 
         while len(self._pending):
@@ -135,12 +117,6 @@ class YandexNotifier(ABC):
             )
             for attr in attrs:
                 devices[state.device_id][attr][:0] = getattr(state, attr)
-=======
-
-        while len(self._pending):
-            device = self._pending.popleft()
-            devices[device['id']] = device
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         await self.async_send_state(list(devices.values()))
 
@@ -152,23 +128,16 @@ class YandexNotifier(ABC):
     async def async_send_state(self, devices: list):
         await self._async_send_callback(f'{self._base_url}/state', {'devices': devices})
 
-<<<<<<< HEAD
     async def async_send_discovery(self, _=None):
-=======
-    async def async_send_discovery(self, _):
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if not self._ready:
             return
 
         _LOGGER.debug(self._format_log_message('Device list update initiated'))
         await self._async_send_callback(f'{self._base_url}/discovery', {})
 
-<<<<<<< HEAD
     async def async_schedule_discovery(self, delay: int):
         self._unsub_send_discovery = async_call_later(self._hass, delay, HassJob(self.async_send_discovery))
 
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     # noinspection PyBroadException
     async def _async_send_callback(self, url: str, payload: dict[str, Any]):
         if self._session.closed:
@@ -193,8 +162,10 @@ class YandexNotifier(ABC):
                 _LOGGER.warning(
                     self._format_log_message(f'Failed to send state notification: [{r.status}] {error_message}')
                 )
-        except (ClientConnectionError, asyncio.TimeoutError) as e:
+        except ClientConnectionError as e:
             _LOGGER.warning(self._format_log_message(f'Failed to send state notification: {e!r}'))
+        except asyncio.TimeoutError as e:
+            _LOGGER.debug(self._format_log_message(f'Failed to send state notification: {e!r}'))
         except Exception:
             _LOGGER.exception(self._format_log_message('Failed to send state notification'))
 
@@ -211,19 +182,11 @@ class YandexNotifier(ABC):
         if not new_state or new_state.state in [STATE_UNAVAILABLE, STATE_UNKNOWN, None]:
             return
 
-<<<<<<< HEAD
         reportable_entity_ids = {event_entity_id}
         if event_entity_id in self._property_entities.keys():
             reportable_entity_ids.update(self._property_entities.get(event_entity_id, {}))
 
         for entity_id in sorted(reportable_entity_ids):
-=======
-        reportable_entity_ids = [event_entity_id]
-        if event_entity_id in self._property_entities.keys():
-            reportable_entity_ids.extend(list(self._property_entities.get(event_entity_id, {})))
-
-        for entity_id in reportable_entity_ids:
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             state = new_state
             if entity_id != event_entity_id:
                 state = self._hass.states.get(entity_id)
@@ -231,7 +194,6 @@ class YandexNotifier(ABC):
                     continue
 
             yandex_entity = YandexEntity(self._hass, self._config, state)
-<<<<<<< HEAD
             if not yandex_entity.should_expose:
                 continue
 
@@ -243,19 +205,6 @@ class YandexNotifier(ABC):
                 )
 
             if callback_state.should_report:
-=======
-
-            if not yandex_entity.should_expose:
-                continue
-
-            device = yandex_entity.notification_serialize(event_entity_id)
-            if entity_id == event_entity_id:
-                old_yandex_entity = YandexEntity(self._hass, self._config, old_state)
-                if old_yandex_entity.notification_serialize(event_entity_id) == device:
-                    continue
-
-            if device.get('capabilities') or device.get('properties'):
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 entity_text = entity_id
                 if entity_id != event_entity_id:
                     entity_text = f'{entity_text} => {event_entity_id}'
@@ -263,7 +212,6 @@ class YandexNotifier(ABC):
                 _LOGGER.debug(self._format_log_message(
                     f'Scheduling report state to Yandex for {entity_text}: {new_state.state}'
                 ))
-<<<<<<< HEAD
                 self._pending.append(callback_state)
 
                 if self._unsub_pending is None:
@@ -273,12 +221,6 @@ class YandexNotifier(ABC):
     async def async_unload(self):
         if self._unsub_send_discovery:
             self._unsub_send_discovery()
-=======
-                self._pending.append(device)
-
-                if self._unsub_pending is None:
-                    self._unsub_pending = async_call_later(self._hass, REPORT_STATE_WINDOW, self._report_states_job)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 class YandexDirectNotifier(YandexNotifier):
@@ -319,7 +261,6 @@ class YandexCloudNotifier(YandexNotifier):
 @callback
 def async_setup_notifier(hass: HomeAssistant):
     """Set up notifiers."""
-<<<<<<< HEAD
     async def _state_change_listener(event: Event):
         await asyncio.gather(*[n.async_event_handler(event) for n in hass.data[DOMAIN][NOTIFIERS]])
 
@@ -334,12 +275,6 @@ def async_setup_notifier(hass: HomeAssistant):
 
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STARTED, _schedule_discovery_listener)
     hass.bus.async_listen(EVENT_CONFIG_CHANGED, _schedule_discovery_listener)
-=======
-    async def state_change_listener(event: Event):
-        await asyncio.gather(*[n.async_event_handler(event) for n in hass.data[DOMAIN][NOTIFIERS]])
-
-    hass.bus.async_listen(EVENT_STATE_CHANGED, state_change_listener)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 async def async_start_notifier(hass: HomeAssistant):
@@ -357,17 +292,12 @@ async def async_start_notifier(hass: HomeAssistant):
                     conf[CONF_NOTIFIER_SKILL_ID],
                 )
                 await notifier.async_validate_config()
-<<<<<<< HEAD
-=======
-                async_call_later(hass, DISCOVERY_REQUEST_DELAY, notifier.async_send_discovery)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
                 hass.data[DOMAIN][NOTIFIERS].append(notifier)
             except Exception as exc:
                 raise ConfigEntryNotReady from exc
 
     if config.is_cloud_connection:
-<<<<<<< HEAD
         hass.data[DOMAIN][NOTIFIERS].append(
             YandexCloudNotifier(hass, config.cloud_instance_id, config.cloud_connection_token)
         )
@@ -376,14 +306,4 @@ async def async_start_notifier(hass: HomeAssistant):
 async def async_unload_notifier(hass: HomeAssistant):
     await asyncio.gather(*[notifier.async_unload() for notifier in hass.data[DOMAIN][NOTIFIERS]])
 
-=======
-        notifier = YandexCloudNotifier(hass, config.cloud_instance_id, config.cloud_connection_token)
-        async_call_later(hass, DISCOVERY_REQUEST_DELAY, notifier.async_send_discovery)
-
-        hass.data[DOMAIN][NOTIFIERS].append(notifier)
-
-
-@callback
-def async_unload_notifier(hass: HomeAssistant):
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     hass.data[DOMAIN][NOTIFIERS]: list[YandexNotifier] = []

@@ -215,11 +215,7 @@ class ClimateGroup(ClimateEntity):
         return False
 
     @property
-<<<<<<< HEAD
     def extra_state_attributes(self):
-=======
-    def device_state_attributes(self):
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         """Return the state attributes for the climate group."""
         return {ATTR_ENTITY_ID: self._entity_ids}
 

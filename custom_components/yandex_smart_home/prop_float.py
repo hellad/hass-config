@@ -5,11 +5,7 @@ from abc import ABC
 import logging
 from typing import Any
 
-<<<<<<< HEAD
 from homeassistant.components import air_quality, climate, fan, humidifier, light, sensor, switch, water_heater
-=======
-from homeassistant.components import air_quality, climate, fan, humidifier, light, sensor, switch
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from homeassistant.const import (
     ATTR_BATTERY_LEVEL,
     ATTR_DEVICE_CLASS,
@@ -29,6 +25,7 @@ from homeassistant.const import (
     DEVICE_CLASS_PRESSURE,
     DEVICE_CLASS_TEMPERATURE,
     DEVICE_CLASS_VOLTAGE,
+    ELECTRIC_CURRENT_MILLIAMPERE,
     PERCENTAGE,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
@@ -156,15 +153,10 @@ class FloatProperty(AbstractProperty, ABC):
             )
         elif self.instance == const.FLOAT_INSTANCE_TVOC:
             return round(float_value * TVOC_CONCENTRATION_TO_MCG_M3.get(from_unit, 1), 2)
-<<<<<<< HEAD
-        elif self.instance == const.FLOAT_INSTANCE_AMPERAGE and from_unit == const.ELECTRIC_CURRENT_MILLIAMPERE:
+        elif self.instance == const.FLOAT_INSTANCE_AMPERAGE and from_unit == ELECTRIC_CURRENT_MILLIAMPERE:
             return float_value / 1000
 
         return float_value
-=======
-
-        return value
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 @register_property
@@ -176,11 +168,7 @@ class TemperatureProperty(FloatProperty):
             return self.state.attributes.get(ATTR_DEVICE_CLASS) == DEVICE_CLASS_TEMPERATURE
         elif self.state.domain == air_quality.DOMAIN:
             return self.state.attributes.get(climate.ATTR_TEMPERATURE) is not None
-<<<<<<< HEAD
         elif self.state.domain in (climate.DOMAIN, fan.DOMAIN, humidifier.DOMAIN, water_heater.DOMAIN):
-=======
-        elif self.state.domain in (climate.DOMAIN, fan.DOMAIN, humidifier.DOMAIN):
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             return self.state.attributes.get(climate.ATTR_CURRENT_TEMPERATURE) is not None
 
         return False
@@ -190,11 +178,7 @@ class TemperatureProperty(FloatProperty):
             return self.float_value(self.state.state)
         elif self.state.domain == air_quality.DOMAIN:
             return self.float_value(self.state.attributes.get(climate.ATTR_TEMPERATURE))
-<<<<<<< HEAD
         elif self.state.domain in (climate.DOMAIN, fan.DOMAIN, humidifier.DOMAIN, water_heater.DOMAIN):
-=======
-        elif self.state.domain in (climate.DOMAIN, fan.DOMAIN, humidifier.DOMAIN):
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             return self.float_value(self.state.attributes.get(climate.ATTR_CURRENT_TEMPERATURE))
 
 
@@ -392,17 +376,11 @@ class CurrentProperty(FloatProperty):
 
     def get_value(self) -> float | None:
         if self.state.domain == sensor.DOMAIN:
-<<<<<<< HEAD
             value = self.state.state
         else:
             value = self.state.attributes.get(const.ATTR_CURRENT)
 
         return self.convert_value(value, self.state.attributes.get(ATTR_UNIT_OF_MEASUREMENT))
-=======
-            return self.float_value(self.state.state)
-
-        return self.float_value(self.state.attributes.get(const.ATTR_CURRENT))
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 
 @register_property
@@ -413,13 +391,9 @@ class PowerProperty(FloatProperty):
         if self.state.domain == sensor.DOMAIN:
             return self.state.attributes.get(ATTR_DEVICE_CLASS) == DEVICE_CLASS_POWER
         elif self.state.domain == switch.DOMAIN:
-<<<<<<< HEAD
             for attribute in [const.ATTR_POWER, const.ATTR_LOAD_POWER, const.ATTR_CURRENT_CONSUMPTION]:
                 if attribute in self.state.attributes:
                     return True
-=======
-            return const.ATTR_POWER in self.state.attributes or const.ATTR_LOAD_POWER in self.state.attributes
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         return False
 
@@ -428,16 +402,9 @@ class PowerProperty(FloatProperty):
         if self.state.domain == sensor.DOMAIN:
             value = self.state.state
         elif self.state.domain == switch.DOMAIN:
-<<<<<<< HEAD
             for attribute in [const.ATTR_POWER, const.ATTR_LOAD_POWER, const.ATTR_CURRENT_CONSUMPTION]:
                 if attribute in self.state.attributes:
                     value = self.state.attributes[attribute]
-=======
-            if const.ATTR_POWER in self.state.attributes:
-                value = self.state.attributes.get(const.ATTR_POWER)
-            elif const.ATTR_LOAD_POWER in self.state.attributes:
-                value = self.state.attributes.get(const.ATTR_LOAD_POWER)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         return self.float_value(value)
 

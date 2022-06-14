@@ -1,6 +1,8 @@
+"""Helper class for ThinQ devices"""
+
 import logging
 
-from .wideq.device import (
+from .wideq import (
     STATE_OPTIONITEM_OFF,
     STATE_OPTIONITEM_ON,
     UNIT_TEMP_CELSIUS,
@@ -8,6 +10,7 @@ from .wideq.device import (
     WM_DEVICE_TYPES,
     DeviceType,
 )
+
 from homeassistant.const import (
     STATE_ON,
     STATE_OFF,
@@ -38,10 +41,21 @@ DEVICE_ICONS = {
     DeviceType.RANGE: "mdi:stove",
 }
 
-WASH_DEVICE_TYPES = WM_DEVICE_TYPES + [
+WASH_DEVICE_TYPES = [
+    *WM_DEVICE_TYPES,
     DeviceType.DISHWASHER,
     DeviceType.STYLER,
 ]
+
+
+def get_multiple_devices_types(lge_devices: dict, dev_types: list) -> list:
+    """Return a list of devices of multiple types."""
+    return [
+        dev
+        for dev_type, devices in lge_devices.items()
+        for dev in devices
+        if dev_type in dev_types
+    ]
 
 
 def get_entity_name(device, ent_key, ent_name) -> str:
@@ -67,7 +81,6 @@ class LGEBaseDevice:
 
     @staticmethod
     def format_time(hours, minutes):
-<<<<<<< HEAD
         """Return a time in format hh:mm:ss based on input hours and minutes."""
         if not minutes:
             return "0:00:00"
@@ -75,31 +88,16 @@ class LGEBaseDevice:
         if not hours:
             int_minutes = int(minutes)
             if int_minutes >= 60:
-=======
-        if not minutes:
-            return "0:00"
-        if not hours:
-            if int(minutes) >= 60:
-                int_minutes = int(minutes)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 int_hours = int(int_minutes / 60)
                 minutes = str(int_minutes - (int_hours * 60))
                 hours = str(int_hours)
             else:
                 hours = "0"
-<<<<<<< HEAD
 
         if int(minutes) < 10:
             minutes = f"0{int(minutes)}"
         remain_time = [hours, minutes, "00"]
         return ":".join(remain_time)
-=======
-        remain_time = [hours, minutes]
-        if int(minutes) < 10:
-            return ":0".join(remain_time)
-        else:
-            return ":".join(remain_time)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def device(self):
@@ -136,25 +134,10 @@ class LGEBaseDevice:
 class LGEWashDevice(LGEBaseDevice):
     """A wrapper to monitor LGE Wash devices"""
 
-<<<<<<< HEAD
     @property
     def run_completed(self):
         if self._api.state:
             if self._api.state.is_run_completed:
-=======
-    def __init__(self, api_device):
-        """Initialize the device."""
-        super().__init__(api_device)
-        self._forced_run_completed = False
-
-    @property
-    def run_completed(self):
-        if self._api.state:
-            run_completed = self._api.state.is_run_completed
-            if self._api.was_unavailable or self._forced_run_completed:
-                self._forced_run_completed = run_completed
-            if run_completed and not self._forced_run_completed:
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 return STATE_ON
         return STATE_OFF
 
@@ -169,49 +152,28 @@ class LGEWashDevice(LGEBaseDevice):
     def initial_time(self):
         if self._api.state:
             if self._api.state.is_on:
-<<<<<<< HEAD
                 return self.format_time(
                     self._api.state.initialtime_hour, self._api.state.initialtime_min
                 )
         return self.format_time(None, None)
-=======
-                return LGEBaseDevice.format_time(
-                    self._api.state.initialtime_hour, self._api.state.initialtime_min
-                )
-        return "0:00"
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def remain_time(self):
         if self._api.state:
             if self._api.state.is_on:
-<<<<<<< HEAD
                 return self.format_time(
                     self._api.state.remaintime_hour, self._api.state.remaintime_min
                 )
         return self.format_time(None, None)
-=======
-                return LGEBaseDevice.format_time(
-                    self._api.state.remaintime_hour, self._api.state.remaintime_min
-                )
-        return "0:00"
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def reserve_time(self):
         if self._api.state:
             if self._api.state.is_on:
-<<<<<<< HEAD
                 return self.format_time(
                     self._api.state.reservetime_hour, self._api.state.reservetime_min
                 )
         return self.format_time(None, None)
-=======
-                return LGEBaseDevice.format_time(
-                    self._api.state.reservetime_hour, self._api.state.reservetime_min
-                )
-        return "0:00"
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def current_course(self):
@@ -308,25 +270,3 @@ class LGERangeDevice(LGEBaseDevice):
             unit = self._api.state.oven_temp_unit
             return TEMP_UNIT_LOOKUP.get(unit, TEMP_CELSIUS)
         return TEMP_CELSIUS
-
-
-class LGEAirPurifierDevice(LGEBaseDevice):
-    """A wrapper to monitor LGE air purifier devices"""
-
-    @property
-    def pm1(self):
-        if self._api.state:
-            return self._api.state.pm1
-        return None
-
-    @property
-    def pm25(self):
-        if self._api.state:
-            return self._api.state.pm25
-        return None
-
-    @property
-    def pm10(self):
-        if self._api.state:
-            return self._api.state.pm10
-        return None

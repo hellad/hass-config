@@ -4,7 +4,8 @@
             "single_instance_allowed": "Only a single configuration of HACS is allowed.",
             "min_ha_version": "You need at least version {version} of Home Assistant to setup HACS.",
             "github": "Could not authenticate with GitHub, try again later.",
-            "not_setup": "HACS is not setup."
+            "not_setup": "HACS is not setup.",
+            "reauth_successful": "Reauthentication was successful."
         },
         "error": {
             "auth": "Personal Access Token is not correct",
@@ -18,15 +19,14 @@
                     "acc_untested": "I know that everything inside HACS is custom and untested by Home Assistant",
                     "acc_disable": "I know that if I get issues with Home Assistant I should disable all my custom_components"
                 },
-<<<<<<< HEAD
                 "description": "Before you can setup HACS you need to acknowledge the following"
-=======
-                "description": "Before you can setup HACS you need to acknowledge the following",
-                "title": "HACS"
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             },
             "device": {
                 "title": "Waiting for device activation"
+            },
+            "reauth_confirm": {
+                "title": "Reauthentication needed",
+                "description": "You need to reauthenticate with GitHub."
             }
         },
         "progress": {

@@ -2,37 +2,26 @@
 import logging
 from typing import Optional
 
-from . import (
-<<<<<<< HEAD
+from .const import (
     FEAT_AUTODOOR,
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     FEAT_CHILDLOCK,
     FEAT_DELAYSTART,
     FEAT_DOOROPEN,
     FEAT_DUALZONE,
     FEAT_ENERGYSAVER,
     FEAT_ERROR_MSG,
-<<<<<<< HEAD
     FEAT_EXTRADRY,
     FEAT_HALFLOAD,
     FEAT_HIGHTEMP,
     FEAT_NIGHTDRY,
-=======
-    FEAT_HALFLOAD,
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     FEAT_PROCESS_STATE,
     FEAT_RINSEREFILL,
     FEAT_RUN_STATE,
     FEAT_SALTREFILL,
     FEAT_TUBCLEAN_COUNT,
-)
-
-from .device import (
-    Device,
-    DeviceStatus,
     STATE_OPTIONITEM_NONE,
 )
+from .device import Device, DeviceStatus
 
 STATE_DISHWASHER_POWER_OFF = "@DW_STATE_POWER_OFF_W"
 STATE_DISHWASHER_END = [
@@ -59,10 +48,10 @@ class DishWasherDevice(Device):
         self._status = DishWasherStatus(self, None)
         return self._status
 
-    def poll(self) -> Optional["DishWasherStatus"]:
+    async def poll(self) -> Optional["DishWasherStatus"]:
         """Poll the device's current state."""
 
-        res = self.device_poll("dishwasher")
+        res = await self.device_poll("dishwasher")
         if not res:
             return None
 
@@ -304,7 +293,6 @@ class DishWasherStatus(DeviceStatus):
             FEAT_ENERGYSAVER, status, False
         )
 
-<<<<<<< HEAD
     @property
     def autodoor_state(self):
         status = self.lookup_bit(
@@ -343,10 +331,6 @@ class DishWasherStatus(DeviceStatus):
 
     def _update_features(self):
         _ = [
-=======
-    def _update_features(self):
-        result = [
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             self.run_state,
             self.process_state,
             self.halfload_state,
@@ -354,19 +338,13 @@ class DishWasherStatus(DeviceStatus):
             self.tubclean_count,
             self.door_opened_state,
             self.childlock_state,
-<<<<<<< HEAD
             self.autodoor_state,
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             self.rinserefill_state,
             self.saltrefill_state,
             self.dualzone_state,
             self.delaystart_state,
             self.energysaver_state,
-<<<<<<< HEAD
             self.hightemp_state,
             self.extradry_state,
             self.nightdry_state,
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         ]

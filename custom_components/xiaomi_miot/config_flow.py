@@ -1,18 +1,10 @@
 """Config flow to configure Xiaomi Miot."""
 import logging
-<<<<<<< HEAD
-import requests
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.const import *
 from homeassistant.core import callback
-<<<<<<< HEAD
-from homeassistant.components import persistent_notification
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from homeassistant.helpers.device_registry import format_mac
 import homeassistant.helpers.config_validation as cv
 
@@ -26,18 +18,10 @@ from . import (
     DEFAULT_CONN_MODE,
 )
 from .core.utils import async_analytics_track_event
-<<<<<<< HEAD
-from .core.const import CLOUD_SERVERS
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from .core.miot_spec import MiotSpec
 from .core.xiaomi_cloud import (
     MiotCloud,
     MiCloudException,
-<<<<<<< HEAD
-    MiCloudAccessDenied,
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 )
 
 from miio import (
@@ -53,8 +37,6 @@ DEFAULT_INTERVAL = 30
 # 0.3 washer modes via select
 ENTRY_VERSION = 0.3
 
-<<<<<<< HEAD
-=======
 CLOUD_SERVERS = {
     'cn': 'China',
     'de': 'Europe',
@@ -64,7 +46,6 @@ CLOUD_SERVERS = {
     'us': 'United States',
 }
 
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 CONN_MODES = {
     'auto': 'Automatic (自动模式)',
     'local': 'Local (本地模式)',
@@ -124,48 +105,15 @@ async def check_miio_device(hass, user_input, errors):
 
 async def check_xiaomi_account(hass, user_input, errors, renew_devices=False):
     dvs = []
-<<<<<<< HEAD
-    mic = None
-    try:
-        mic = await MiotCloud.from_token(hass, user_input, login=False)
-        await mic.async_login()
-=======
     try:
         mic = await MiotCloud.from_token(hass, user_input)
         if not mic:
             raise MiCloudException('Login error')
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if not await mic.async_check_auth(False):
             raise MiCloudException('Login failed')
         await mic.async_stored_auth(mic.user_id, save=True)
         user_input['xiaomi_cloud'] = mic
         dvs = await mic.async_get_devices(renew=renew_devices) or []
-<<<<<<< HEAD
-        if renew_devices:
-            await MiotSpec.async_get_model_type(hass, 'xiaomi.miot.auto', use_remote=True)
-    except (MiCloudException, MiCloudAccessDenied, Exception) as exc:
-        err = f'{exc}'
-        errors['base'] = 'cannot_login'
-        if isinstance(exc, MiCloudAccessDenied) and mic:
-            if url := mic.attrs.pop('notificationUrl'):
-                err = f'The login of Xiaomi account needs security verification. [Click here]({url}) to continue!\n' \
-                      f'本次登陆小米账号需要安全验证，[点击这里]({url})继续！'
-                persistent_notification.create(
-                    hass,
-                    err,
-                    f'Login to Xiaomi: {mic.username}',
-                    f'{DOMAIN}-login',
-                )
-        if isinstance(exc, requests.exceptions.ConnectionError):
-            errors['base'] = 'cannot_reach'
-        elif 'ZoneInfoNotFoundError' in err:
-            errors['base'] = 'tzinfo_error'
-        hass.data[DOMAIN]['placeholders'] = {'tip': f'⚠️ {err}'}
-        _LOGGER.error('Setup xiaomi cloud for user: %s failed: %s', mic.username, exc)
-    if not errors:
-        user_input['devices'] = dvs
-        persistent_notification.dismiss(hass, f'{DOMAIN}-login')
-=======
     except MiCloudException as exc:
         errors['base'] = 'cannot_login'
         _LOGGER.error('Setup xiaomi cloud for user: %s failed: %s', user_input.get(CONF_USERNAME), exc)
@@ -173,7 +121,6 @@ async def check_xiaomi_account(hass, user_input, errors, renew_devices=False):
         await MiotSpec.async_get_model_type(hass, 'xiaomi.miot.auto', use_remote=True)
     if not errors:
         user_input['devices'] = dvs
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     return user_input
 
 
@@ -231,21 +178,6 @@ async def get_cloud_filter_schema(hass, user_input, errors, schema=None, via_did
                 vol.Optional(fl, default=ols): cv.multi_select(lst),
             })
         hass.data[DOMAIN]['prev_input'] = user_input
-<<<<<<< HEAD
-    tip = ''
-    if user_input.get(CONF_CONN_MODE) == 'local':
-        url = 'https://github.com/al-one/hass-xiaomi-miot/issues/100#issuecomment-855183156'
-        if user_input.get(CONF_SERVER_COUNTRY) == 'cn':
-            tip = '⚠️ 在本地模式下，所有包含的设备都将通过本地miot协议连接，如果包含了不支持本地miot协议的设备，其实体会不可用，' \
-                  f'建议只选择[支持本地模式的设备]({url})。'
-        else:
-            tip = '⚠️ In the local mode, all included devices will be connected via the local miot protocol.' \
-                  'If the devices that does not support the local miot protocol are included,' \
-                  'they will be unavailable. It is recommended to include only ' \
-                  f'[the devices that supports the local mode]({url}).'
-    hass.data[DOMAIN]['placeholders'] = {'tip': tip}
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     return schema
 
 
@@ -327,10 +259,6 @@ class XiaomiMiotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional('filter_models', default=user_input.get('filter_models', False)): bool,
             }),
             errors=errors,
-<<<<<<< HEAD
-            description_placeholders=self.hass.data[DOMAIN].get('placeholders', {'tip': ''}),
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         )
 
     async def async_step_cloud_filter(self, user_input=None):
@@ -360,10 +288,6 @@ class XiaomiMiotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             step_id='cloud_filter',
             data_schema=schema,
             errors=errors,
-<<<<<<< HEAD
-            description_placeholders=self.hass.data[DOMAIN].get('placeholders'),
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         )
 
     async def async_step_zeroconf(self, discovery_info):
@@ -464,10 +388,6 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 vol.Optional('renew_devices', default=user_input.get('renew_devices', False)): bool,
             }),
             errors=errors,
-<<<<<<< HEAD
-            description_placeholders=self.hass.data[DOMAIN].get('placeholders', {'tip': ''}),
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         )
 
     async def async_step_cloud_filter(self, user_input=None):
@@ -497,8 +417,4 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             step_id='cloud_filter',
             data_schema=schema,
             errors=errors,
-<<<<<<< HEAD
-            description_placeholders=self.hass.data[DOMAIN].get('placeholders'),
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         )

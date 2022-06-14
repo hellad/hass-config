@@ -18,11 +18,7 @@
                 }
             },
             "cloud": {
-<<<<<<< HEAD
-                "description": "Config xiaomi cloud account.\n{tip}",
-=======
                 "description": "Config xiaomi cloud account.",
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 "data": {
                     "username": "Xiaomi Account ID / Email",
                     "password": "Password",
@@ -33,11 +29,7 @@
             },
             "cloud_filter": {
                 "title": "Filter cloud devices",
-<<<<<<< HEAD
-                "description": "You can include or exclude devices to integrate only the devices you want. In the exclude mode, if you do not check any option in the list, it is equivalent to including all options.\n{tip}",
-=======
                 "description": "You can include or exclude devices to integrate only the devices you want. In the exclude mode, if you do not check any option in the list, it is equivalent to including all options.",
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 "data": {
                     "filter_model": "Filter Device Model",
                     "model_list": "Device Model List",
@@ -53,11 +45,6 @@
         "error": {
             "cannot_connect": "Failed to connect the device",
             "cannot_login": "Failed to login the xiaomi cloud account, please check password. If you always fail to login, login to mi.com in the same environment as the current network and try again.",
-<<<<<<< HEAD
-            "cannot_reach": "Unable to access Xiaomi API",
-            "tzinfo_error": "See: https://github.com/al-one/hass-xiaomi-miot/issues/260",
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             "none_devices": "None devices in the xiaomi cloud account"
         },
         "abort": {
@@ -78,11 +65,7 @@
                 }
             },
             "cloud": {
-<<<<<<< HEAD
-                "description": "Config xiaomi cloud account.\n{tip}",
-=======
                 "description": "Config xiaomi cloud account.",
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 "data": {
                     "username": "Xiaomi Account ID / Email",
                     "password": "Password",
@@ -93,11 +76,7 @@
             },
             "cloud_filter": {
                 "title": "Filter cloud devices",
-<<<<<<< HEAD
-                "description": "You can include or exclude devices to integrate only the devices you want. In the exclude mode, if you do not check any option in the list, it is equivalent to including all options.\n{tip}",
-=======
                 "description": "You can include or exclude devices to integrate only the devices you want. In the exclude mode, if you do not check any option in the list, it is equivalent to including all options.",
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
                 "data": {
                     "filter_model": "Filter Device Model",
                     "model_list": "Device Model List",
@@ -113,11 +92,6 @@
         "error": {
             "cannot_connect": "Failed to connect the device",
             "cannot_login": "Failed to login the xiaomi cloud account, please check password. If you always fail to login, login to mi.com in the same environment as the current network and try again.",
-<<<<<<< HEAD
-            "cannot_reach": "Unable to access Xiaomi API",
-            "tzinfo_error": "See: https://github.com/al-one/hass-xiaomi-miot/issues/260",
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             "none_devices": "None devices in the xiaomi cloud account"
         }
     },

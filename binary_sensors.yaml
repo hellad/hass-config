@@ -1,17 +1,12 @@
 #### https://home-assistant.io/components/binary_sensor.mqtt/
-<<<<<<< HEAD
 #### https://www.home-assistant.io/integrations/binary_sensor.mqtt/
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
-#### https://tasmota.github.io/docs/PIR-Motion-Sensors/
+#### https://tasmota.github.io/docs/PIR-Motion-Sensors/ - read this!!!
+#### 18:47:12.491 CMD: Rule1
+#### 18:47:12.498 MQT: stat/bathroom/RESULT = {"Rule1":{"State":"OFF","Once":"OFF","StopOnError":"OFF","Length":0,"Free":511,"Rules":""}}
 
 #binary_sensor:
   - platform: mqtt
-<<<<<<< HEAD
     name: "Bathroom motion sensor"                        #### 192.168.192.77
-=======
-    name: "Bathroom motion sensor"                        #### 192.168.192.47
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     state_topic: 'stat/bathroom/POWER'                    #### "bathroom/motion" 
                                           #### 10:48:37 MQT: stat/bathroom/RESULT = {"POWER":"OFF"}
                                           #### 10:48:37 MQT: stat/bathroom/POWER = OFF
@@ -62,5 +57,14 @@
 #    resource: http://192.168.192.28:8080/sensors.json?sense=motion_active
 #    value_template: '{{ value_json.motion_active.data[0][1][0] | round(0) }}'
 
-
+#https://www.home-assistant.io/docs/automation/trigger/#sunset--sunrise-trigger
+# https://www.home-assistant.io/integrations/tod/
+# 
+#binary_sensor:
+  - platform: tod
+    name: Darkness
+    after: sunset
+    after_offset: "00:10"    # 10 minutes after sunset
+    before: sunrise
+    before_offset:  "-00:10"  # 10 minutes after sunrise
 

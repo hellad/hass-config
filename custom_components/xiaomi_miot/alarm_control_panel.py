@@ -34,17 +34,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
-<<<<<<< HEAD
-    config['hass'] = hass
-    model = str(config.get(CONF_MODEL) or '')
-    entities = []
-    if miot := config.get('miot_type'):
-=======
     model = str(config.get(CONF_MODEL) or '')
     entities = []
     miot = config.get('miot_type')
     if miot:
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         spec = await MiotSpec.async_from_type(hass, miot)
         for srv in spec.get_services('arming'):
             if not srv.get_property('arming_mode'):
@@ -81,12 +74,6 @@ class MiotAlarmEntity(MiotEntity, AlarmControlPanelEntity):
         await super().async_update()
         if not self._available:
             return
-<<<<<<< HEAD
-        self.update_state()
-
-    def update_state(self):
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if self._prop_mode:
             val = self._prop_mode.from_dict(self._state_attrs)
             des = self._prop_mode.list_description(val) if val is not None else None
@@ -104,25 +91,12 @@ class MiotAlarmEntity(MiotEntity, AlarmControlPanelEntity):
             val = self._state_attrs.get('arming.alarm')
             if val:
                 self._attr_state = STATE_ALARM_TRIGGERED
-<<<<<<< HEAD
-        return self._attr_state
-
-    def set_arm_mode(self, mode):
-        ret = False
-        val = self._prop_mode.list_value(mode)
-        if val is not None:
-            ret = self.set_property(self._prop_mode, val)
-        if ret:
-            self.update_state()
-        return ret
-=======
 
     def set_arm_mode(self, mode):
         val = self._prop_mode.list_value(mode)
         if val is not None:
             return self.set_property(self._prop_mode, val)
         return False
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     def alarm_disarm(self, code=None):
         """Send disarm command."""

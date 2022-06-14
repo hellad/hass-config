@@ -89,9 +89,9 @@
     #   friendly_name: МКС
     #   icon: mdi:satellite-variant
 
-    sensor.cpu_use:
-      icon: mdi:chip
-      friendly_name: Загрузка процессора малины
+    # sensor.cpu_use:
+    #   icon: mdi:chip
+    #   friendly_name: Загрузка процессора малины
     # sensor.ram_free:
     #   icon: mdi:memory 
     #   friendly_name: Свободная память
@@ -100,24 +100,24 @@
     # sensor.cpu_temp:
     #   friendly_name: Температура процессора
     #   icon: mdi:memory 
-    sensor.alexapi:
-      friendly_name: Состояние Алексы
-      icon: mdi:amazon 
-    sensor.hyperion:
-      friendly_name: Состояние подсветки ТВ
-      icon: mdi:led-strip
+    # sensor.alexapi:
+    #   friendly_name: Состояние Алексы
+    #   icon: mdi:amazon 
+    # sensor.hyperion:
+    #   friendly_name: Состояние подсветки ТВ
+    #   icon: mdi:led-strip
 
       
     media_player.kitchen:
       friendly_name: Сонос
     media_player.home_theater:
       friendly_name: Домашний кинотеатр
-    media_player.vimu_on_tv175h:
+    media_player.vimu_dune_4k:
       friendly_name: Дюна 4
     media_player.yandex_station_210d8400a818973072efca94ef519c6a:
       friendly_name: Яндекс модуль
-    media_player.dune_hd_3d_player:
-      friendly_name: Медиаплеер Dune HD 3D
+    # media_player.dune_hd_3d_player:
+    #   friendly_name: Медиаплеер Dune HD 3D
     media_player.bedroom_lg_tv_3:
       friendly_name: Телевизор LG
 

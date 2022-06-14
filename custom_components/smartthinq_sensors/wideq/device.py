@@ -1,57 +1,34 @@
 """A high-level, convenient abstraction for interacting with the LG
 SmartThinQ API for most use cases.
 """
+import aiohttp
+import asyncio
 import base64
-<<<<<<< HEAD
 from collections import namedtuple
 from datetime import datetime, timedelta
 import enum
 import json
 import logging
 from numbers import Number
-from requests import exceptions as req_exc
-import time
-from typing import Any, Dict, Optional
-from threading import Lock
+from typing import Any, Optional
 
-from . import EMULATION, wideq_log_level
 from . import core_exceptions as core_exc
-
-=======
-import json
-from collections import namedtuple
-from datetime import datetime, timedelta
-import enum
-import logging
-from numbers import Number
-from typing import Any, Dict, Optional
-
-from . import EMULATION, wideq_log_level
-from .core_exceptions import MonitorError
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
+from .const import (
+    STATE_OPTIONITEM_NONE,
+    STATE_OPTIONITEM_OFF,
+    STATE_OPTIONITEM_ON,
+    STATE_OPTIONITEM_UNKNOWN,
+    UNIT_TEMP_CELSIUS,
+    UNIT_TEMP_FAHRENHEIT,
+)
+from .core_async import ClientAsync
+from .device_info import DeviceInfo, PlatformType
 
 BIT_OFF = "OFF"
 BIT_ON = "ON"
 
 LABEL_BIT_OFF = "@CP_OFF_EN_W"
 LABEL_BIT_ON = "@CP_ON_EN_W"
-
-<<<<<<< HEAD
-MIN_TIME_BETWEEN_CLI_REFRESH = 10  # seconds
-MAX_RETRIES = 3
-MAX_UPDATE_FAIL_ALLOWED = 10
-=======
-DEFAULT_TIMEOUT = 10  # seconds
-DEFAULT_REFRESH_TIMEOUT = 20  # seconds
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
-
-STATE_OPTIONITEM_OFF = "off"
-STATE_OPTIONITEM_ON = "on"
-STATE_OPTIONITEM_NONE = "-"
-STATE_OPTIONITEM_UNKNOWN = "unknown"
-
-UNIT_TEMP_CELSIUS = "celsius"
-UNIT_TEMP_FAHRENHEIT = "fahrenheit"
 
 LOCAL_LANG_PACK = {
     LABEL_BIT_OFF: STATE_OPTIONITEM_OFF,
@@ -68,87 +45,17 @@ LOCAL_LANG_PACK = {
     "NOT_USE": "Not Used",
 }
 
-
-class OPTIONITEMMODES(enum.Enum):
-    ON = STATE_OPTIONITEM_ON
-    OFF = STATE_OPTIONITEM_OFF
-
-
-class UNITTEMPMODES(enum.Enum):
-    Celsius = UNIT_TEMP_CELSIUS
-    Fahrenheit = UNIT_TEMP_FAHRENHEIT
-
-
-class STATE_UNKNOWN(enum.Enum):
-    UNKNOWN = STATE_OPTIONITEM_UNKNOWN
-
-
-class DeviceType(enum.Enum):
-    """The category of device."""
-
-    REFRIGERATOR = 101
-    KIMCHI_REFRIGERATOR = 102
-    WATER_PURIFIER = 103
-    WASHER = 201
-    DRYER = 202
-    STYLER = 203
-    DISHWASHER = 204
-    TOWER_WASHER = 221
-    TOWER_DRYER = 222
-    RANGE = 301
-    MICROWAVE = 302
-    COOKTOP = 303
-    HOOD = 304
-    AC = 401
-    AIR_PURIFIER = 402
-    DEHUMIDIFIER = 403
-    FAN = 405
-    ROBOT_KING = 501
-    TV = 701
-    BOILER = 801
-    SPEAKER = 901
-    HOMEVU = 902
-    ARCH = 1001
-    MISSG = 3001
-    SENSOR = 3002
-    SOLAR_SENSOR = 3102
-    IOT_LIGHTING = 3003
-    IOT_MOTION_SENSOR = 3004
-    IOT_SMART_PLUG = 3005
-    IOT_DUST_SENSOR = 3006
-    EMS_AIR_STATION = 4001
-    AIR_SENSOR = 4003
-    PURICARE_AIR_DETECTOR = 4004
-    V2PHONE = 6001
-    HOMEROBOT = 9000
-    UNKNOWN = STATE_OPTIONITEM_UNKNOWN
-
-
-class PlatformType(enum.Enum):
-    """The category of device."""
-
-    THINQ1 = "thinq1"
-    THINQ2 = "thinq2"
-    UNKNOWN = STATE_OPTIONITEM_UNKNOWN
-
-
-class NetworkType(enum.Enum):
-    """The type of network."""
-
-    WIFI = "02"
-    NFC3 = "03"
-    NFC4 = "04"
-    UNKNOWN = STATE_OPTIONITEM_UNKNOWN
-
-
-WM_DEVICE_TYPES = [
-    DeviceType.DRYER,
-    DeviceType.TOWER_DRYER,
-    DeviceType.TOWER_WASHER,
-    DeviceType.WASHER,
-]
+MIN_TIME_BETWEEN_CLI_REFRESH = 10  # seconds
+MAX_RETRIES = 3
+MAX_UPDATE_FAIL_ALLOWED = 10
+SLEEP_BETWEEN_RETRIES = 2  # seconds
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class UnitTempModes(enum.Enum):
+    Celsius = UNIT_TEMP_CELSIUS
+    Fahrenheit = UNIT_TEMP_FAHRENHEIT
 
 
 class Monitor(object):
@@ -158,8 +65,7 @@ class Monitor(object):
         task expires, it attempts to start a new one automatically. This
         makes one `Monitor` object suitable for long-term monitoring.
         """
-<<<<<<< HEAD
-    _client_lock = Lock()
+    _client_lock = asyncio.Lock()
     _client_connected = True
     _critical_error = False
     _last_client_refresh = datetime.min
@@ -167,7 +73,7 @@ class Monitor(object):
 
     def __init__(self, client, device_id: str, platform_type=PlatformType.THINQ1, device_type: str = None) -> None:
         """Initialize monitor class."""
-        self._client = client
+        self._client: ClientAsync = client
         self._device_id = device_id
         self._platform_type = platform_type
         self._device_descr = device_id
@@ -199,14 +105,14 @@ class Monitor(object):
             raise core_exc.MonitorUnavailableError(self._device_id, msg) from exc
         raise core_exc.MonitorRefreshError(self._device_id, msg) from exc
 
-    def _refresh_auth(self):
+    async def _refresh_auth(self):
         """Refresh the devices shared client auth token"""
-        with Monitor._client_lock:
-            self._client.refresh_auth()
+        async with Monitor._client_lock:
+            await self._client.refresh_auth()
 
-    def _refresh_client(self):
+    async def _refresh_client(self):
         """Refresh the devices shared client"""
-        with Monitor._client_lock:
+        async with Monitor._client_lock:
             if Monitor._client_connected:
                 return True
             call_time = datetime.utcnow()
@@ -221,14 +127,14 @@ class Monitor(object):
                 refresh_gateway = True
             Monitor._not_logged_count += 1
             _LOGGER.debug("ThinQ client not connected. Trying to reconnect...")
-            self._client.refresh(refresh_gateway)
+            await self._client.refresh(refresh_gateway)
             _LOGGER.warning("ThinQ client successfully reconnected")
             Monitor._client_connected = True
             Monitor._critical_error = False
             Monitor._not_logged_count = 0
             return True
 
-    def refresh(self, query_device=False) -> Optional[any]:
+    async def refresh(self, query_device=False) -> Optional[any]:
         """Update device state"""
         _LOGGER.debug("Updating ThinQ device %s", self._device_descr)
 
@@ -237,15 +143,15 @@ class Monitor(object):
             _LOGGER.debug("Polling...")
             # Wait one second between iteration
             if iteration > 0:
-                time.sleep(1)
+                await asyncio.sleep(SLEEP_BETWEEN_RETRIES)
 
             try:
-                if not self._restart_monitor():
+                if not await self._restart_monitor():
                     self._raise_error(
                         "Connection to ThinQ not available. Client refresh error",
                         not_logged=True,
                     )
-                state = self.poll(query_device)
+                state = await self.poll(query_device)
 
             except core_exc.NotConnectedError:
                 self._disconnected = True
@@ -274,11 +180,11 @@ class Monitor(object):
                     exc=exc,
                 )
 
-            except (
-                req_exc.ConnectionError,
-                req_exc.ConnectTimeout,
-                req_exc.ReadTimeout,
-            ) as exc:
+            except (asyncio.TimeoutError, aiohttp.ServerTimeoutError) as exc:
+                # These are network errors, refresh client is not required
+                self._raise_error("Connection to ThinQ failed. Timeout error", exc=exc)
+
+            except aiohttp.ClientError as exc:
                 # These are network errors, refresh client is not required
                 self._raise_error("Connection to ThinQ failed. Network connection error", exc=exc)
 
@@ -304,271 +210,97 @@ class Monitor(object):
         self._has_error = False
         return state
 
-    def _restart_monitor(self) -> bool:
+    async def _restart_monitor(self) -> bool:
         """Restart the device monitor"""
 
         if Monitor._client_connected:
             # try to refresh auth token before it expires
-            self._refresh_auth()
+            await self._refresh_auth()
         else:
             self._disconnected = True
-            if not self._refresh_client():
+            if not await self._refresh_client():
                 return False
 
         if not self._disconnected:
             return True
 
-        self.start()
+        await self.start()
         self._disconnected = False
         return True
 
-    def start(self) -> None:
+    async def start(self) -> None:
         """Start monitor for ThinQ1 device."""
         if self._platform_type != PlatformType.THINQ1:
             return
-        self._work_id = self._client.session.monitor_start(self._device_id)
+        self._work_id = await self._client.session.monitor_start(self._device_id)
 
-    def stop(self) -> None:
+    async def stop(self) -> None:
         """Stop monitor for ThinQ1 device."""
         if not self._work_id:
             return
         work_id = self._work_id
         self._work_id = None
-        self._client.session.monitor_stop(self._device_id, work_id)
+        await self._client.session.monitor_stop(self._device_id, work_id)
 
-    def poll(self, query_device=False) -> Optional[any]:
+    async def poll(self, query_device=False) -> Optional[any]:
         """Get the current status data (a bytestring) or None if the
             device is not yet ready.
             """
         if self._platform_type == PlatformType.THINQ1:
-            return self._poll_v1()
-        return self._poll_v2(query_device)
+            return await self._poll_v1()
+        return await self._poll_v2(query_device)
 
-    def _poll_v1(self) -> Optional[bytes]:
+    async def _poll_v1(self) -> Optional[bytes]:
         """Get the current status data (a bytestring) or None if the
             device is not yet ready.
             """
         if not self._work_id:
-            self.start()
+            await self.start()
             if not self._work_id:
                 return None
         try:
-            return self._client.session.monitor_poll(self._device_id, self._work_id)
+            return await self._client.session.monitor_poll(self._device_id, self._work_id)
         except core_exc.MonitorError:
             # Try to restart the task.
-            self.stop()
+            await self.stop()
             return None
 
-    def _poll_v2(self, query_device=False) -> Optional[any]:
+    async def _poll_v2(self, query_device=False) -> Optional[any]:
         """Get the current status data (a json str) or None if the
             device is not yet ready.
             """
         if self._platform_type != PlatformType.THINQ2:
             return None
         if query_device:
-            result = self._client.session.get_device_v2_settings(self._device_id)
+            result = await self._client.session.get_device_v2_settings(self._device_id)
             return result.get("snapshot")
 
-        self._client.refresh_devices()
+        await self._client.refresh_devices()
         device_data = self._client.get_device(self._device_id)
         if device_data:
             return device_data.snapshot
         return None
 
-=======
-
-    def __init__(self, session, device_id: str) -> None:
-        self.session = session
-        self.device_id = device_id
-
-    def start(self) -> None:
-        self.work_id = self.session.monitor_start(self.device_id)
-
-    def stop(self) -> None:
-        self.session.monitor_stop(self.device_id, self.work_id)
-
-    def poll(self) -> Optional[bytes]:
-        """Get the current status data (a bytestring) or None if the
-            device is not yet ready.
-            """
-        self.work_id = self.session.monitor_start(self.device_id)
-        try:
-            return self.session.monitor_poll(self.device_id, self.work_id)
-        except MonitorError:
-            # Try to restart the task.
-            self.stop()
-            self.start()
-            return None
-
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     @staticmethod
-    def decode_json(data: bytes) -> Dict[str, Any]:
+    def decode_json(data: bytes) -> dict[str, Any]:
         """Decode a bytestring that encodes JSON status data."""
 
         return json.loads(data.decode("utf8"))
 
-    def poll_json(self) -> Optional[Dict[str, Any]]:
+    async def poll_json(self) -> Optional[dict[str, Any]]:
         """For devices where status is reported via JSON data, get the
             decoded status result (or None if status is not available).
             """
 
-        data = self.poll()
+        data = await self.poll()
         return self.decode_json(data) if data else None
 
-    def __enter__(self) -> "Monitor":
-        self.start()
+    async def __aenter__(self) -> "Monitor":
+        await self.start()
         return self
 
-<<<<<<< HEAD
-    def __exit__(self, exc_type, exc_value, exc_traceback) -> None:
-=======
-    def __exit__(self, type, value, tb) -> None:
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
-        self.stop()
-
-
-class DeviceInfo(object):
-    """Details about a user's device.
-        
-    This is populated from a JSON dictionary provided by the API.
-    """
-
-    def __init__(self, data: Dict[str, Any]) -> None:
-        self._data = data
-        self._device_id = None
-        self._device_type = None
-        self._platform_type = None
-        self._network_type = None
-
-<<<<<<< HEAD
-    def as_dict(self):
-        """Return the data dictionary"""
-        if not self._data:
-            return {}
-        return self._data.copy()
-
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
-    def _get_data_key(self, keys):
-        for key in keys:
-            if key in self._data:
-                return key
-        return ""
-
-    def _get_data_value(self, key, default: Any = STATE_OPTIONITEM_UNKNOWN):
-        if isinstance(key, list):
-            vkey = self._get_data_key(key)
-        else:
-            vkey = key
-
-        return self._data.get(vkey, default)
-
-    @property
-    def model_id(self) -> str:
-        return self._get_data_value(["modelName", "modelNm"])
-
-    @property
-    def id(self) -> str:
-        if self._device_id is None:
-            self._device_id = self._get_data_value("deviceId")
-        return self._device_id
-
-    @property
-    def model_info_url(self) -> str:
-        return self._get_data_value(
-            ["modelJsonUrl", "modelJsonUri"], default=None
-        )
-
-    @property
-    def model_lang_pack_url(self) -> str:
-        return self._get_data_value(
-            ["langPackModelUrl", "langPackModelUri"], default=None
-        )
-
-    @property
-    def product_lang_pack_url(self) -> str:
-        return self._get_data_value(
-            ["langPackProductTypeUrl", "langPackProductTypeUri"], default=None
-        )
-
-    @property
-    def name(self) -> str:
-        return self._get_data_value("alias")
-
-    @property
-    def model_name(self) -> str:
-        return self._get_data_value(["modelName", "modelNm"])
-
-    @property
-    def macaddress(self) -> Optional[str]:
-        return self._data.get("macAddress")
-
-    @property
-    def firmware(self) -> Optional[str]:
-        if fw := self._data.get("fwVer"):
-            return fw
-        if "modemInfo" in self._data:
-            if fw := self._data["modemInfo"].get("appVersion"):
-                return fw
-        return None
-
-    @property
-    def devicestate(self) -> str:
-        """The kind of device, as a `DeviceType` value."""
-        return self._get_data_value("deviceState")
-
-    @property
-    def isonline(self) -> bool:
-        """The kind of device, as a `DeviceType` value."""
-        return self._data.get("online", False)
-
-    @property
-    def type(self) -> DeviceType:
-        """The kind of device, as a `DeviceType` value."""
-        if self._device_type is None:
-            device_type = self._get_data_value("deviceType")
-            try:
-                ret_val = DeviceType(device_type)
-            except ValueError:
-                _LOGGER.warning("Device %s: unknown device type with id %s", self.id, device_type)
-                ret_val = DeviceType.UNKNOWN
-            self._device_type = ret_val
-        return self._device_type
-
-    @property
-    def platform_type(self) -> PlatformType:
-        """The kind of platform, as a `PlatformType` value."""
-        if self._platform_type is None:
-            # for the moment if unavailable set THINQ1, probably not available in APIv1
-            plat_type = self._data.get("platformType", PlatformType.THINQ1.value)
-            try:
-                ret_val = PlatformType(plat_type)
-            except ValueError:
-                _LOGGER.warning("Device %s: unknown platform type with id %s", self.id, plat_type)
-                ret_val = PlatformType.UNKNOWN
-            self._platform_type = ret_val
-        return self._platform_type
-
-    @property
-    def network_type(self) -> NetworkType:
-        """The kind of network, as a `NetworkType` value."""
-        if self._network_type is None:
-            # for the moment we set WIFI if not available
-            net_type = self._data.get("networkType", NetworkType.WIFI.value)
-            try:
-                ret_val = NetworkType(net_type)
-            except ValueError:
-                _LOGGER.warning("Device %s: unknown network type with id %s", self.id, net_type)
-                # for the moment we set WIFI if unknown
-                ret_val = NetworkType.WIFI
-            self._network_type = ret_val
-        return self._network_type
-
-    @property
-    def snapshot(self) -> Optional[Dict[str, Any]]:
-        if "snapshot" in self._data:
-            return self._data["snapshot"]
-        return None
+    async def __aexit__(self, exc_type, exc_value, exc_traceback) -> None:
+        await self.stop()
 
 
 EnumValue = namedtuple("EnumValue", ["options"])
@@ -589,15 +321,12 @@ class ModelInfo(object):
     def is_info_v2(self):
         return False
 
-<<<<<<< HEAD
     def as_dict(self):
         """Return the data dictionary"""
         if not self._data:
             return {}
         return self._data.copy()
 
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     @property
     def model_type(self):
         return self._data.get("Info", {}).get("modelType", "")
@@ -607,11 +336,16 @@ class ModelInfo(object):
 
     def value_type(self, name):
         if name in self._data["Value"]:
-            return self._data["Value"][name]["type"]
+            return self._data["Value"][name].get("type")
         return None
 
     def value_exist(self, name):
         return name in self._data["Value"]
+
+    def is_enum_type(self, key):
+        if (value_type := self.value_type(key)) is None:
+            return False
+        return value_type in ("Enum", "enum")
 
     def value(self, name):
         """Look up information about a value.
@@ -785,7 +519,6 @@ class ModelInfo(object):
         return control
 
     @property
-<<<<<<< HEAD
     def byte_monitor_data(self):
         """Check that type of monitoring is BINARY(BYTE)."""
         return self._data["Monitoring"]["type"] == "BINARY(BYTE)"
@@ -831,46 +564,16 @@ class ModelInfo(object):
     @staticmethod
     def decode_monitor_json(data):
         """Decode a bytestring that encodes JSON status data."""
-=======
-    def binary_monitor_data(self):
-        """Check that type of monitoring is BINARY(BYTE).
-        """
-        return self._data["Monitoring"]["type"] == "BINARY(BYTE)"
-
-    def decode_monitor_binary(self, data):
-        """Decode binary encoded status data.
-        """
-
-        decoded = {}
-        for item in self._data["Monitoring"]["protocol"]:
-            key = item["value"]
-            value = 0
-            for v in data[item["startByte"]: item["startByte"] + item["length"]]:
-                value = (value << 8) + v
-            decoded[key] = str(value)
-        return decoded
-
-    def decode_monitor_json(self, data):
-        """Decode a bytestring that encodes JSON status data."""
-
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return json.loads(data.decode("utf8"))
 
     def decode_monitor(self, data):
         """Decode  status data."""
 
-<<<<<<< HEAD
         if self.byte_monitor_data:
             return self.decode_monitor_byte(data)
         if self.hex_monitor_data:
             return self.decode_monitor_hex(data)
         return self.decode_monitor_json(data)
-=======
-        if self.binary_monitor_data:
-            return self.decode_monitor_binary(data)
-        else:
-            return self.decode_monitor_json(data)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @staticmethod
     def _get_current_temp_key(key: str, data):
@@ -901,10 +604,10 @@ class ModelInfo(object):
         protocol = self._data["Monitoring"]["protocol"]
         if isinstance(protocol, list):
             for elem in protocol:
-                if "superSet" in elem: 
+                if super_set := elem.get("superSet"):
                     key = elem["value"]
                     value = data
-                    for ident in elem["superSet"].split("."):
+                    for ident in super_set.split("."):
                         if value is None:
                             break
                         pr_key = self._get_current_temp_key(ident, value)
@@ -915,7 +618,6 @@ class ModelInfo(object):
                         decoded[key] = str(value)
             return decoded
 
-<<<<<<< HEAD
         convert_rule = self._data.get("ConvertingRule", {})
         for data_key, value_key in protocol.items():
             value = ""
@@ -928,12 +630,6 @@ class ModelInfo(object):
                     value_rules = convert_rule[value_key].get("MonitoringConvertingRule", {})
                     if raw_value in value_rules:
                         value = value_rules[raw_value]
-=======
-        for data_key, value_key in protocol.items():
-            value = info.get(data_key, "")
-            if value is not None and isinstance(value, Number):
-                value = int(value)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             decoded[value_key] = str(value)
         return decoded
 
@@ -950,15 +646,12 @@ class ModelInfoV2(object):
     def is_info_v2(self):
         return True
 
-<<<<<<< HEAD
     def as_dict(self):
         """Return the data dictionary"""
         if not self._data:
             return {}
         return self._data.copy()
 
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     @property
     def model_type(self):
         return self._data.get("Info", {}).get("modelType", "")
@@ -970,6 +663,11 @@ class ModelInfoV2(object):
         if name in self._data["MonitoringValue"]:
             return self._data["MonitoringValue"][name].get("dataType")
         return None
+
+    def is_enum_type(self, key):
+        if (value_type := self.value_type(key)) is None:
+            return False
+        return value_type in ("Enum", "enum")
 
     def value_exist(self, name):
         return name in self._data["MonitoringValue"]
@@ -1181,7 +879,7 @@ class ModelInfoV2AC(ModelInfo):
 
     def value_type(self, name):
         if name in self._data["Value"]:
-            return self._data["Value"][name]["data_type"]
+            return self._data["Value"][name].get("data_type")
         return None
 
     def value(self, name):
@@ -1226,7 +924,7 @@ class Device(object):
     regarding the device.
     """
 
-    def __init__(self, client, device: DeviceInfo, status=None, available_features=None):
+    def __init__(self, client: ClientAsync, device: DeviceInfo, status=None, available_features=None):
         """Create a wrapper for a `DeviceInfo` object associated with a
         `Client`.
         """
@@ -1239,11 +937,7 @@ class Device(object):
         self._model_lang_pack = None
         self._product_lang_pack = None
         self._should_poll = device.platform_type == PlatformType.THINQ1
-<<<<<<< HEAD
         self._mon = Monitor(client, device.id, device.platform_type, device.type.name)
-=======
-        self._mon = None
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         self._control_set = 0
         self._last_additional_poll: Optional[datetime] = None
         self._available_features = available_features or {}
@@ -1264,7 +958,7 @@ class Device(object):
         return self._model_info
 
     @property
-    def available_features(self) -> Dict:
+    def available_features(self) -> dict:
         return self._available_features
 
     @property
@@ -1277,130 +971,12 @@ class Device(object):
         self._status = None
         return self._status
 
-    def _get_feature_title(self, feature_name, item_key):
-        """Override this function to manage feature title per device type"""
-        return feature_name
-
-    def feature_title(self, feature_name, item_key=None, status=None):
-        title = self._available_features.get(feature_name)
-        if title is None:
-            if status is None:
-                return None
-            title = self._get_feature_title(feature_name, item_key)
-            if not title:
-                return None
-            self._available_features[feature_name] = title
-        return title
-
-    def _get_state_key(self, key_name):
-        """Get the key used for state from an array based on info type"""
-        if isinstance(key_name, list):
-            return key_name[1 if self.model_info.is_info_v2 else 0]
-        return key_name
-
-    def _get_cmd_keys(self, key_name):
-        """Get the keys used for control based on info type"""
-        ctrl = self._get_state_key(key_name[0])
-        cmd = self._get_state_key(key_name[1])
-        key = self._get_state_key(key_name[2])
-
-        return [ctrl, cmd, key]
-
-    def _set_control(
-            self,
-            ctrl_key,
-            command=None,
-            *,
-            key=None,
-            value=None,
-            data=None,
-            ctrl_path=None,
-    ):
-        """Set a device's control for `key` to `value`.
-        """
-        if EMULATION:
-            return
-
-        if self._should_poll:
-            self._client.session.set_device_controls(
-                self._device_info.id,
-                ctrl_key,
-                command,
-                {key: value} if key and value else value,
-                {key: data} if key and data else data,
-            )
-            self._control_set = 2
-            return
-
-        self._client.session.set_device_v2_controls(
-            self._device_info.id,
-            ctrl_key,
-            command,
-            key,
-            value,
-            ctrl_path=ctrl_path,
-        )
-
-    def _prepare_command(self, ctrl_key, command, key, value):
-        """Prepare command for specific device.
-        Overwrite for specific device settings.
-        """
-        return None
-
-    def set(self, ctrl_key, command, *, key=None, value=None, data=None, ctrl_path=None):
-        """Set a device's control for `key` to `value`."""
-        log_level = wideq_log_level()
-        full_key = self._prepare_command(ctrl_key, command, key, value)
-        if full_key:
-            _LOGGER.log(
-                log_level,
-                "Setting new state for device %s: %s",
-                self._device_info.id, str(full_key),
-            )
-            self._set_control(full_key, ctrl_path=ctrl_path)
-        else:
-            _LOGGER.log(
-                log_level,
-                "Setting new state for device %s:  %s - %s - %s - %s",
-                self._device_info.id, ctrl_key, command, key, value,
-            )
-            self._set_control(
-                ctrl_key, command, key=key, value=value, data=data, ctrl_path=ctrl_path
-            )
-
-    def _get_config(self, key):
-        """Look up a device's configuration for a given value.
-            
-        The response is parsed as base64-encoded JSON.
-        """
-        if not self._should_poll:
-            return
-        data = self._client.session.get_device_config(self._device_info.id, key)
-        if self._control_set == 0:
-            self._control_set = 1
-        return json.loads(base64.b64decode(data).decode("utf8"))
-
-    def _get_control(self, key):
-        """Look up a device's control value.
-            """
-        if not self._should_poll:
-            return
-        data = self._client.session.get_device_config(
-            self._device_info.id, key, "Control",
-        )
-        if self._control_set == 0:
-            self._control_set = 1
-
-        # The response comes in a funky key/value format: "(key:value)".
-        _, value = data[1:-1].split(":")
-        return value
-
-    def init_device_info(self):
+    async def init_device_info(self) -> bool:
         """Initialize the information for the device"""
 
         if self._model_info is None:
             if self._model_data is None:
-                self._model_data = self._client.model_url_info(
+                self._model_data = await self._client.model_url_info(
                     self._device_info.model_info_url,
                     self._device_info,
                 )
@@ -1423,115 +999,181 @@ class Device(object):
         if self._model_info is not None:
             # load model language pack
             if self._model_lang_pack is None:
-                self._model_lang_pack = self._client.model_url_info(
+                self._model_lang_pack = await self._client.model_url_info(
                     self._device_info.model_lang_pack_url
                 )
 
             # load product language pack
             if self._product_lang_pack is None:
-                self._product_lang_pack = self._client.model_url_info(
+                self._product_lang_pack = await self._client.model_url_info(
                     self._device_info.product_lang_pack_url
                 )
 
-        return self._model_info is not None
+            return True
 
-<<<<<<< HEAD
-=======
-    def monitor_start(self):
-        """Start monitoring the device's status."""
+        return False
+
+    def _get_state_key(self, key_name):
+        """Get the key used for state from an array based on info type"""
+        if isinstance(key_name, list):
+            return key_name[1 if self.model_info.is_info_v2 else 0]
+        return key_name
+
+    def _get_cmd_keys(self, key_name):
+        """Get the keys used for control based on info type"""
+        ctrl = self._get_state_key(key_name[0])
+        cmd = self._get_state_key(key_name[1])
+        key = self._get_state_key(key_name[2])
+
+        return [ctrl, cmd, key]
+
+    async def _set_control(
+            self,
+            ctrl_key,
+            command=None,
+            *,
+            key=None,
+            value=None,
+            data=None,
+            ctrl_path=None,
+    ):
+        """Set a device's control for `key` to `value`.
+        """
+        if self._client.emulation:
+            return
+
+        if self._should_poll:
+            await self._client.session.set_device_controls(
+                self._device_info.id,
+                ctrl_key,
+                command,
+                {key: value} if key and value else value,
+                {key: data} if key and data else data,
+            )
+            self._control_set = 2
+            return
+
+        await self._client.session.set_device_v2_controls(
+            self._device_info.id,
+            ctrl_key,
+            command,
+            key,
+            value,
+            ctrl_path=ctrl_path,
+        )
+
+    def _prepare_command(self, ctrl_key, command, key, value):
+        """Prepare command for specific device.
+        Overwrite for specific device settings.
+        """
+        return None
+
+    async def set(self, ctrl_key, command, *, key=None, value=None, data=None, ctrl_path=None):
+        """Set a device's control for `key` to `value`."""
+        log_level = logging.INFO if self._client.emulation else logging.DEBUG
+        full_key = self._prepare_command(ctrl_key, command, key, value)
+        if full_key:
+            _LOGGER.log(
+                log_level,
+                "Setting new state for device %s: %s",
+                self._device_info.id, str(full_key),
+            )
+            await self._set_control(full_key, ctrl_path=ctrl_path)
+        else:
+            _LOGGER.log(
+                log_level,
+                "Setting new state for device %s:  %s - %s - %s - %s",
+                self._device_info.id, ctrl_key, command, key, value,
+            )
+            await self._set_control(
+                ctrl_key, command, key=key, value=value, data=data, ctrl_path=ctrl_path
+            )
+
+    async def _get_config(self, key):
+        """Look up a device's configuration for a given value.
+            
+        The response is parsed as base64-encoded JSON.
+        """
         if not self._should_poll:
             return
-        mon = Monitor(self._client.session, self._device_info.id)
-        mon.start()
-        self._mon = mon
+        data = await self._client.session.get_device_config(self._device_info.id, key)
+        if self._control_set == 0:
+            self._control_set = 1
+        return json.loads(base64.b64decode(data).decode("utf8"))
 
-    def monitor_stop(self):
-        """Stop monitoring the device's status."""
-        if not self._mon:
+    async def _get_control(self, key):
+        """Look up a device's control value.
+            """
+        if not self._should_poll:
             return
-        self._mon.stop()
-        self._mon = None
+        data = await self._client.session.get_device_config(
+            self._device_info.id, key, "Control",
+        )
+        if self._control_set == 0:
+            self._control_set = 1
 
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
-    def _pre_update_v2(self):
+        # The response comes in a funky key/value format: "(key:value)".
+        _, value = data[1:-1].split(":")
+        return value
+
+    async def _pre_update_v2(self):
         """Call additional methods before data update for v2 API.
 
         Override in specific device to call requested methods
         """
         return
 
-    def _get_device_snapshot(self, query_device=False):
+    async def _get_device_snapshot(self, query_device=False):
         """Get snapshot for ThinQ2 devices.
 
         Perform dedicated device query if query_device is set to true,
         otherwise use the dashboard result
         """
-        if EMULATION:
+        if self._client.emulation:
             query_device = False
 
         if query_device:
             try:
-                self._pre_update_v2()
-<<<<<<< HEAD
+                await self._pre_update_v2()
             except Exception as exc:
                 _LOGGER.debug("Error %s calling pre_update function", exc)
 
-        return self._mon.refresh(query_device)
-=======
-            except Exception:
-                pass
-            result = self._client.session.get_device_v2_settings(self._device_info.id)
-            return result.get("snapshot")
+        return await self._mon.refresh(query_device)
 
-        self._client.refresh_devices()
-        device_data = self._client.get_device(self._device_info.id)
-        if device_data:
-            return device_data.snapshot
-        return None
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
-
-    def _delete_permission(self):
+    async def _delete_permission(self):
         """Remove permission acquired in set command."""
         if not self._should_poll:
             return
         if self._control_set <= 0:
             return
         if self._control_set == 1:
-            self._client.session.delete_permission(self._device_info.id)
+            await self._client.session.delete_permission(self._device_info.id)
         self._control_set -= 1
 
-    def _get_device_info(self):
+    async def _get_device_info(self):
         """Call additional method to get device information for V1 API.
 
         Override in specific device to call requested methods
         """
         return
 
-    def _additional_poll(self, poll_interval: int):
+    async def _additional_poll(self, poll_interval: int):
         """Perform dedicated additional device poll with a slower rate."""
         if not self._should_poll:
             return
         if poll_interval <= 0:
             return
-<<<<<<< HEAD
         call_time = datetime.utcnow()
-=======
-        call_time = datetime.now()
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if self._last_additional_poll is None:
             self._last_additional_poll = (
                 call_time - timedelta(seconds=max(poll_interval - 10, 1))
             )
         difference = (call_time - self._last_additional_poll).total_seconds()
         if difference >= poll_interval:
-<<<<<<< HEAD
             self._last_additional_poll = call_time
-=======
-            self._last_additional_poll = datetime.now()
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
-            self._get_device_info()
+            await self._get_device_info()
 
-    def device_poll(
+    async def device_poll(
             self,
             snapshot_key="",
             *,
@@ -1549,53 +1191,51 @@ class Device(object):
         :param thinq2_query_device: if True query thinq2 devices with dedicated command
             instead using dashboard.
         """
-<<<<<<< HEAD
-=======
-        res = None
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         # load device info at first call if not loaded before
-        if not self.init_device_info():
-            return None
+        if self._model_info is None:
+            if not await self.init_device_info():
+                return None
 
         # ThinQ V2 - Monitor data is with device info
         if not self._should_poll:
-            snapshot = self._get_device_snapshot(thinq2_query_device)
+            snapshot = await self._get_device_snapshot(thinq2_query_device)
             if not snapshot:
                 return None
             return self._model_info.decode_snapshot(snapshot, snapshot_key)
 
         # ThinQ V1 - Monitor data must be polled """
-<<<<<<< HEAD
-        data = self._mon.refresh()
+        data = await self._mon.refresh()
         if not data:
             return None
 
         res = self._model_info.decode_monitor(data)
-=======
-        if not self._mon:
-            # Abort if monitoring has not started yet.
-            return None
-        data = self._mon.poll()
-        if data:
-            res = self._model_info.decode_monitor(data)
-
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         # do additional poll
         if res and thinq1_additional_poll > 0:
             try:
-                self._additional_poll(thinq1_additional_poll)
+                await self._additional_poll(thinq1_additional_poll)
             except Exception as exc:
-<<<<<<< HEAD
                 _LOGGER.debug("Error %s calling additional poll methods", exc)
-=======
-                _LOGGER.warning("Error calling additional poll methods. Error %s", exc)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
         # remove control permission if previously set
-        self._delete_permission()
+        await self._delete_permission()
 
         return res
+
+    def _get_feature_title(self, feature_name, item_key):
+        """Override this function to manage feature title per device type"""
+        return feature_name
+
+    def feature_title(self, feature_name, item_key=None, status=None, allow_none=False):
+        title = self._available_features.get(feature_name)
+        if title is None:
+            if status is None and not allow_none:
+                return None
+            title = self._get_feature_title(feature_name, item_key)
+            if not title:
+                return None
+            self._available_features[feature_name] = title
+        return title
 
     def get_enum_text(self, enum_name):
 
@@ -1627,7 +1267,7 @@ class DeviceStatus(object):
     def __init__(self, device, data):
         self._device = device
         self._data = {} if data is None else data
-        self._device_features = {}
+        self._device_features: dict[str, Any] = {}
         self._features_updated = False
 
     @staticmethod
@@ -1645,6 +1285,22 @@ class DeviceStatus(object):
         except ValueError:
             return None
 
+    @staticmethod
+    def _str_to_num(s):
+        """Convert a string to either an `int` or a `float`.
+
+        Troublingly, the API likes values like "18", without a trailing
+        ".0", for whole numbers. So we use `int`s for integers and
+        `float`s for non-whole numbers.
+        """
+        if not s:
+            return None
+
+        f = float(s)
+        if f == int(f):
+            return int(f)
+        return f
+
     @property
     def has_data(self):
         return True if self._data else False
@@ -1661,6 +1317,11 @@ class DeviceStatus(object):
     def is_info_v2(self):
         return self._device.model_info.is_info_v2
 
+    def _get_state_key(self, key_name):
+        if isinstance(key_name, list):
+            return key_name[1 if self.is_info_v2 else 0]
+        return key_name
+
     def _get_data_key(self, keys):
         if not self._data:
             return ""
@@ -1673,19 +1334,19 @@ class DeviceStatus(object):
 
         return ""
 
-    def _set_unknown(self, state, key, type):
-        if state:
-            return state
+    def _set_unknown(self, status, key, status_type):
+        if status:
+            return status
 
         if self._device.is_unknown_status(key):
             _LOGGER.warning(
                 "ThinQ: received unknown %s status '%s' of type '%s'",
                 self._device.device_info.type.name,
                 key,
-                type,
+                status_type,
             )
 
-        return STATE_UNKNOWN.UNKNOWN
+        return STATE_OPTIONITEM_UNKNOWN
 
     def update_status(self, key, value):
         if key in self._data:
@@ -1759,16 +1420,18 @@ class DeviceStatus(object):
             return STATE_OPTIONITEM_ON
         return STATE_OPTIONITEM_OFF
 
-    def _update_feature(self, key, status, get_text=True, item_key=None):
-        title = self._device.feature_title(
-            key, item_key, status
-        )
-        if not title:
+    def _update_feature(self, key, status, get_text=True, item_key=None, *, allow_none=False):
+        """Update the status features."""
+        if not self._device.feature_title(key, item_key, status, allow_none):
             return None
 
-        if status is None:
+        if status is None and not allow_none:
             status = STATE_OPTIONITEM_NONE
-        if status == STATE_OPTIONITEM_NONE or not get_text:
+
+        if status == STATE_OPTIONITEM_NONE:
+            get_text = False
+
+        if status is None or not get_text:
             value = status
         else:
             value = self._device.get_enum_text(status)
@@ -1781,7 +1444,7 @@ class DeviceStatus(object):
         raise NotImplementedError()
 
     @property
-    def device_features(self):
+    def device_features(self) -> dict[str, Any]:
         if not self._features_updated:
             self._update_features()
             self._features_updated = True

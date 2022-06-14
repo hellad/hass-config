@@ -3,7 +3,6 @@
 from enum import Enum
 
 
-<<<<<<< HEAD
 class HacsGitHubRepo(str, Enum):
     """HacsGitHubRepo."""
 
@@ -11,8 +10,6 @@ class HacsGitHubRepo(str, Enum):
     INTEGRATION = "hacs/integration"
 
 
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 class HacsCategory(str, Enum):
     APPDAEMON = "appdaemon"
     INTEGRATION = "integration"
@@ -27,7 +24,19 @@ class HacsCategory(str, Enum):
         return str(self.value)
 
 
-<<<<<<< HEAD
+class HacsDispatchEvent(str, Enum):
+    """HacsDispatchEvent."""
+
+    CONFIG = "hacs_dispatch_config"
+    ERROR = "hacs_dispatch_error"
+    RELOAD = "hacs_dispatch_reload"
+    REPOSITORY = "hacs_dispatch_repository"
+    REPOSITORY_DOWNLOAD_PROGRESS = "hacs_dispatch_repository_download_progress"
+    STAGE = "hacs_dispatch_stage"
+    STARTUP = "hacs_dispatch_startup"
+    STATUS = "hacs_dispatch_status"
+
+
 class RepositoryFile(str, Enum):
     """Repository file names."""
 
@@ -35,8 +44,6 @@ class RepositoryFile(str, Enum):
     MAINIFEST_JSON = "manifest.json"
 
 
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 class ConfigurationType(str, Enum):
     YAML = "yaml"
     CONFIG_ENTRY = "config_entry"
@@ -59,18 +66,6 @@ class HacsStage(str, Enum):
     BACKGROUND = "background"
 
 
-<<<<<<< HEAD
-=======
-class HacsSetupTask(str, Enum):
-    WEBSOCKET = "WebSocket API"
-    FRONTEND = "Frontend"
-    SENSOR = "Sensor"
-    HACS_REPO = "Hacs Repository"
-    CATEGORIES = "Additional categories"
-    CLEAR_STORAGE = "Clear storage"
-
-
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 class HacsDisabledReason(str, Enum):
     RATE_LIMIT = "rate_limit"
     REMOVED = "removed"

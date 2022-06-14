@@ -200,48 +200,11 @@ class YandexEntity:
 
         return device
 
-<<<<<<< HEAD
-=======
-    @callback
-    def notification_serialize(self, event_entity_id: str) -> dict[str, Any]:
-        """Serialize entity for a notification."""
-        if self.state.state == STATE_UNAVAILABLE:
-            return {'id': self.state.entity_id, 'error_code': ERR_DEVICE_UNREACHABLE}
-
-        device = {
-            'id': self.entity_id,
-            'capabilities': [],
-            'properties': [],
-        }
-
-        for item in [c for c in self.capabilities() if c.reportable]:
-            state = item.get_state()
-            if state is not None:
-                device['capabilities'].append(state)
-
-        for item in [c for c in self.properties() if c.reportable]:
-            if isinstance(item, CustomEntityProperty):
-                if item.property_entity_id != event_entity_id:
-                    continue
-            elif item.state.entity_id != event_entity_id:
-                continue
-
-            state = item.get_state()
-            if state is not None:
-                device['properties'].append(state)
-
-        return device
-
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     async def execute(self,
                       data: RequestData,
                       capability_type: str,
                       instance: str,
-<<<<<<< HEAD
                       state: dict[str, str | int | bool]) -> dict[str, Any] | None:
-=======
-                      state: dict[str, str | int | bool]) -> None:
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         """Execute action.
 
         https://yandex.ru/dev/dialogs/alice/doc/smart-home/reference/post-action-docpage/
@@ -255,11 +218,7 @@ class YandexEntity:
 
         for capability in target_capabilities:
             try:
-<<<<<<< HEAD
                 return await capability.set_state(data, state)
-=======
-                await capability.set_state(data, state)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             except SmartHomeError:
                 raise
             except Exception as e:
@@ -291,7 +250,6 @@ class YandexEntity:
             return None
 
         return area_reg.areas.get(area_id)
-<<<<<<< HEAD
 
 
 class YandexEntityCallbackState:
@@ -335,5 +293,3 @@ class YandexEntityCallbackState:
                 return False
 
         return True
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1

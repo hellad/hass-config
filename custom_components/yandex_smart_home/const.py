@@ -2,12 +2,15 @@
 from homeassistant.components import (
     air_quality,
     binary_sensor,
+    button,
+    camera,
     climate,
     cover,
     fan,
     group,
     humidifier,
     input_boolean,
+    input_button,
     input_text,
     light,
     lock,
@@ -19,8 +22,6 @@ from homeassistant.components import (
     vacuum,
     water_heater,
 )
-<<<<<<< HEAD
-from homeassistant.const import MAJOR_VERSION, MINOR_VERSION
 
 DOMAIN = 'yandex_smart_home'
 CONFIG = 'config'
@@ -30,21 +31,11 @@ CONFIG_ENTRY_TITLE = 'Yandex Smart Home'
 NOTIFIERS = 'notifiers'
 CLOUD_MANAGER = 'cloud_manager'
 CLOUD_STREAMS = 'cloud_streams'
-=======
-
-DOMAIN = 'yandex_smart_home'
-CONFIG = 'config'
-NOTIFIERS = 'notifiers'
-CLOUD_MANAGER = 'cloud_manager'
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 CONF_SETTINGS = 'settings'
 CONF_PRESSURE_UNIT = 'pressure_unit'
 CONF_BETA = 'beta'
-<<<<<<< HEAD
 CONF_CLOUD_STREAM = 'cloud_stream'
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 CONF_NOTIFIER = 'notifier'
 CONF_NOTIFIER_OAUTH_TOKEN = 'oauth_token'
 CONF_NOTIFIER_SKILL_ID = 'skill_id'
@@ -65,11 +56,7 @@ CONF_TURN_ON = 'turn_on'
 CONF_TURN_OFF = 'turn_off'
 CONF_FEATURES = 'features'
 CONF_SUPPORT_SET_CHANNEL = 'support_set_channel'
-<<<<<<< HEAD
 CONF_STATE_UNKNOWN = 'state_unknown'
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
-CONF_CHANNEL_SET_VIA_MEDIA_CONTENT_ID = 'channel_set_via_media_content_id'  # Deprecated
 CONF_ENTITY_PROPERTY_ENTITY = 'entity'
 CONF_ENTITY_PROPERTY_TYPE = 'type'
 CONF_ENTITY_PROPERTY_ATTRIBUTE = 'attribute'
@@ -97,14 +84,10 @@ STORE_CACHE_ATTRS = 'attrs'
 CONNECTION_TYPE_DIRECT = 'direct'
 CONNECTION_TYPE_CLOUD = 'cloud'
 
-<<<<<<< HEAD
 CLOUD_BASE_URL = 'https://yaha-cloud.ru'
 CLOUD_STREAM_BASE_URL = 'https://stream.yaha-cloud.ru'
 EVENT_DEVICE_DISCOVERY = 'yandex_smart_home_device_discovery'
 EVENT_CONFIG_CHANGED = 'yandex_smart_home_config_changed'
-=======
-EVENT_DEVICE_DISCOVERY = 'yandex_smart_home_device_discovery'
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 # https://yandex.ru/dev/dialogs/smart-home/doc/concepts/device-types.html
 PREFIX_TYPES = 'devices.types.'
@@ -117,10 +100,7 @@ TYPE_MEDIA_DEVICE = PREFIX_TYPES + 'media_device'
 TYPE_MEDIA_DEVICE_TV = PREFIX_TYPES + 'media_device.tv'
 TYPE_MEDIA_DEVICE_TV_BOX = PREFIX_TYPES + 'media_device.tv_box'
 TYPE_MEDIA_DEVICE_RECIEVER = PREFIX_TYPES + 'media_device.receiver'
-<<<<<<< HEAD
 TYPE_CAMERA = PREFIX_TYPES + 'camera'
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 TYPE_COOKING = PREFIX_TYPES + 'cooking'
 TYPE_COFFEE_MAKER = PREFIX_TYPES + 'cooking.coffee_maker'
 TYPE_KETTLE = PREFIX_TYPES + 'cooking.kettle'
@@ -128,10 +108,7 @@ TYPE_MULTICOOKER = PREFIX_TYPES + 'cooking.multicooker'
 TYPE_OPENABLE = PREFIX_TYPES + 'openable'
 TYPE_OPENABLE_CURTAIN = PREFIX_TYPES + 'openable.curtain'
 TYPE_HUMIDIFIER = PREFIX_TYPES + 'humidifier'
-<<<<<<< HEAD
 TYPE_FAN = PREFIX_TYPES + 'fan'
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 TYPE_PURIFIER = PREFIX_TYPES + 'purifier'
 TYPE_VACUUM_CLEANER = PREFIX_TYPES + 'vacuum_cleaner'
 TYPE_WASHING_MACHINE = PREFIX_TYPES + 'washing_machine'
@@ -149,10 +126,7 @@ TYPES = (
     TYPE_MEDIA_DEVICE_TV,
     TYPE_MEDIA_DEVICE_TV_BOX,
     TYPE_MEDIA_DEVICE_RECIEVER,
-<<<<<<< HEAD
     TYPE_CAMERA,
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     TYPE_COOKING,
     TYPE_COFFEE_MAKER,
     TYPE_KETTLE,
@@ -160,10 +134,7 @@ TYPES = (
     TYPE_OPENABLE,
     TYPE_OPENABLE_CURTAIN,
     TYPE_HUMIDIFIER,
-<<<<<<< HEAD
     TYPE_FAN,
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     TYPE_PURIFIER,
     TYPE_VACUUM_CLEANER,
     TYPE_WASHING_MACHINE,
@@ -174,39 +145,28 @@ TYPES = (
 )
 
 DOMAIN_TO_YANDEX_TYPES = {
+    air_quality.DOMAIN: TYPE_SENSOR,
     binary_sensor.DOMAIN: TYPE_SENSOR,
-<<<<<<< HEAD
+    button.DOMAIN: TYPE_OTHER,
     camera.DOMAIN: TYPE_CAMERA,
     climate.DOMAIN: TYPE_THERMOSTAT,
     cover.DOMAIN: TYPE_OPENABLE_CURTAIN,
     fan.DOMAIN: TYPE_FAN,
-=======
-    climate.DOMAIN: TYPE_THERMOSTAT,
-    cover.DOMAIN: TYPE_OPENABLE_CURTAIN,
-    fan.DOMAIN: TYPE_HUMIDIFIER,
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     group.DOMAIN: TYPE_SWITCH,
     humidifier.DOMAIN: TYPE_HUMIDIFIER,
     input_boolean.DOMAIN: TYPE_SWITCH,
+    input_button.DOMAIN: TYPE_OTHER,
     input_text.DOMAIN: TYPE_SENSOR,
     light.DOMAIN: TYPE_LIGHT,
     lock.DOMAIN: TYPE_OPENABLE,
     media_player.DOMAIN: TYPE_MEDIA_DEVICE,
     scene.DOMAIN: TYPE_OTHER,
     script.DOMAIN: TYPE_OTHER,
+    sensor.DOMAIN: TYPE_SENSOR,
     switch.DOMAIN: TYPE_SWITCH,
     vacuum.DOMAIN: TYPE_VACUUM_CLEANER,
     water_heater.DOMAIN: TYPE_KETTLE,
-    sensor.DOMAIN: TYPE_SENSOR,
-    air_quality.DOMAIN: TYPE_SENSOR,
 }
-if MAJOR_VERSION >= 2022 or (MAJOR_VERSION == 2021 and MINOR_VERSION == 12):
-    from homeassistant.components import button
-    DOMAIN_TO_YANDEX_TYPES[button.DOMAIN] = TYPE_OTHER
-
-if MAJOR_VERSION >= 2022:
-    from homeassistant.components import input_button
-    DOMAIN_TO_YANDEX_TYPES[input_button.DOMAIN] = TYPE_OTHER
 
 DEVICE_CLASS_TO_YANDEX_TYPES = {
     (media_player.DOMAIN, media_player.DEVICE_CLASS_TV): TYPE_MEDIA_DEVICE_TV,
@@ -282,6 +242,8 @@ MODE_INSTANCES = (
     MODE_INSTANCE_THERMOSTAT,
     MODE_INSTANCE_WORK_SPEED,
 )
+
+VIDEO_STREAM_INSTANCE_GET_STREAM = 'get_stream'
 
 # https://yandex.ru/dev/dialogs/smart-home/doc/concepts/color_setting.html#discovery__discovery-parameters-color-setting-table__entry__75
 COLOR_SETTING_RGB = 'rgb'
@@ -570,12 +532,6 @@ PRESSURE_UNIT_ATM = 'atm'
 PRESSURE_UNIT_BAR = 'bar'
 PRESSURE_UNIT_MBAR = 'mbar'
 
-<<<<<<< HEAD
-# 2021.8+
-ELECTRIC_CURRENT_MILLIAMPERE = 'mA'
-
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 # Additional states
 STATE_NONE = 'none'
 STATE_NONE_UI = '-'
@@ -587,10 +543,7 @@ STATE_LOW = 'low'
 ATTR_CURRENT = 'current'
 ATTR_ILLUMINANCE = 'illuminance'
 ATTR_LOAD_POWER = 'load_power'
-<<<<<<< HEAD
 ATTR_CURRENT_CONSUMPTION = 'current_consumption'
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 ATTR_POWER = 'power'
 ATTR_TVOC = 'total_volatile_organic_compounds'
 ATTR_WATER_LEVEL = 'water_level'
@@ -635,30 +588,25 @@ TION_FAN_SPEED_4 = '4'
 TION_FAN_SPEED_5 = '5'
 TION_FAN_SPEED_6 = '6'
 
-<<<<<<< HEAD
 # https://github.com/home-assistant/core/pull/67743
 FAN_SPEED_OFF = 'off'
 FAN_SPEED_LOW = 'low'
 FAN_SPEED_MEDIUM = 'medium'
 FAN_SPEED_HIGH = 'high'
 
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 # https://github.com/dmitry-k/yandex_smart_home/issues/173
 FAN_SPEED_MIN = 'min'
 FAN_SPEED_MAX = 'max'
 
-<<<<<<< HEAD
 # https://github.com/dmitry-k/yandex_smart_home/issues/347
 FAN_SPEED_MID = 'mid'
 
 # SmartIR
 FAN_SPEED_HIGHEST = 'highest'
 
+# Fake device class
 DEVICE_CLASS_BUTTON = 'button'
 
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 MEDIA_PLAYER_FEATURE_VOLUME_MUTE = 'volume_mute'
 MEDIA_PLAYER_FEATURE_VOLUME_SET = 'volume_set'
 MEDIA_PLAYER_FEATURE_NEXT_PREVIOUS_TRACK = 'next_previous_track'

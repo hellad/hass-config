@@ -56,17 +56,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     hass.data.setdefault(DATA_KEY, {})
     hass.data[DOMAIN]['add_entities'][ENTITY_DOMAIN] = async_add_entities
-<<<<<<< HEAD
-    config['hass'] = hass
-    model = str(config.get(CONF_MODEL) or '')
-    entities = []
-    if miot := config.get('miot_type'):
-=======
     model = str(config.get(CONF_MODEL) or '')
     miot = config.get('miot_type')
     entities = []
     if miot:
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         spec = await MiotSpec.async_from_type(hass, miot)
         for srv in spec.get_services(ENTITY_DOMAIN, 'curtain', 'airer', 'window_opener'):
             if not srv.get_property('motor_control'):
@@ -94,10 +87,6 @@ class MiotCoverEntity(MiotEntity, CoverEntity):
 
         self._motor_reverse = False
         self._position_reverse = False
-<<<<<<< HEAD
-        self._target2current = False
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         self._open_texts = []
         self._close_texts = []
 
@@ -111,21 +100,6 @@ class MiotCoverEntity(MiotEntity, CoverEntity):
                 self._prop_target_position = None
         if self._prop_motor_control.list_first('Pause', 'Stop') is not None:
             self._supported_features |= SUPPORT_STOP
-<<<<<<< HEAD
-
-        self._target2current = self.custom_config('target2current_position')
-        if self._target2current:
-            self._prop_current_position = self._prop_target_position
-
-        self._motor_reverse = self.custom_config_bool('motor_reverse', False)
-        self._position_reverse = self.custom_config_bool('position_reverse', self._motor_reverse)
-        self._open_texts = [
-            *(self.custom_config_list('open_texts') or []),
-            'Opening', 'Opened', 'Open', 'Up', 'Rising', 'Risen', 'Rise',
-        ]
-        self._close_texts = [
-            *(self.custom_config_list('close_texts') or []),
-=======
         self._motor_reverse = self.custom_config_bool('motor_reverse', False)
         self._position_reverse = self.custom_config_bool('position_reverse', self._motor_reverse)
         self._open_texts = [
@@ -134,7 +108,6 @@ class MiotCoverEntity(MiotEntity, CoverEntity):
         ]
         self._close_texts = [
             *str(self.custom_config('close_texts') or '').split(','),
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             'Closing', 'Closed', 'Close', 'Down',
         ]
         if self._motor_reverse:
@@ -155,13 +128,8 @@ class MiotCoverEntity(MiotEntity, CoverEntity):
             return
         if prop_reverse := self._miot_service.get_property('motor_reverse'):
             if prop_reverse.from_dict(self._state_attrs):
-<<<<<<< HEAD
-                if self.custom_config_bool('auto_position_reverse'):
-                    self._position_reverse = True
-=======
                 # galime.curtain.gp72
                 self._position_reverse = True
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def current_cover_position(self):
@@ -219,11 +187,6 @@ class MiotCoverEntity(MiotEntity, CoverEntity):
 
     def set_cover_position(self, **kwargs):
         pos = round(kwargs.get(ATTR_POSITION) or 0)
-<<<<<<< HEAD
-        if self._position_reverse and self._target2current:
-            pos = 100 - pos
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         srv = self._miot_service
         for p in srv.get_properties('target_position'):
             if not p.value_range:
@@ -316,14 +279,7 @@ class MiotCoverSubEntity(MiotPropertySubEntity, CoverEntity):
             val = round(self._miot_property.from_dict(self._state_attrs) or -1, 2)
             top = self._miot_property.range_max()
             return round(val / top * 100)
-<<<<<<< HEAD
-
         prop = self._miot_service.get_property('current_position')
-        if self.custom_config('target2current_position'):
-            prop = self._miot_service.get_property('target_position') or prop
-=======
-        prop = self._miot_service.get_property('current_position')
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if prop:
             return round(prop.from_dict(self._state_attrs) or -1)
         return None
@@ -546,22 +502,14 @@ class MrBondAirerProEntity(MiioCoverEntity):
                 self._subs['light'].update()
             elif add_lights and 'led' in attrs:
                 self._subs['light'] = MrBondAirerProLightEntity(self)
-<<<<<<< HEAD
-                add_lights([self._subs['light']], update_before_add=True)
-=======
                 add_lights([self._subs['light']])
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
             add_fans = self._add_entities.get('fan')
             if 'fan' in self._subs:
                 self._subs['fan'].update()
             elif add_fans and 'dry' in attrs:
                 self._subs['fan'] = MrBondAirerProDryEntity(self, option={'keys': ['drytime']})
-<<<<<<< HEAD
-                add_fans([self._subs['fan']], update_before_add=True)
-=======
                 add_fans([self._subs['fan']])
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     def set_motor(self, val):
         ret = self.send_miio_command('set_motor', [val])

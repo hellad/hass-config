@@ -1,12 +1,7 @@
 #### check file consistency
 homeassistant:
-<<<<<<< HEAD
   internal_url: !secret internal_url  # port 8123 ?
   external_url: !secret external_url  # port 88 ? The URL that Home Assistant is available on the internet. Telegram webhooks Bot uses it.
-=======
-  internal_url: !secret internal_url
-  external_url: !secret external_url
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 # Name of the location where Home Assistant is running
   name: Home
@@ -66,10 +61,6 @@ mobile_app:
 #### https://www.home-assistant.io/integrations/http/
 http:
   server_port: 8123
-<<<<<<< HEAD
-=======
-#  base_url: hellad.noip.me:88  #  hellad.noip.me:88 The URL that Home Assistant is available on the internet. Telegram webhooks Bot uses it.
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
   ssl_certificate: !secret ssl_certificate  # Let's encrypt certificate
   ssl_key: !secret ssl_key 
   ip_ban_enabled: true
@@ -107,6 +98,7 @@ logger:
       homeassistant.components.image_processing: debug
       homeassistant.components.push.camera: debug
       custom_components.garmin_connect: debug
+      custom_components.webrtc: debug
 
 #### Enables support for tracking state changes over time
 history: !include history.yaml
@@ -122,8 +114,8 @@ logbook:
       - persistent_notification
     entities:
       - sensor.time_date
-      - sensor.home_assistant_errors
-      - sensor.home_assistant_warnings
+#      - sensor.home_assistant_errors
+#      - sensor.home_assistant_warnings
 
 #### Enables a map showing the location of tracked devices
 map:
@@ -177,26 +169,26 @@ input_select: !include_dir_merge_named input_select
 ifttt:
   key: !secret ifttt_key
 
-mqtt:
-  broker: 192.168.192.25         #### run on the same host as HASS?
-  port: 1883
-  keepalive: 60
-  client_id: home-assistant-1
-  username: !secret mqtt_broker_username
-  password: !secret mqtt_broker_password
-  #discovery: true                 #### https://www.home-assistant.io/docs/mqtt/discovery/
-  discovery_prefix: homeassistant
-  protocol: 3.1
-  birth_message:
-    topic: "homeassistant/LWT"
-    payload: "Online"
-    qos: 1
-    retain: true
-  will_message:
-    topic: "homeassistant/LWT"
-    payload: "Offline"
-    qos: 1
-    retain: true
+# mqtt:
+#   broker: 192.168.192.25         #### run on the same host as HASS?
+#   port: 1883
+#   keepalive: 60
+#   client_id: home-assistant-1
+#   username: !secret mqtt_broker_username
+#   password: !secret mqtt_broker_password
+#   #discovery: true                 #### https://www.home-assistant.io/docs/mqtt/discovery/
+#   discovery_prefix: homeassistant
+#   protocol: 3.1
+#   birth_message:
+#     topic: "homeassistant/LWT"
+#     payload: "Online"
+#     qos: 1
+#     retain: true
+#   will_message:
+#     topic: "homeassistant/LWT"
+#     payload: "Offline"
+#     qos: 1
+#     retain: true
 
 ####  https://www.home-assistant.io/blog/#camera-streams-for-everyone
 #     https://www.home-assistant.io/components/stream/
@@ -206,13 +198,6 @@ stream:
 #### Camera section  
 camera: !include cameras.yaml
 
-<<<<<<< HEAD
-=======
-#### https://home-assistant.io/components/device_tracker/
-# device_tracker: !include device_tracker.yaml
-# 03.10.2021 Your Nmap Tracker configuration has been imported into the UI, please remove it from configuration.yaml.
-
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 #### https://www.home-assistant.io/components/person/
 #person:
 #  - name: Irina
@@ -272,25 +257,10 @@ notify:
 #    api_key: !secret telegram_bot_webhooks_api_key
 #    chat_id: !secret telegram_bot_webhooks_chat_id_group 
 
-<<<<<<< HEAD
   - platform: telegram
     name: telegram_family  # send to all family phones.
     api_key: !secret telegram_bot_pooling_api_key
     chat_id: !secret telegram_bot_chat_id_family
-=======
-#transmission:
-#  host: !secret transmisson_host 
-#  port: 9091
-#  name: Transmission
-#  username: !secret transmission_admin
-#  password: !secret transmission_password
-#### removed in version 0.100 https://www.home-assistant.io/integrations/transmission/
-  # monitored_conditions:
- #   - current_status
- #   - download_speed
- #   - upload_speed
- #   - active_torrents
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 # https://www.home-assistant.io/components/ffmpeg/
 ffmpeg:
@@ -315,22 +285,6 @@ light:
     host: 192.168.192.81
     name: Pi0_ambilight
 
-<<<<<<< HEAD
-=======
-#### disable for a while to test open zwave beta integration
-#zwave:
-#  usb_path: /dev/ttyACM0
-#  usb_path: /dev/zwave
-#  debug: false
-#  autoheal: true
-#  config_path: /srv/homeassistant/lib/python3.5/site-packages/python_openzwave/ozw_config/config/
-#  polling_interval: 60000    # that’s in milliseconds, so that’s each minute
-#  network_key: !secret z-wave_network_key
-#  refresh_value: true        # invalid option for [zwave]! Enable refreshing of the node value. Only the light component uses this.
-#  delay: 5                   # Specify the delay for refreshing of node value. Only the light component uses this.
-#  polling_intensity: 1       # Enables polling of a value and sets the frequency of polling (0=none, 1=every time through the list, 2=every other time, etc). If not specified then your device will not be polled.
-
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 #### Example configuration.yaml entry for AlexaPi
 #### https://home-assistant.io/components/alexa/#i-want-to-build-custom-commands-to-use-with-echo
 #### upgrade to 0.50 version https://community.home-assistant.io/t/need-to-change-plaintext-to-plain-in-intent-scripts-for-alexa-in-ha-50-1/23129/5
@@ -374,28 +328,11 @@ sonoff:
 #  grace_period: 600                                   #(optional)
 #  api_region: 'eu'                                    #(optional)
 #  entity_prefix: True                                 #(optional)
-<<<<<<< HEAD
   debug: True                                        #(optional) this option createsa pseudo switch entity switch.sonoff_debug (notice it won't show up automatically in frontend 
-=======
-#  debug: True                                        #(optional) this option createsa pseudo switch entity switch.sonoff_debug (notice it won't show up automatically in frontend 
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 #in lovelace you have to manually add it or toggle it from Developer tools > Services section). 
 #when you finish toggle the pseudo-switch OFF and a new (very long) persistent notification will show up.
 #  mode: local     # Legacy mode. Only downloads a list of devices from Cloud Servers. Works with local protocol. Only works with devices on 3rd firmware.
 #  reload: always  # update device list every time HA starts
-<<<<<<< HEAD
-=======
-
-#### https://www.home-assistant.io/components/tuya/ 
-#### YAML configuration is still around for people that prefer YAML, 
-#### but it’s deprecated and you should not use it anymore.
-#### This option will become invalid in version 0.110
-#tuya:
-#  username: !secret tuya_username
-#  password: !secret tuya_password
-#  country_code: 7
-#  platform: jinvoo_smart #The app where your account register. tuya for Tuya Smart, smart_life for Smart Life, jinvoo_smart for Jinvoo Smart. Default value: tuya
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 #https://www.home-assistant.io/components/google_assistant/#configuration
 google_assistant: !include google_assistant.yaml
@@ -447,40 +384,28 @@ python_script:
 
 #### https://github.com/AlexxIT/YandexStation
 #### 192.168.192.20:8080 - my station
-yandex_station:
-  username: !secret yandex_user
-  password: !secret yandex_password
-  tts_service_name: alice_say
-  recognition_lang: ru-RU   # https://github.com/AlexxIT/YandexStation#%D1%8F%D0%BD%D0%B4%D0%B5%D0%BA%D1%81-%D0%B0%D0%BB%D0%B8%D1%81%D0%B0-%D0%B2-lovelace
-  devices:
-    94007890870c640d0acf:  # device_id вашей колонки
-      host: 192.168.192.20
-      name: Я_Станция  # имя можно задать и тут
-  include:
-    - Кондиционер
-    - Плеер
-    - Телевизор
-  intents:
-    Покажи сообщение: как скажешь
-    Какая температура в спальне: .
-    Какая влажность в спальне: .
-    Какая температура на кухне: .
-    Какая влажность на кухне: .
-    Какая влажность в ванной: .
-    Какая температура в ванной: .
+# yandex_station:
+#   username: !secret yandex_user
+#   password: !secret yandex_password
+#   tts_service_name: alice_say
+#   recognition_lang: ru-RU   # https://github.com/AlexxIT/YandexStation#%D1%8F%D0%BD%D0%B4%D0%B5%D0%BA%D1%81-%D0%B0%D0%BB%D0%B8%D1%81%D0%B0-%D0%B2-lovelace
+#   devices:
+#     94007890870c640d0acf:  # device_id вашей колонки
+#       host: 192.168.192.20
+#       name: Я_Станция  # имя можно задать и тут
+#   include:
+#     - Кондиционер
+#     - Плеер
+#     - Телевизор
+#   intents:
+#     Покажи сообщение: как скажешь
+#     Какая температура в спальне: .
+#     Какая влажность в спальне: .
+#     Какая температура на кухне: .
+#     Какая влажность на кухне: .
+#     Какая влажность в ванной: .
+#     Какая температура в ванной: .
 
-<<<<<<< HEAD
-=======
-# new config in version 0.111 for synology_dsm
-# https://www.home-assistant.io/integrations/synology_dsm/
-# 03.10.2021 The 'synology_dsm' option near /config/configuration.yaml:1 is deprecated, please remove it from your configuration
-#synology_dsm:
-#  - host: !secret transmisson_host
-#    username: !secret synology_admin
-#    password: !secret synology_admin_password
-#    ssl: false
-#    port: 5000
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 # manual configuration in ui-lovelace.yaml file    
 lovelace:
@@ -521,7 +446,6 @@ lovelace:
 # The full list of known endpoints is available at 
 # https://github.com/bendavid/aiopylgtv/blob/master/aiopylgtv/endpoints.py
 # LG OLED 65CX TV integration
-<<<<<<< HEAD
 #### depreciated! see in GUI
 #webostv:
 #  host: 192.168.192.21   # WiFi connection
@@ -546,31 +470,6 @@ lovelace:
 #      - Билайн ТВ
 #      - Яндекс
 #      - Веб-браузер
-=======
-webostv:
-  host: 192.168.192.21   # WiFi connection
-  name: Bedroom LG TV
-  turn_on_action:
-    #service: persistent_notification.create
-    #data:
-      #message: "Turn on action"
-    service: wake_on_lan.send_magic_packet
-    data: 
-      mac: 58-FD-B1-E1-4A-36
-      broadcast_address: 11.22.33.44
-  customize:
-    sources:
-      - YouTube
-      - Plex
-      - netflix
-      - Amazon Prime Video
-      - Домашний кинотеатр
-      - КиноПоиск HD
-      - Триколор Кино и ТВ
-      - Билайн ТВ
-      - Яндекс
-      - Веб-браузер
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 #media_player:       # media_player.bedroom_lg_tv
 
@@ -597,3 +496,4 @@ xiaomi_miot:
       moist: '微湿'
       extra: '特干'
 
+media_source: 

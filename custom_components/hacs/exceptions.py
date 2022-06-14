@@ -23,7 +23,6 @@ class HacsRepositoryExistException(HacsException):
 
 class HacsExecutionStillInProgress(HacsException):
     """Exception to raise if execution is still in progress."""
-<<<<<<< HEAD
 
 
 class AddonRepositoryException(HacsException):
@@ -48,5 +47,3 @@ class HomeAssistantCoreRepositoryException(HacsException):
 
     def __init__(self) -> None:
         super().__init__(self.exception_message)
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1

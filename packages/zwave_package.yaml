@@ -148,7 +148,7 @@ automation:
         state: 'off'
                        # if not turned on manually then swich light on automaticaly when dark and to be switched off too.
       - condition: template
-        value_template: "{% if states('sensor.aeon_labs_zw100_multisensor_6_luminance') < '20' %} true {% else %} false {% endif %}"  # in case of high brithness don't switch light on
+        value_template: "{% if states('sensor.multisensor_6_illuminance') < '20' %} true {% else %} false {% endif %}"  # in case of high brithness don't switch light on
 
     action:
 #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!    order of action does matter?!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

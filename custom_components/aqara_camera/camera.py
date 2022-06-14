@@ -8,6 +8,7 @@ from homeassistant.components import ffmpeg
 from homeassistant.components.camera import SUPPORT_STREAM, Camera
 from homeassistant.helpers import entity_platform
 from homeassistant.components.ffmpeg import DATA_FFMPEG
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.util import slugify
 from homeassistant.const import CONF_HOST
 
@@ -46,7 +47,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         )
         ret = await hass.async_add_executor_job(camera.connect)
         if not ret:
-            raise CannotConnect
+            ret = await hass.async_add_executor_job(camera.connect)
+            if not ret:
+                raise CannotConnect
 
     await hass.async_add_executor_job(camera.get_device_info)
 
@@ -71,6 +74,7 @@ class HassAqaraCamera(Camera):
         self._unique_id = config_entry.entry_id
         self._motion_status = 0
         self._ffmpeg = hass.data.get(DATA_FFMPEG, None)
+        self._attr_supported_features = SUPPORT_STREAM
 
     async def async_added_to_hass(self):
         """Handle entity addition to hass."""
@@ -103,14 +107,6 @@ class HassAqaraCamera(Camera):
         return self._unique_id
 
     @property
-    def supported_features(self):
-        """Return supported features."""
-        if len(self._session.camera_rtsp_url) >= 1:
-            return SUPPORT_STREAM
-
-        return None
-
-    @property
     def device_info(self):
         return {
             "identifiers": {
@@ -137,7 +133,6 @@ class HassAqaraCamera(Camera):
     ) -> bytes | None:
         """Return bytes of camera image."""
         if self._ffmpeg:
-            self._session.get_product_info()
             return await ffmpeg.async_get_image(
                 self.hass,
                 self._session.camera_rtsp_url,
@@ -163,3 +158,7 @@ class HassAqaraCamera(Camera):
             self._session.ptz_control_preset(angle_x, angle_y, span_x, span_y)
         else:
             self._session.ptz_control(direction, span_x, span_y)
+
+
+class CannotConnect(HomeAssistantError):
+    """Error to indicate we cannot connect."""

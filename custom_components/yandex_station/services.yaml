@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 reload:
   name: Reload
   description: Reload Yandex Station notify services.
 
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 send_command:
   description: Send command to Yandex.Station.
   fields:
@@ -25,7 +22,6 @@ send_command:
       example: 'artist'
     volume:
       description: For setVolume command
-<<<<<<< HEAD
       example: 0.5
 
 mute:
@@ -72,6 +68,3 @@ backlight:
       required: true
       selector:
         boolean:
-=======
-      example: 0.5
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1

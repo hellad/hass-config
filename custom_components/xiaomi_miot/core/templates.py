@@ -1,23 +1,4 @@
 CUSTOM_TEMPLATES = {
-<<<<<<< HEAD
-    # https://iot.mi.com/new/doc/embedded-development/ble/object-definition#%E7%89%99%E5%88%B7%E4%BA%8B%E4%BB%B6
-    'ble_toothbrush_events': "{%- set dat = props.get('event.16') | default('{}',true) | from_json %}"
-                             "{%- set tim = dat.timestamp | default(0,true) | timestamp_local %}"
-                             "{%- set val = dat.get('value',[]).0 | default('0000') %}"
-                             "{%- set typ = val[0:2] | int(0,16) %}"
-                             "{%- set num = val[2:4] | int(0,16) %}"
-                             "{{ {"
-                             "'event': 'start',"
-                             "'counter': num,"
-                             "'timestamp': tim,"
-                             "} if typ == 0 else {"
-                             "'event': 'finish',"
-                             "'score': num,"
-                             "'timestamp': tim,"
-                             "} }}",
-    # https://iot.mi.com/new/doc/embedded-development/ble/object-definition#%E9%94%81%E4%BA%8B%E4%BB%B6
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     'ble_lock_events': "{%- set mark_data = props.get('event.6') | default('{}',true) | from_json %}"
                        "{%- set mark = mark_data.get('value',[]).0 | default('') %}"
                        "{%- set door_data = props.get('event.7') | default('{}',true) | from_json %}"
@@ -51,10 +32,6 @@ CUSTOM_TEMPLATES = {
                        "'lock_data': lock,"
                        "'timestamp': lock_data.timestamp | default(0,true) | timestamp_local,"
                        "} }}",
-<<<<<<< HEAD
-    # https://iot.mi.com/new/doc/embedded-development/ble/object-definition#%E7%83%9F%E9%9B%BE%E5%B1%9E%E6%80%A7
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     'ble_sensor_smoke': "{%- set val = props.get('prop.4117','00') | int(0,16) %}"
                         "{{ {"
                         "'smoke_status': val == 1,"
@@ -94,27 +71,10 @@ CUSTOM_TEMPLATES = {
                               "'method': mls[how] | default('unknown'),"
                               "'key_id': key,"
                               "} }}",
-<<<<<<< HEAD
-    'lumi_acpartner_electric_power': "{%- set val = props.get('prop.load_power') or props.get('prop.ac_power',0) %}"
-                                     "{{ {"
-                                     "'electric_power': val | default(0,true) | round(2),"
-                                     "} }}",
-    'lumi_acpartner_miio_status': "{%- set model = results[0] | default('') %}"
-                                  "{%- set state = results[1] | default('') %}"
-                                  "{{ {"
-                                  "'power': state[2:3] | int(0) == 1,"
-                                  "'mode': [3,1,0,2,4][state[3:4] | int(2)],"
-                                  "'fan_level': [3,0,1,2][state[4:5] | int(3)],"
-                                  "'vertical_swing': state[5:6] in ['0','C'],"
-                                  "'target_temperature': state[6:8] | int(0,16),"
-                                  "'load_power': results[2] | default(0) | float | round(2),"
-                                  "} }}",
-=======
     'lumi_acpartner_electric_power': "{%- set val = props.get('prop.ac_power',props.get('prop.load_power',0)) %}"
                                      "{{ {"
                                      "'electric_power': val | round(2),"
                                      "} }}",
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     'micloud_statistics_power_cost': "{%- set dat = namespace(today=0,month=0) %}"
                                      "{%- set tim = now() %}"
                                      "{%- set stm = tim - timedelta(minutes=tim.minute,seconds=tim.second) %}"
@@ -157,31 +117,6 @@ CUSTOM_TEMPLATES = {
                                          "'motion_video_latest': val,"
                                          "'_entity_attrs': True,"
                                          "} }}",
-<<<<<<< HEAD
-    'yeelink_bhf_light_v2_fan_levels': "{%- set val = ('00000' ~ value)[-5:] %}"
-                                       "{%- set mds = {"
-                                       "'drying_cloth': val[0],"
-                                       "'coolwind': val[1],"
-                                       "'drying': val[2],"
-                                       "'venting': val[3],"
-                                       "'warmwind': val[4],"
-                                       "} %}"
-                                       "{{ [1,2,3][mds[props.bh_mode] | default(0) | int(0)] | default(3) }}",
-    'yeelink_bhf_light_v5_fan_levels': "{%- set val = ('000' ~ value)[-3:] %}"
-                                       "{%- set mds = {"
-                                       "'warmwind': val[0],"
-                                       "'coolwind': val[1],"
-                                       "'venting': val[2],"
-                                       "} %}"
-                                       "{{ [1,1,3,3][mds[props.bh_mode] | default(0) | int(0)] | default(1) }}",
-    'yeelink_bhf_light_v5_miio_props': "{%- set val = ('000' ~ props.fan_speed_idx)[-3:] %}"
-                                       "{{ {"
-                                       "'warmwind_gear': val[0],"
-                                       "'coolwind_gear': val[1],"
-                                       "'venting_gear': val[2],"
-                                       "} }}",
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     'zimi_powerstrip_v2_power_cost': "{%- set val = (result.0 | default({})).get('value','[0]') %}"
                                      "{%- set day = now().day %}"
                                      "{%- set vls = (val | from_json)[0-day:] %}"

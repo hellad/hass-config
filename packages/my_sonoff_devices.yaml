@@ -14,11 +14,11 @@ sensor:
     payload_available: "Online"
     payload_not_available: "Offline"
 
-#### чтобы не выключалось по датчику движения, если было включено вручную
+#### чтобы не выключалось зеркало по датчику движения, если было включено вручную
 #### использовать в условии автоматизации
   - platform: mqtt
     state_topic: "mirror/tele/SENSOR"
-    name: "BathRoom relay touch sensor"              #### sensor.bathroom_relay_touch_sensor
+    name: "BathRoom mirror relay touch sensor"              #### sensor.bathroom_mirror_relay_touch_sensor
     value_template: '{{ value_json.Switch1 }}'  
 #    initial_state: on
 
@@ -67,10 +67,10 @@ sensor:
 ################################################################################
 # https://github.com/arendst/Sonoff-Tasmota/wiki/Home-Assistant-%E2%80%90-Manual-Config#configure-switches
 # was changed to light somehow after migration to Docker@NAS?!
-# Payload from mirror/tele/STATE - {"Time":"1970-01-04T10:04:18","Uptime":"3T07:25:14","SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"POWER":"OFF","Wifi":{"AP":1,"SSId":"adhome","BSSId":"B8:69:F4:E7:A7:9B","Channel":4,"RSSI":96}}
+# Payload from mirror/tele/STATE - mirror/tele/STATE = {"Time":"2022-04-26T12:15:01","Uptime":"24T13:07:24","UptimeSec":2120844,"Vcc":3.476,"Heap":30,"SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"MqttCount":4,"POWER":"OFF","Wifi":{"AP":1,"SSId":"adhome","BSSId":"E8:48:B8:AB:F7:4B","Channel":4,"Mode":"11n","RSSI":100,"Signal":-36,"LinkCount":3,"Downtime":"0T00:00:19"}}
 switch:
   - platform: mqtt
-    name: "Bathroom Light"
+    name: "Bathroom Mirror Light"
     state_topic: "mirror/tele/STATE"
     value_template: "{{ value_json.POWER }}"
     command_topic: "mirror/cmnd/POWER"
@@ -113,11 +113,7 @@ switch:
 # switch.manual_entrance_light
   - platform: mqtt
     name: "Manual Entrance Light"
-<<<<<<< HEAD
     state_topic: "stat/corridor/POWER2"       #### should be same as command topic?
-=======
-    state_topic: "stat/corridor/POWER2"       #### should be theme as command topic?
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     value_template: "{{ value_json.POWER }}"
     command_topic: "cmnd/corridor-manual/POWER2"
     availability_topic: "tele/corridor/LWT"
@@ -148,7 +144,7 @@ group:
     name: Зеркало
     entities:
       - switch.bathroom_light
-      - sensor.bathroom_relay_touch_sensor   #### see in sensors. does not update status immediatly!
+      - sensor.bathroom_mirror_relay_touch_sensor   #### see in sensors. does not update status immediatly!
       - sensor.bathroom_relay_wifi_signal    #### see in sensors. does not update status immediatly!
       - sensor.bathroom_relay_uptime
       - sensor.bathroom_relay_last_result
@@ -173,7 +169,7 @@ group:
       
 automation:
 ################################################################################
-#	 Turn Bathroom Mirror Light On
+#	 Turn Bathroom Mirror Light On when movement detected
 ################################################################################
   - alias: Turn Bathroom Mirror Light On
     initial_state: false    #### initially disable mirror light switching!!!
@@ -184,13 +180,13 @@ automation:
         to: 'on'
     condition:
       - condition: state
-        entity_id: sensor.bathroom_relay_touch_sensor
+        entity_id: sensor.bathroom_mirror_relay_touch_sensor
            # check the status of manual switching
         state: 'OFF'
         
     action:
       - service: homeassistant.turn_on
-        entity_id: switch.bathroom_light   #### switch on programmably
+        entity_id: switch.bathroom_mirror_light   #### switch mirror light on programmably
 #### debug message
 #      - service: telegram_bot.send_message
 #        data_template:
@@ -276,25 +272,22 @@ automation:
                       # ? надо делать просто отложенное на 30 секунд выключение, но если вновь появится движение, то сброс таймера
           
       - condition: state
-        entity_id: sensor.bathroom_relay_touch_sensor
+        entity_id: sensor.bathroom_mirror_relay_touch_sensor
            # check the status of manual switching
         state: 'OFF'
     action:
       - service: homeassistant.turn_off
-        entity_id: switch.bathroom_light   #### switch off programmably
+        entity_id: switch.bathroom_mirror_light   #### switch mirror off programmably
 #### debug message
       - service: telegram_bot.send_message
         data_template:
           target: [!secret telegram_bot_chat_id_beeline]
           message: >
             {{now().strftime("%H:%M:%S %Y-%m-%d")}}sensor.bathroom_relay_touch_sensor {{ states.sensor.bathroom_relay_touch_sensor.state }}  Enforced turn off Mirror Light  after motion stopped
+
 ################################################################################
 #	 Switch Bathroom Light Off in 4 minutes without motion
-<<<<<<< HEAD
 # time of lightning defined by variable resistor on PIR sensor 
-=======
-# time of lightning defined by variable resistor on PIR sensor and for:
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 ################################################################################
   - alias: Switch Bathroom Light Off
     initial_state: true
@@ -369,12 +362,12 @@ automation:
         entity_id: switch.bathroom_light
         state: 'on'
       - condition: state
-        entity_id: sensor.bathroom_relay_touch_sensor
+        entity_id: sensor.bathroom_mirror_relay_touch_sensor
 #           # check the status if was manually turned on
         state: 'ON'
     action:
       - service: homeassistant.turn_off
-        entity_id: switch.bathroom_light   #### switch off enforced programmably
+        entity_id: switch.bathroom_light   #### switch mirror off enforced programmably
 #### debug message
       - service: telegram_bot.send_message
         data_template:
@@ -386,7 +379,7 @@ automation:
 #	 Enforced Switch Bathroom Fan Off
 #    if was turned on manually and has not turned off after 3 minute without movements
 ################################################################################
-  - alias: Switch Enforced Bathroom Mirror Light Off
+  - alias: Switch Enforced Bathroom Fan Off
     initial_state: true
     trigger:
       platform: time_pattern
@@ -487,7 +480,7 @@ automation:
 
 ################################################################################
 #	 Enforced Switch StoreRoom Light Off
-#    if was turned on manually and has not turned off after 5 minute without movements
+#    if was turned on manually and has not turned off after 10 minute without movements
 ################################################################################
   - alias: Switch Enforced StoreRoom Light Off
     initial_state: true

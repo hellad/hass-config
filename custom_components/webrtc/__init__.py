@@ -4,10 +4,7 @@ import os
 import stat
 import time
 import uuid
-<<<<<<< HEAD
 from pathlib import Path
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 from urllib.parse import urlparse, urlencode
 
 import homeassistant.helpers.config_validation as cv
@@ -28,11 +25,7 @@ from .utils import DOMAIN, Server
 
 _LOGGER = logging.getLogger(__name__)
 
-<<<<<<< HEAD
 BINARY_VERSION = 'v5'
-=======
-BINARY_VERSION = 'v4'
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 CREATE_LINK_SCHEMA = vol.Schema(
     {
@@ -79,11 +72,7 @@ async def async_setup(hass: HomeAssistantType, config: ConfigType):
 
     # serve lovelace card
     url_path = '/webrtc/webrtc-camera.js'
-<<<<<<< HEAD
     path = Path(__file__).parent / 'www/webrtc-camera.js'
-=======
-    path = hass.config.path('custom_components/webrtc/www/webrtc-camera.js')
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     utils.register_static_path(hass.http.app, url_path, path)
 
     # version supported only after 2021.3.0
@@ -93,11 +82,7 @@ async def async_setup(hass: HomeAssistantType, config: ConfigType):
     await utils.init_resource(hass, url_path, str(version))
 
     # serve html page
-<<<<<<< HEAD
     path = Path(__file__).parent / 'www/index.html'
-=======
-    path = hass.config.path('custom_components/webrtc/www/index.html')
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     utils.register_static_path(hass.http.app, '/webrtc/embed', path)
 
     # component uses websocket, but some users can use REST API for integrate
@@ -170,11 +155,7 @@ async def ws_connect(hass: HomeAssistantType, params):
         url = params.get('url')
 
     # also check if url valid, e.g. wrong chars in password
-<<<<<<< HEAD
     assert urlparse(url).scheme in ('rtsp', 'rtsps'), "Support only RTSP-stream"
-=======
-    assert urlparse(url).scheme == 'rtsp', "Support only RTSP-stream"
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     server = hass.data[DOMAIN]
     assert server.available, "WebRTC server not available"

@@ -127,7 +127,6 @@
             Внимание, сообщаю прогноз погоды на сегодня: {{ states('sensor.dark_sky_summary_0d') }}
       - delay: 0:0:8
       - service: tts.google_translate_say # tts.alice_say
-<<<<<<< HEAD
         entity_id: media_player.kitchen   # Say to the sonos speaker device entity
                                           # media_player.yandex_station_94007890870c640d0acf
                                           # media_player.bedroom
@@ -147,14 +146,7 @@
         data: '/speak'                            #### /speak
     action:
       - service: tts.google_translate_say
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         entity_id: media_player.kitchen   # Say to the sonos speaker device entity
-                                          # media_player.yandex_station_94007890870c640d0acf
-                                          # media_player.bedroom
-                                          # media_player.home_theater
-                                          # media_player.home_theater_zone2
-                                          # 
         data_template:
           language: ru
           message: >
@@ -208,7 +200,7 @@
       platform: event
       event_type: telegram_callback
       event_data:
-        command: '/say'                            #### /say Тест
+        command: '/say'                            #### /say Текст
     action:
       - service: telegram_bot.send_message
         data_template:
@@ -256,17 +248,21 @@
       event_data:
         command: '/photok'                             #### /photok
     action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Photo should be sent to  {{ trigger.event.data["user_id"] }}.
       - service: telegram_bot.send_photo
         data_template:
           target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
-#          {"url":"http://localhost:8123{{ states.camera.adcamera.attributes.entity_picture}}","target":"!secret telegram_bot_chat_id_beeline", "keyboard":["/ping, /speak", "/photo"]}
-#          {"url":"https://hellad.ddns.us:88{{ states.camera.adcamera.attributes.entity_picture}}","target":"!secret telegram_bot_chat_id_beeline", "keyboard":["/ping, /speak", "/photo"]}  #does not work with SSL
-          url: !secret HLS_dafang_still_url        #### https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/blob/master/integration/homeassistant/homeassistant.md
+          url: !secret dahua_dome_camera_still_image_url
 #          file: "/home/homeassistant/.homeassistant/www/camera.png"
           verify_ssl: false
-          username: !secret dafang_user
-          password: !secret dafang_password
-<<<<<<< HEAD
+          username: !secret dahua_user
+          password: !secret dahua_password
+
+
 
   - alias: 'Telegram bot inline send dacha photo'
     trigger:
@@ -278,17 +274,15 @@
       - service: telegram_bot.send_photo
         data_template:
           target: '{{ trigger.event.data.user_id }}'  
-          url: !secret HLS_dafang_still_url        #### https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/blob/master/integration/homeassistant/homeassistant.md
+          url: !secret dahua_dome_camera_still_image_url
 #          file: "/home/homeassistant/.homeassistant/www/camera.png"
           verify_ssl: false
-          username: !secret dafang_user
-          password: !secret dafang_password
+          username: !secret dahua_user
+          password: !secret dahua_password
 
 
 
 
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
 #### https://www.home-assistant.io/components/telegram_bot/
 ##   send map with Irina location
@@ -307,13 +301,8 @@
           verify_ssl: false
 
 #### https://www.home-assistant.io/components/telegram_bot/
-<<<<<<< HEAD
 ##   send map with OnePlus location
   - alias: 'Telegram bot send Andrey location'
-=======
-##   send map with HTC location
-  - alias: 'Telegram bot send Irina location'
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     trigger:
       platform: event
       event_type: telegram_command
@@ -450,7 +439,7 @@
           entity_id: switch.fujitsu
       - delay: 0:0:1
       - service: tts.google_translate_say
-        entity_id: media_player.vlcmp   # Say to the media_player.vlcmp device entity
+        entity_id: media_player.kitchen   # Say to the media_player.vlcmp device entity
         data_template:
           language: ru
           message: >
@@ -477,7 +466,7 @@
           entity_id: switch.fujitsu
       - delay: 0:0:1
       - service: tts.google_translate_say
-        entity_id: media_player.vlcmp   # Say to the media_player.vlcmp device entity
+        entity_id: media_player.kitchen   # Say to the media_player.vlcmp device entity
         data_template:
           language: ru
           message: >

@@ -31,15 +31,6 @@
           "token": "權杖",
           "telnet_cmd": "開啟 Telnet 指令"
         }
-<<<<<<< HEAD
-=======
-      },
-      "ble": {
-        "title": "Add BLE Device",
-        "data": {
-          "mac": "Device"
-        }
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
       }
     }
   },
@@ -61,19 +52,11 @@
           "ble": "支援 BLE 設備",
           "stats": "Zigbee 與 BLE 效能資料",
           "debug": "Debug",
-<<<<<<< HEAD
           "buzzer": "[DANGER] 關閉蜂鳴器",
           "memory": "[DANGER] 使用記憶體空間",
           "zha": "[DANGER] ZHA 或 zigbee2mqtt 模式"
         },
         "description": "僅於了解可能之風險後，才建議變更 **ADV** 選項"
-=======
-          "buzzer": "關閉蜂鳴器 [PRO]",
-          "parent": "統計上端裝置 [PRO]",
-          "zha": "模式 [PRO]"
-        },
-        "description": "僅於了解可能之風險後，才建議變更 **PRO** 選項"
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
       }
     }
   },

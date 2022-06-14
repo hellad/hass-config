@@ -1,0 +1,72 @@
+#intent_script: 
+
+  WhatIsTheTemperatureIntent:
+    speech:
+#### try to use new features of alexa voice
+#      type: SSML
+#      text: >-
+#          I want to tell you a secret. 
+#          <amazon:effect name="whispered">I am not a real human.</amazon:effect>.
+#          Can you believe it?
+
+      type: plain
+      text: >-
+          The temperature in corridor is {{ states("sensor.multisensor_6_air_temperature") }} Celcius .
+          The humidity in corridor is  {{ states("sensor.multisensor_6_humidity") }} % . 
+          The temperature in room is {{ states("sensor.cgllc_cgdn1_5dcf_temperature") }} Celcius . 
+
+  StatusIntent:
+    speech:
+      type: plain
+      text: >-
+          Today is {{ states.sensor.date.state }}, current time is {{ states.sensor.time.state }}.
+          System is working! Time since last reboot is  {{ as_timestamp(states.sensor.last_boot.state)| timestamp_custom("%Y-%m-%d %X") }}. 
+          The temperature in room is {{ states("sensor.cgllc_cgdn1_5dcf_temperature") }} Celcius .
+          The humidity in room is  {{ states("sensor.cgllc_cgdn1_5dcf_environment") }} % . 
+          Irina is at {{ states.device_tracker.irina.state|replace("_"," ") }} .
+          Andrey is at {{ states.device_tracker.andrey.state|replace("_"," ") }} .
+          Pavel is at {{ states.device_tracker.iphone7.state|replace("_"," ") }} ,
+          and Prokhor is at {{ states.device_tracker.mi4prime_xiaomi.state|replace("_"," ") }}.
+          Today Weather is {{ states('sensor.dark_sky_summary') }}.
+          Transmission status is {{ states("sensor.transmission_status") }} with upload speed {{ states("sensor.transmission_up_speed") }}. IP address is {{ states("sensor.external_ip") }}
+          Air conditioner Power is {{ states.switch.fujitsu.state }}, current mode is {{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_number.bedroom_aircon_temperature.state|int }} .
+
+
+  WhereAreWeIntent:
+    speech:
+      type: plain
+      text: >-
+          Irina is at {{ states.device_tracker.irina.state|replace("_"," ") }} .
+          Andrey is at {{ states.device_tracker.andrey.state|replace("_"," ") }} .
+          Pavel is at {{ states.device_tracker.iphone7.state|replace("_"," ") }} ,
+          and Prokhor is at {{ states.device_tracker.mi4prime_xiaomi.state|replace("_"," ") }}.
+  LocateIntent:
+    action:
+      service: notify.telegram_group
+      data_template:
+        message: The location of {{ User }} has been queried via Alexa.     # states.device_tracker.{{ User }}
+    speech:
+      type: plain
+      text: >
+        {% set Found = false %}
+        {%- for state in states.device_tracker -%}
+          {%- if state.name.lower() == User.lower() -%}
+            {{ state.name }} is at {{ state.state|replace("_"," ") }} .
+            {% set Found = true %}
+          {%- endif -%}
+          {%- if not Found and loop.last -%}
+            I am sorry, I do not know who are you asking about.
+          {%- endif -%}
+        {%- else -%}
+          Sorry, I don`t have any trackers registered.
+        {%- endfor -%}
+
+  RunScriptIntent:
+    action:
+      service: script.turn_on
+      data_template:
+        entity_id: script.{{ Script | replace(" ", "_") }}
+              
+    speech:
+      type: plain
+      text: !include templates/alexa_confirm.yaml

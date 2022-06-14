@@ -1,10 +1,6 @@
 import logging
 import requests
 import platform
-<<<<<<< HEAD
-import random
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 import time
 import re
 
@@ -16,12 +12,8 @@ from .const import (
     TRANSLATION_LANGUAGES,
     STATE_CLASS_MEASUREMENT,
     STATE_CLASS_TOTAL_INCREASING,
-<<<<<<< HEAD
-    EntityCategory,
-=======
     ENTITY_CATEGORY_CONFIG,
     ENTITY_CATEGORY_DIAGNOSTIC,
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -82,11 +74,7 @@ class MiotSpecInstance:
 
     @staticmethod
     def format_desc_name(des, nam):
-<<<<<<< HEAD
-        return MiotSpecInstance.format_name(nam if not des or re.match(r'[^x00-xff]', des) else des)
-=======
         return MiotSpecInstance.format_name(nam if re.match(r'[^x00-xff]', des) else des)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @staticmethod
     def name_by_type(typ):
@@ -144,27 +132,6 @@ class MiotSpec(MiotSpecInstance):
         self.services = {}
         self.services_count = {}
         self.services_properties = {}
-<<<<<<< HEAD
-        self.specs = {}
-        self.custom_mapping = None
-        self.custom_mapping_names = {}
-        self.extend_specs(services=dat.get('services') or [])
-
-    def extend_specs(self, services: list):
-        for s in (services or []):
-            srv = MiotService(s, self)
-            if srv.iid in self.services:
-                self.services[srv.iid].extend_specs(
-                    properties=s.get('properties') or [],
-                    actions=s.get('actions') or [],
-                )
-            elif srv.name:
-                self.services[srv.iid] = srv
-
-    def services_mapping(self, *args, **kwargs):
-        dat = None
-        eps = kwargs.pop('exclude_properties', [])
-=======
         self.custom_mapping = None
         self.custom_mapping_names = {}
         for s in (dat.get('services') or []):
@@ -175,7 +142,6 @@ class MiotSpec(MiotSpecInstance):
 
     def services_mapping(self, *args, **kwargs):
         dat = None
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         sls = self.get_services(*args, **kwargs)
         if self.custom_mapping:
             sis = list(map(lambda x: x.iid, sls))
@@ -188,11 +154,7 @@ class MiotSpec(MiotSpecInstance):
         for s in sls:
             if dat is None:
                 dat = {}
-<<<<<<< HEAD
-            nxt = s.mapping(excludes=eps) or {}
-=======
             nxt = s.mapping() or {}
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             dat = {**nxt, **dat}
         return dat
 
@@ -257,18 +219,10 @@ class MiotSpec(MiotSpecInstance):
         url = 'https://miot-spec.org/miot-spec-v2/instances?status=all'
         fnm = f'{DOMAIN}/instances.json'
         store = Store(hass, 1, fnm)
-<<<<<<< HEAD
-        cached = await store.async_load() or {}
-        now = int(time.time())
-        dat = {}
-        if not use_remote:
-            dat = cached
-=======
         now = int(time.time())
         dat = {}
         if not use_remote:
             dat = await store.async_load() or {}
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             ptm = dat.pop('_updated_time', 0)
             if dat and now - ptm > 86400 * 7:
                 dat = {}
@@ -276,33 +230,6 @@ class MiotSpec(MiotSpecInstance):
             try:
                 res = await hass.async_add_executor_job(requests.get, url)
                 dat = res.json() or {}
-<<<<<<< HEAD
-                if dat:
-                    sdt = {
-                        '_updated_time': now,
-                    }
-                    for v in (dat.get('instances') or []):
-                        m = v.get('model')
-                        o = sdt.get(m) or {}
-                        if o:
-                            if o.get('status') == 'released' and v.get('status') != o.get('status'):
-                                continue
-                            if v.get('version') < o.get('version'):
-                                continue
-                        v.pop('model', None)
-                        sdt[m] = v
-                    await store.async_save(sdt)
-                    dat = sdt
-                    _LOGGER.info(
-                        'Renew miot spec instances: %s, count: %s, model: %s',
-                        fnm, len(sdt) - 1, model,
-                    )
-            except (TypeError, ValueError, requests.exceptions.ConnectionError) as exc:
-                if not cached:
-                    raise exc
-                dat = cached
-                _LOGGER.warning('Get miot specs filed: %s, use cached.', exc)
-=======
             except ValueError:
                 dat = {}
             if dat:
@@ -325,7 +252,6 @@ class MiotSpec(MiotSpecInstance):
                     'Renew miot spec instances: %s, count: %s, model: %s',
                     fnm, len(sdt) - 1, model,
                 )
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         typ = None
         if 'instances' in dat:
             for v in (dat.get('instances') or []):
@@ -343,41 +269,14 @@ class MiotSpec(MiotSpecInstance):
         if platform.system() == 'Windows':
             fnm = fnm.replace(':', '_')
         store = Store(hass, 1, fnm)
-<<<<<<< HEAD
-        cached = await store.async_load() or {}
-        dat = cached
-        ptm = dat.pop('_updated_time', 0)
-        now = int(time.time())
-        day = 2
-        if dat.get('services'):
-            day = random.randint(30, 50)
-        if dat and now - ptm > 86400 * day:
-            dat = {}
-=======
         dat = await store.async_load() or {}
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         if not dat.get('type'):
             try:
                 res = await hass.async_add_executor_job(requests.get, url)
                 dat = res.json() or {}
-<<<<<<< HEAD
-                dat['_updated_time'] = now
-                await store.async_save(dat)
-            except (TypeError, ValueError, requests.exceptions.ConnectionError) as exc:
-                if cached:
-                    dat = cached
-                else:
-                    dat = {
-                        'type': typ or 'unknown',
-                        '_updated_time': now,
-                    }
-                    await store.async_save(dat)
-                    _LOGGER.warning('Get miot-spec for %s failed: %s', typ, exc)
-=======
                 await store.async_save(dat)
             except ValueError:
                 dat = {}
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return MiotSpec(dat)
 
     @staticmethod
@@ -411,54 +310,24 @@ class MiotService(MiotSpecInstance):
         spec.services_count.setdefault(self.name, 0)
         spec.services_count[self.name] += 1
         self.properties = {}
-<<<<<<< HEAD
-        self.actions = {}
-        self.extend_specs(properties=dat.get('properties') or [], actions=dat.get('actions') or [])
-
-    def extend_specs(self, properties: list, actions: list):
-        for p in properties:
-            iid = int(p.get('iid') or 0)
-            if old := self.properties.get(iid):
-                p = {**old.raw, **p}
-=======
         for p in (dat.get('properties') or []):
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             prop = MiotProperty(p, self)
             if not prop.name:
                 continue
             self.properties[prop.iid] = prop
-<<<<<<< HEAD
-            self.spec.specs[prop.unique_prop] = prop
-        for a in actions:
-            iid = int(a.get('iid') or 0)
-            if old := self.actions.get(iid):
-                a = {**old.raw, **a}
-=======
         self.actions = {}
         for a in (dat.get('actions') or []):
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             act = MiotAction(a, self)
             if not act.name:
                 continue
             self.actions[act.iid] = act
-<<<<<<< HEAD
-            self.spec.specs[act.unique_prop] = act
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def name_count(self):
         return self.spec.services_count.get(self.name) or 0
 
-<<<<<<< HEAD
-    def mapping(self, excludes=None):
-        dat = {}
-        if not isinstance(excludes, list):
-            excludes = []
-=======
     def mapping(self):
         dat = {}
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         for p in self.properties.values():
             if not isinstance(p, MiotProperty):
                 continue
@@ -466,14 +335,6 @@ class MiotService(MiotSpecInstance):
                 continue
             if not p.readable and not p.writeable:
                 continue
-<<<<<<< HEAD
-            if p.name in excludes \
-                    or p.full_name in excludes \
-                    or p.friendly_name in excludes \
-                    or p.unique_prop in excludes:
-                continue
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             dat[p.full_name] = {
                 'siid': self.iid,
                 'piid': p.iid,
@@ -484,11 +345,7 @@ class MiotService(MiotSpecInstance):
         return [
             p
             for p in self.properties.values()
-<<<<<<< HEAD
-            if p.name in args or p.full_name in args or p.desc_name in args
-=======
             if p.name in args or p.desc_name in args
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         ]
 
     def get_property(self, *args, only_format=None):
@@ -510,11 +367,7 @@ class MiotService(MiotSpecInstance):
         return [
             a
             for a in self.actions.values()
-<<<<<<< HEAD
-            if a.name in args or a.full_name in args
-=======
             if a.name in args
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         ]
 
     def get_action(self, *args):
@@ -569,10 +422,6 @@ class MiotProperty(MiotSpecInstance):
         self.unique_name = f'{service.unique_name}.{self.name}-{self.iid}'
         self.unique_prop = self.service.unique_prop(piid=self.iid)
         self.desc_name = self.format_desc_name(self.description, self.name)
-<<<<<<< HEAD
-        self.friendly_name = f'{service.name}.{self.name}'
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         self.friendly_desc = self.short_desc
         self.format = dat.get('format') or ''
         self.access = dat.get('access') or []
@@ -584,11 +433,7 @@ class MiotProperty(MiotSpecInstance):
             if self.name == service.name:
                 self.full_name = self.name
             else:
-<<<<<<< HEAD
-                self.full_name = self.friendly_name
-=======
                 self.full_name = f'{service.name}.{self.name}'
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             if service.name_count > 1:
                 self.full_name = f'{service.unique_name}.{self.name}'
             if self.full_name in service.spec.services_properties:
@@ -608,11 +453,7 @@ class MiotProperty(MiotSpecInstance):
     @property
     def short_desc(self):
         sde = self.service.description.strip()
-<<<<<<< HEAD
-        pde = self.desc_name.strip()
-=======
         pde = self.description.strip()
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         des = pde
         if sde != pde:
             des = f'{sde} {pde}'.strip()
@@ -634,11 +475,7 @@ class MiotProperty(MiotSpecInstance):
         return 'write' in self.access
 
     def generate_entity_id(self, entity):
-<<<<<<< HEAD
-        eid = self.service.spec.generate_entity_id(entity, self.desc_name)
-=======
         eid = self.service.spec.generate_entity_id(entity, self.description)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         eid = re.sub(r'_(\d(?:_|$))', r'\1', eid)  # issue#153
         return eid
 
@@ -692,11 +529,7 @@ class MiotProperty(MiotSpecInstance):
             if val is None:
                 if des == '':
                     des = v.get('value')
-<<<<<<< HEAD
-                rls.append(str(des))
-=======
                 rls.append(des)
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             elif val == v.get('value'):
                 return des
         if self.value_range:
@@ -704,11 +537,7 @@ class MiotProperty(MiotSpecInstance):
                 # range to list
                 return self.list_descriptions()
             else:
-<<<<<<< HEAD
-                return str(val)
-=======
                 return val
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         return rls if val is None else None
 
     def list_descriptions(self, max_length=200):
@@ -765,19 +594,6 @@ class MiotProperty(MiotSpecInstance):
             return self.value_range[2]
         return None
 
-<<<<<<< HEAD
-    def is_integer(self):
-        if self.format in [
-            'int8', 'int16', 'int32', 'int64',
-            'uint8', 'uint16', 'uint32', 'uint64',
-        ]:
-            return True
-        if self.value_list or self.value_range:
-            return True
-        return False
-
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
     @property
     def unit_of_measurement(self):
         name = self.name
@@ -793,11 +609,6 @@ class MiotProperty(MiotSpecInstance):
             'p/m3': CONCENTRATION_PARTS_PER_CUBIC_METER,
         }
         names = {
-<<<<<<< HEAD
-            'current_step_count': 'steps',
-            'heart_rate': 'bpm',
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
             'power_consumption': ENERGY_WATT_HOUR,
             'pm2_5_density': CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
             'tds_in': CONCENTRATION_PARTS_PER_MILLION,
@@ -868,26 +679,6 @@ class MiotProperty(MiotSpecInstance):
         icon = None
         name = self.name
         icons = {
-<<<<<<< HEAD
-            'co2_density': 'mdi:molecule-co2',
-            'current_step_count': 'mdi:walk',
-            'drying_level': 'mdi:tumble-dryer',
-            'filter_life_level': 'mdi:percent',
-            'filter_used_flow': 'mdi:water-percent',
-            'filter_used_time': 'mdi:clock',
-            'heart_rate': 'mdi:heart-pulse',
-            'mode': 'mdi:menu',
-            'nozzle_position': 'mdi:spray',
-            'on': 'mdi:power',
-            'pm2_5_density': 'mdi:air-filter',
-            'smoke_concentration': 'mdi:smoking',
-            'spin_speed': 'mdi:speedometer',
-            'target_temperature': 'mdi:coolant-temperature',
-            'target_water_level': 'mdi:water-plus',
-            'tds_in': 'mdi:water',
-            'tds_out': 'mdi:water-check',
-            'washing_strength': 'mdi:waves',
-=======
             'on': 'mdi:power',
             'mode': 'mdi:menu',
             'washing_strength': 'mdi:waves',
@@ -902,7 +693,6 @@ class MiotProperty(MiotSpecInstance):
             'tds_out': 'mdi:water-check',
             'filter_used_time': 'mdi:clock',
             'filter_used_flow': 'mdi:water-percent',
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         }
         if name in ['heat_level']:
             icon = 'mdi:radiator'
@@ -921,18 +711,10 @@ class MiotProperty(MiotSpecInstance):
         cate = None
         name = self.name
         names = {
-<<<<<<< HEAD
-            'battery_level': EntityCategory.DIAGNOSTIC.value,
-            'countdown_time': EntityCategory.CONFIG.value,
-            'fan_init_power_opt': EntityCategory.CONFIG.value,
-            'init_power_opt': EntityCategory.CONFIG.value,
-            'off_delay_time': EntityCategory.CONFIG.value,
-=======
             'battery_level': ENTITY_CATEGORY_DIAGNOSTIC,
             'fan_init_power_opt': ENTITY_CATEGORY_CONFIG,
             'init_power_opt': ENTITY_CATEGORY_CONFIG,
             'off_delay_time': ENTITY_CATEGORY_CONFIG,
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         }
         if name in names:
             cate = names[name]
@@ -945,10 +727,6 @@ class MiotAction(MiotSpecInstance):
         self.service = service
         self.siid = service.iid
         super().__init__(dat)
-<<<<<<< HEAD
-        self.unique_name = f'{service.unique_name}.{self.name}-{self.iid}'
-=======
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
         self.unique_prop = self.service.unique_prop(aiid=self.iid)
         self.full_name = f'{service.name}.{self.name}'
         self.friendly_desc = self.get_translation(self.description or self.name)
@@ -1069,13 +847,7 @@ class MiotResult:
 
     @property
     def is_success(self):
-<<<<<<< HEAD
-        # 0: successful
-        # 1: operation not completed
-        return self.code in [0, 1]
-=======
         return self.code == 0
->>>>>>> 6d6a0ed04d4a624e651d2332d2e651b7dbbd95e1
 
     @property
     def spec_error(self):

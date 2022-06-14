@@ -18,7 +18,7 @@ Each converter has:
     Converter(<attribute name>, <hass domain>, <mi name>)
 
 - attribute - required, entity or attribute name in Hass
-- domain - optional, hass entity type (`sensor`, `switch`, `binary_sensor`, etc)
+- domain - optional, hass entity type (`sensor`, `switch`, `binary_sensor`...)
 - mi - optional, item name in Lumi spec (`8.0.2012`) or MIoT spec (`2.p.1`)
 - enabled - optional, default True:
    - True - entity will be enabled on first setup
@@ -41,9 +41,10 @@ Converter may have different types:
 For MIoT bool properties you should use `Converter`. For MIoT uint8 properties
 you should use `BoolConv`.
 
-By default, the entity is updated only if the decoded payload has its attribute.
-But one entity can process multiple attributes, example bulb: `light`,
-`brightness`, `color_temp`. In this case you should set `parent` attribute name:
+By default, the entity is updated only if the decoded payload has its
+attribute. But one entity can process multiple attributes, example bulb:
+`light`, `brightness`, `color_temp`. In this case you should set `parent`
+attribute name:
 
     BoolConv("light", "light", "4.1.85")
     BrightnessConv("brightness", mi="14.1.85", parent="light")
@@ -89,9 +90,9 @@ from .mibeacon import *
 from .stats import *
 from .zigbee import *
 
-################################################################################
+###############################################################################
 # Gateways
-################################################################################
+###############################################################################
 
 DEVICES = [{
     "lumi.gateway.mgl03": ["Xiaomi", "Gateway 3", "ZNDMWG03LM ZNDMWG02LM"],
@@ -116,7 +117,7 @@ DEVICES = [{
         Converter("power_tx", mi="8.0.2012"),
         Converter("channel", mi="8.0.2024"),
 
-        MapConv("command", "select", map=GW3_COMMANDS),
+        Converter("command", "select", parent="data"),
         Converter("data", "select"),
 
         CloudLinkConv(
@@ -149,16 +150,16 @@ DEVICES = [{
         Converter("power_tx", mi="8.0.2012"),
         Converter("channel", mi="8.0.2024"),
 
-        MapConv("command", "select", map=E1_COMMANDS),
+        Converter("command", "select", parent="data"),
         Converter("data", "select"),
 
         GatewayStats
     ],
 }]
 
-################################################################################
+###############################################################################
 # Zigbee
-################################################################################
+###############################################################################
 
 DEVICES += [{
     # don"t work: protect 8.0.2014, power 8.0.2015, plug_detection 8.0.2044
@@ -889,9 +890,9 @@ DEVICES += [{
     ]
 }]
 
-################################################################################
+###############################################################################
 # 3rd party zigbee
-################################################################################
+###############################################################################
 
 DEVICES += [{
     # only one attribute with should_poll
@@ -1122,9 +1123,9 @@ DEVICES += [{
     ],
 }]
 
-################################################################################
+###############################################################################
 # BLE
-################################################################################
+###############################################################################
 
 # https://custom-components.github.io/ble_monitor/by_brand
 DEVICES += [{
@@ -1251,9 +1252,9 @@ DEVICES += [{
     ],
 }]
 
-################################################################################
+###############################################################################
 # Mesh
-################################################################################
+###############################################################################
 
 DEVICES += [{
     # brightness 1..65535, color_temp 2700..6500
@@ -1310,6 +1311,9 @@ DEVICES += [{
     "spec": [
         Converter("switch", "switch", mi="2.p.1"),
         Converter("led", "switch", mi="10.p.1", enabled=False),
+        BoolConv("wireless", "switch", mi="2.p.2", enabled=False),
+        Converter("action", "sensor", enabled=False),
+        ButtonMIConv("button_1", mi="8.e.1", value=1),  # single
     ],
 }, {
     2007: ["Unknown", "Mesh Switch Controller", "lemesh.switch.sw0a01"],
@@ -1379,6 +1383,8 @@ DEVICES += [{
         MathConv("temperature", "sensor", mi="6.p.7", round=2),
         BoolConv("wireless", "switch", mi="2.p.2", enabled=False),
         Converter("baby_mode", "switch", mi="11.p.1", enabled=False),
+        Converter("action", "sensor", enabled=False),
+        ButtonMIConv("button_1", mi="16.e.1", value=1),
     ]
 }, {
     2716: ["Xiaomi", "Mesh Double Wall Switch", "ZNKG02HL"],
@@ -1390,6 +1396,9 @@ DEVICES += [{
         BoolConv("wireless_1", "switch", mi="2.p.2", enabled=False),
         BoolConv("wireless_2", "switch", mi="3.p.2", enabled=False),
         Converter("baby_mode", "switch", mi="11.p.1", enabled=False),
+        Converter("action", "sensor", enabled=False),
+        ButtonMIConv("button_1", mi="16.e.1", value=1),
+        ButtonMIConv("button_2", mi="18.e.1", value=1),
     ]
 }, {
     2717: ["Xiaomi", "Mesh Triple Wall Switch", "ZNKG03HL/ISA-KG03HL"],
@@ -1403,7 +1412,50 @@ DEVICES += [{
         BoolConv("wireless_2", "switch", mi="3.p.2", enabled=False),
         BoolConv("wireless_3", "switch", mi="4.p.2", enabled=False),
         Converter("baby_mode", "switch", mi="11.p.1", enabled=False),
+        Converter("action", "sensor", enabled=False),
+        ButtonMIConv("button_1", mi="16.e.1", value=1),
+        ButtonMIConv("button_2", mi="17.e.1", value=1),
+        ButtonMIConv("button_3", mi="18.e.1", value=1),
     ],
+}, {
+    6266: ["Gosund", "Mesh Triple Wall Switch S6AM", "cuco.switch.s6amts"],
+    "spec": [
+        Converter("channel_1", "switch", mi="2.p.1"),
+        Converter("channel_2", "switch", mi="3.p.1"),
+        Converter("channel_3", "switch", mi="4.p.1"),
+        MapConv("wireless_1", "select", mi="6.p.1", map={
+            0: "close", 1: "open-close", 2: "open-open"
+        }, enabled=False),
+        MapConv("wireless_2", "select", mi="6.p.2", map={
+            0: "close", 1: "open-close", 2: "open-open"
+        }, enabled=False),
+        MapConv("wireless_3", "select", mi="6.p.3", map={
+            0: "close", 1: "open-close", 2: "open-open"
+        }, enabled=False),
+        Converter("led", "switch", mi="8.p.1", enabled=False),  # bool
+        Converter("mode", "switch", mi="8.p.2", enabled=False),  # bool
+        Converter("action", "sensor", enabled=False),
+        ButtonMIConv("button_1", mi="9.e.2", value=1),
+        ButtonMIConv("button_1", mi="9.e.3", value=2),
+        ButtonMIConv("button_2", mi="9.e.5", value=1),
+        ButtonMIConv("button_2", mi="9.e.6", value=2),
+        ButtonMIConv("button_3", mi="9.e.8", value=1),
+        ButtonMIConv("button_3", mi="9.e.9", value=2),
+    ]
+}, {
+    6267: ["Gosund", "Mesh double Wall Switch S5AM", "cuco.switch.s5amts"],
+    "spec": [
+        Converter("left_switch", "switch", mi="2.p.1"),
+        Converter("right_switch", "switch", mi="3.p.1"),
+        MapConv("wireless_1", "select", mi="6.p.1", map={
+            0: "close", 1: "open-close", 2: "open-open"
+        }, enabled=False),
+        MapConv("wireless_2", "select", mi="6.p.2", map={
+            0: "close", 1: "open-close", 2: "open-open"
+        }, enabled=False),
+        Converter("led", "switch", mi="8.p.1", enabled=False),  # bool
+        Converter("mode", "switch", mi="8.p.2", enabled=False),  # bool
+    ]
 }, {
     4160: ["Xiaomi", "Mosquito Repeller 2", "WX10ZM"],
     # "support": 5,  # @AlexxIT need some tests
