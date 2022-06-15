@@ -24,6 +24,12 @@ homeassistant:
 #    - /www
 #    - /config
 
+# should be mapped volumes in docker-compose config?  
+#media_dirs:
+#    downloads: "/volume1/downloads/"
+#    music: "/volume3/Music/"
+#    movies: "/volume3/Movies/"
+
   packages: !include_dir_named packages
 #  auth_providers:
 #    - type: homeassistant

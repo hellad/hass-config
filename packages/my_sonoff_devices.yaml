@@ -65,6 +65,24 @@ sensor:
           {% endif %} 
     
 ################################################################################
+#### Template sensor to control vent fan in bathroom
+#### was it switched on manually or automaticaly
+#### sensor.bathroom_fan_switched_on_manually
+template:
+  - sensor:
+      - name: "bathroom_fan_switched_on_manually"
+        state: >
+          {% if is_state('switch.sonoff_10008b5013_1', 'off') %}
+            off
+          {% elif is_state('switch.sonoff_10008b5013_1', 'on') and is_state('sensor.wet_bathroom', 'off') %}
+            on
+          {% else %}
+            failed
+          {% endif %}
+
+
+
+################################################################################
 # https://github.com/arendst/Sonoff-Tasmota/wiki/Home-Assistant-%E2%80%90-Manual-Config#configure-switches
 # was changed to light somehow after migration to Docker@NAS?!
 # Payload from mirror/tele/STATE - mirror/tele/STATE = {"Time":"2022-04-26T12:15:01","Uptime":"24T13:07:24","UptimeSec":2120844,"Vcc":3.476,"Heap":30,"SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"MqttCount":4,"POWER":"OFF","Wifi":{"AP":1,"SSId":"adhome","BSSId":"E8:48:B8:AB:F7:4B","Channel":4,"Mode":"11n","RSSI":100,"Signal":-36,"LinkCount":3,"Downtime":"0T00:00:19"}}
@@ -169,10 +187,10 @@ group:
       
 automation:
 ################################################################################
-#	 Turn Bathroom Mirror Light On when movement detected
+#	 Turn Bathroom Mirror Light On when movement detected ( INACTIVE! )
 ################################################################################
   - alias: Turn Bathroom Mirror Light On
-    initial_state: false    #### initially disable mirror light switching!!!
+    initial_state: false    #### !!!!! initially disable mirror light switching!!!
     trigger:
       - platform: state
         entity_id: binary_sensor.bathroom_motion_sensor
@@ -202,7 +220,7 @@ automation:
     trigger:
       - platform: state
         entity_id: binary_sensor.bathroom_motion_sensor
-        from: 'off'
+        from: 'off'         # it's unavailable (not off) just after server reboot!
         to: 'on'
     condition:
       - condition: state
@@ -221,7 +239,7 @@ automation:
 #            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Automaticaly Switch Bathroom Light On
 
 ################################################################################
-#	 Switch Bathroom Fan On
+#	 Switch Bathroom Fan On automatically when wet
 ################################################################################
   - alias: Switch Bathroom Fan On
     initial_state: true
@@ -232,7 +250,7 @@ automation:
         to: 'on'
     condition:
       - condition: state
-        entity_id: switch.sonoff_10008b5013_1
+        entity_id: switch.sonoff_10008b5013_1   # sensor.bathroom_fan_switched_on_manually
            # check the status of manual switching
         state: 'off'
         
@@ -286,8 +304,8 @@ automation:
             {{now().strftime("%H:%M:%S %Y-%m-%d")}}sensor.bathroom_relay_touch_sensor {{ states.sensor.bathroom_relay_touch_sensor.state }}  Enforced turn off Mirror Light  after motion stopped
 
 ################################################################################
-#	 Switch Bathroom Light Off in 4 minutes without motion
-# time of lightning defined by variable resistor on PIR sensor 
+#	 Enforced Switch Bathroom Light Off in 4 minutes without motion on PIR sensor
+#  
 ################################################################################
   - alias: Switch Bathroom Light Off
     initial_state: true
@@ -317,7 +335,7 @@ automation:
 
 ################################################################################
 #	 Switch Bathroom Fan Off
-# time of lightning defined by variable resistor on PIR sensor
+#  if was switched on automatically
 ################################################################################
   - alias: Switch Bathroom Fan Off
     initial_state: true
@@ -328,9 +346,9 @@ automation:
         to: 'off'
     condition:       
       - condition: state
-        entity_id: switch.sonoff_10008b5013_1
+        entity_id: sensor.bathroom_fan_switched_on_manually      # switch.sonoff_10008b5013_1
            # check the status of work
-        state: 'on'
+        state: 'off'                                             # on
     action:
       - service: homeassistant.turn_off
         entity_id: switch.sonoff_10008b5013_1   #### switch FAN off programmably
@@ -377,7 +395,7 @@ automation:
 
 ################################################################################
 #	 Enforced Switch Bathroom Fan Off
-#    if was turned on manually and has not turned off after 3 minute without movements
+#    if was turned on manually and has not turned off after 10 minute without movements
 ################################################################################
   - alias: Switch Enforced Bathroom Fan Off
     initial_state: true
@@ -394,11 +412,17 @@ automation:
 # optional: trigger only if state was this for last X time.
         for:
 #          hours: 1
-          minutes: 3    #### 3 minutes without movements
+          minutes: 10    #### 10 minutes without movements
 #          seconds: 30
       - condition: state
-        entity_id: switch.sonoff_10008b5013_1    #### fan switch
+        entity_id: sensor.bathroom_fan_switched_on_manually
         state: 'on'
+# optional: trigger only if state was this for last X time.
+        for:
+          minutes: 10    #### 10 minutes ago fan was turned on
+#      - condition: state
+#        entity_id: switch.sonoff_10008b5013_1    #### fan switch
+#        state: 'on'
       - condition: state
         entity_id: sensor.wet_bathroom
 #           # check the status if humidity already decreased
@@ -406,14 +430,14 @@ automation:
     action:
       - service: homeassistant.turn_off
         entity_id: switch.sonoff_10008b5013_1   #### switch fan off enforced programmably
-      - service: homeassistant.turn_off
-        entity_id: switch.bathroom_light        #### switch off programmably mirror drier
+#      - service: homeassistant.turn_off
+#        entity_id: switch.bathroom_light        #### switch off programmably mirror drier
 #### debug message
       - service: telegram_bot.send_message
         data_template:
           target: [!secret telegram_bot_chat_id_beeline]
           message: >
-            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Enforced Switch Bathroom vent fan Off after 180 seconds
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Enforced Switch Bathroom vent fan Off after 600 seconds since last movement
 
 ########################### Sync power state. #################################################
 # https://github.com/arendst/Sonoff-Tasmota/wiki/Home-Assistant#tip-sync-power-state
