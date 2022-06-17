@@ -74,11 +74,12 @@
       stiralnaya_power:
         friendly_name: "Состояние стиральной машины"
         value_template: >-
-          {{ states('sensor.rozetka_stiralka_power')|float > 1 }}
+#          {{ states('sensor.rozetka_stiralka_power')|float > 1 }}  # 
+          {{ states('sensor.rozetka_stiralka_current')|float > 0.04 }}
         delay_on: 
             minutes: 1       # how long time it can just wait for next acivity withing washing cycle?
         delay_off: 
-            minutes: 3
+            minutes: 1
         icon_template: >-
           {% if is_state("binary_sensor.stiralnaya_power", "on") %}
           mdi:washing-machine
