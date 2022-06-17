@@ -68,3 +68,20 @@
     before: sunrise
     before_offset:  "-00:10"  # 10 minutes after sunrise
 
+#### washing machine working sensor
+  - platform: template
+    sensors:
+      stiralnaya_power:
+        friendly_name: "Состояние стиральной машины"
+        value_template: >-
+          {{ states('sensor.rozetka_stiralka_power')|float > 3 }}
+        delay_on: 
+            minutes: 2
+        delay_off: 
+            minutes: 5
+        icon_template: >-
+          {% if is_state("binary_sensor.stiralnaya_power", "on") %}
+          mdi:washing-machine
+          {% else %}
+          mdi:washing-machine-off
+          {% endif %}
