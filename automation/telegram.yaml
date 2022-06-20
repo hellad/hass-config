@@ -241,6 +241,44 @@
           username: !secret dafang_user
           password: !secret dafang_password
 
+  - alias: 'Telegram bot send dacha photo'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/photod'                             #### /photod
+    action:
+      - service: shell_command.snapshot_dome          # file www/snapshots/snapshot_dome.jpg
+
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Photo should be sent to  {{ trigger.event.data["user_id"] }}.
+      - service: telegram_bot.send_photo
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          file: "www/snapshots/snapshot_dome.jpg"
+
+  - alias: 'Telegram bot send balcony photo'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/photob'                             #### /photob
+    action:
+      - service: shell_command.snapshot_bullet          # file www/snapshots/snapshot_dome.jpg
+
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Photo should be sent to  {{ trigger.event.data["user_id"] }}.
+      - service: telegram_bot.send_photo
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          file: "www/snapshots/snapshot_bullet.jpg"
+
   - alias: 'Telegram bot send kitchen photo'
     trigger:
       platform: event
@@ -261,8 +299,6 @@
           verify_ssl: false
           username: !secret dahua_user
           password: !secret dahua_password
-
-
 
   - alias: 'Telegram bot inline send dacha photo'
     trigger:
