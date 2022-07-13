@@ -34,10 +34,10 @@
     platform: event
     event_type: telegram_command
     event_data:
-      command: '/Станция'
+      command: '/станция'
   action:
     service: media_player.play_media
-    entity_id: media_player.yandex_station_94007890870c640d0acf   # my yandex station
+    entity_id: media_player.yandex_station   # my yandex station
     data_template:
       media_content_id: "{{ trigger.event.data['args']|join(' ') }}"
       media_content_type: "question:{{ trigger.event.data.chat_id }}"
@@ -70,7 +70,7 @@
   action:
     - service: media_player.select_sound_mode
       target:
-        entity_id: media_player.yandex_station_94007890870c640d0acf
+        entity_id: media_player.yandex_station
       data:
         sound_mode: media_player.kitchen
   mode: single

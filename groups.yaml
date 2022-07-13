@@ -25,12 +25,11 @@
     icon: mdi:camcorder
     entities:
       - group.Cameras
-#      - group.IPcamera
       - camera.hls_dafang
       - camera.xiaomi
       - group.Dafang3
 #      - camera.iss
-#      - camera.demo_camera
+
 
   Temperature_sensors_view:
     name: Датчики температуры
@@ -227,7 +226,6 @@
       - sensor.external_ip
       - script.restart_mqtt
 #      - script.restart_hyperion
-#      - switch.digital_ocean
 
   alarmclock:
     name: Будильник 
@@ -256,9 +254,9 @@
       - media_player.bedroom
       - media_player.home_theater
       - media_player.home_theater_zone2
-      - media_player.yandex_station_94007890870c640d0acf
-      - media_player.yandex_station_210d8400a818973072efca94ef519c6a
-      - media_player.yandex_station_m00t8c500rkshb
+      - media_player.yandex_station
+      - media_player.yandex_module
+      - media_player.yandex_station_mini
       - media_player.bedroom_lg_tv_3
 
   family_bithday:
@@ -270,13 +268,9 @@
   family_members:
     name: Члены семьи 
     entities:
-#      - device_tracker.ad_iphone
       - device_tracker.andrey
       - device_tracker.irina
-#      - device_tracker.irina_g7
       - device_tracker.pavel
-#      - device_tracker.iphone4
-#      - device_tracker.mi4prime_xiaomi_2
       - device_tracker.prohor
 
 

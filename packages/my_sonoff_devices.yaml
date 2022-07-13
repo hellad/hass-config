@@ -72,9 +72,9 @@ template:
   - sensor:
       - name: "bathroom_fan_switched_on_manually"
         state: >
-          {% if is_state('switch.sonoff_10008b5013_1', 'off') %}
+          {% if is_state('switch.sonoff_bathroom_fan', 'off') %}
             off
-          {% elif is_state('switch.sonoff_10008b5013_1', 'on') and is_state('sensor.wet_bathroom', 'off') %}
+          {% elif is_state('switch.sonoff_bathroom_fan', 'on') and is_state('sensor.wet_bathroom', 'off') %}
             on
           {% else %}
             failed
@@ -258,7 +258,7 @@ automation:
       - service: homeassistant.turn_on
         entity_id: switch.sonoff_10008b5013_1   #### switch fan on programmably
       - service: homeassistant.turn_on
-        entity_id: switch.bathroom_light   #### switch mirror drier on programmably
+        entity_id: switch.bathroom_mirror_light   #### switch mirror drier on programmably
 #### debug message
 #      - service: telegram_bot.send_message
 #        data_template:
@@ -325,7 +325,7 @@ automation:
 #        entity_id: binary_sensor.bathroom_motion_sensor
 #        state: 'off'        
 #      - condition: state
-#        entity_id: switch.sonoff_10008b5013_2
+#        entity_id: switch.sonoff_bathroom_light
            # check the status of manual switching
 #        state: 'on'
     action:
@@ -346,14 +346,14 @@ automation:
         to: 'off'
     condition:       
       - condition: state
-        entity_id: sensor.bathroom_fan_switched_on_manually      # switch.sonoff_10008b5013_1
+        entity_id: sensor.bathroom_fan_switched_on_manually      # switch.sonoff_bathroom_fan
            # check the status of work
         state: 'off'                                             # on
     action:
       - service: homeassistant.turn_off
         entity_id: switch.sonoff_10008b5013_1   #### switch FAN off programmably
       - service: homeassistant.turn_off
-        entity_id: switch.bathroom_light        #### switch off programmably mirror drier
+        entity_id: switch.bathroom_mirror_light        #### switch off programmably mirror drier
 
 ################################################################################
 #	 Switch Enforced Bathroom Mirror Light Off
@@ -377,7 +377,7 @@ automation:
 #          minutes: 1
           seconds: 60
       - condition: state
-        entity_id: switch.bathroom_light
+        entity_id: switch.bathroom_mirror_light
         state: 'on'
       - condition: state
         entity_id: sensor.bathroom_mirror_relay_touch_sensor
@@ -385,7 +385,7 @@ automation:
         state: 'ON'
     action:
       - service: homeassistant.turn_off
-        entity_id: switch.bathroom_light   #### switch mirror off enforced programmably
+        entity_id: switch.bathroom_mirror_light   #### switch mirror off enforced programmably
 #### debug message
       - service: telegram_bot.send_message
         data_template:
@@ -421,7 +421,7 @@ automation:
         for:
           minutes: 10    #### 10 minutes ago fan was turned on
 #      - condition: state
-#        entity_id: switch.sonoff_10008b5013_1    #### fan switch
+#        entity_id: switch.sonoff_bathroom_fan    #### fan switch
 #        state: 'on'
       - condition: state
         entity_id: sensor.wet_bathroom

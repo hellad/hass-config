@@ -52,7 +52,7 @@ exclude:
     - sensor.dark_sky_precip_probability_2d
     - sensor.dark_sky_wind_speed_2d
 
-    - sensor.hyperion
+#    - sensor.hyperion
     - sensor.alexapi
     - sensor.yr_symbol
     - sun.sun

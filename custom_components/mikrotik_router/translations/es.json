@@ -1,0 +1,58 @@
+{
+    "config": {
+        "title": "Mikrotik Router",
+        "step": {
+            "user": {
+                "title": "Mikrotik Router",
+                "description": "Configurar integración del Mikrotik Router.",
+                "data": {
+                    "name": "Nombre de la integración",
+                    "host": "Servidor",
+                    "port": "Puerto",
+                    "username": "Nombre de usuario",
+                    "password": "Contraseña",
+                    "ssl": "Usar SSL"
+                }
+            }
+        },
+        "error": {
+            "name_exists": "El nombre ya existe.",
+            "cannot_connect": "No es posible conectar con el Mikrotik.",
+            "ssl_handshake_failure": "Fallo en el establecimiento de la comunicación SSL",
+            "connection_timeout": "Conexión con Mikrotik sin respuesta.",
+            "wrong_login": "Nombre de usuario o contraseña no válidos."
+        }
+    },
+    "options": {
+        "step": {
+            "basic_options": {
+                "data": {
+                    "scan_interval": "Intervalo de escaneo (requiere reinicio del HA)",
+                    "track_iface_clients": "Mostrar MAC e IP del cliente en las interfaces",
+                    "unit_of_measurement": "Unidad de medida",
+                    "track_network_hosts_timeout": "Monitorizar tiempo hasta desconexión automática de dispositivos de red (segundos)",
+                    "zone": "Zone for device tracker"
+                },
+                "title": "Opciones básicas"
+            },
+            "sensor_select": {
+                "data": {
+                    "track_network_hosts": "Monitorizar dispositivos de red",
+                    "sensor_port_tracker": "Sensores de seguimiento portuario",
+                    "sensor_port_traffic": "Sensores de tráfico portuario",
+                    "sensor_client_traffic": "Sensores de tráfico de clientes",
+                    "sensor_simple_queues": "Interruptores de cola sencillos",
+                    "sensor_nat": "Interruptores NAT",
+                    "sensor_scripts": "Interruptores de switch",
+                    "sensor_environment": "Sensores variables de entorno",
+                    "sensor_pppusers": "PPP users",
+                    "sensor_kidcontrol": "Kid control",
+                    "sensor_mangle": "Mangle switches",
+                    "sensor_ppp": "PPP users",
+                    "sensor_filter": "Filter switches"
+                },
+                "title": "Seleccionar sensores"
+            }
+        }
+    }
+}

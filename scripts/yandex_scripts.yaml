@@ -5,7 +5,7 @@
     alias: TTS зависит от настройки "Режим звука"!
     sequence:
     - service: tts.yandex_station_say                                  # tts.alice_say
-      entity_id: media_player.yandex_station_94007890870c640d0acf
+      entity_id: media_player.yandex_station
       data_template:
         message: Температура в коридоре {{ states('sensor.multisensor_6_air_temperature')|round }} градуса.
 
@@ -13,7 +13,7 @@
     alias: TTS не зависит от настройки "Режим звука"
     sequence:
     - service: media_player.play_media
-      entity_id: media_player.yandex_station_94007890870c640d0acf
+      entity_id: media_player.yandex_station
       data:
         media_content_id: Повторяю вашу фразу
         media_content_type: text
@@ -23,7 +23,7 @@
     alias: Проигрывание медиа по ссылке
     sequence:
     - service: media_player.play_media
-      entity_id: media_player.yandex_station_94007890870c640d0acf
+      entity_id: media_player.yandex_station
       data:
         media_content_id: https://music.yandex.ru/users/Deberdeevy/playlists/1000
         media_content_type: xxx  # тип не важен, но должен быть!
@@ -32,7 +32,7 @@
     alias: Выполнить команду
     sequence:
     - service: media_player.play_media
-      entity_id: media_player.yandex_station_94007890870c640d0acf
+      entity_id: media_player.yandex_station
       data:
         media_content_id: Включи мою любимую музыку вперемешку
         media_content_type: command
@@ -43,9 +43,9 @@
     - service: media_player.volume_set
       data:
         entity_id:
-        - media_player.yandex_station_94007890870c640d0acf               # station
-        - media_player.yandex_module_210d8400a818973072efca94ef519c6a    # module
-        - media_player.yandex_station_m00t8c500rkshb                     # Станция Мини
+        - media_player.yandex_station               # station
+        - media_player.yandex_module    # module
+        - media_player.yandex_station_mini                     # Станция Мини
         volume_level: 0.5                                                # 50%
 
 # Только для локального режима!
@@ -53,7 +53,7 @@
     alias: Включить Елло на Станции
     sequence:
     - service: media_player.play_media
-      entity_id: media_player.yandex_station_94007890870c640d0acf
+      entity_id: media_player.yandex_station
       data:
         media_content_id: 11889993    # ID альбома Yello Point в Яндекс.Музыка
         media_content_type: album  # album, track or playlist
@@ -67,7 +67,7 @@
     alias: Обновить список покупок
     sequence:
       - service: media_player.play_media
-        entity_id: media_player.yandex_station_94007890870c640d0acf  # станция
+        entity_id: media_player.yandex_station  # станция
         data:
           media_content_id: update
           media_content_type: shopping_list

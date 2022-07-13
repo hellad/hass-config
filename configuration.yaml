@@ -88,6 +88,9 @@ discovery:
 
 #### Allows you to issue voice commands from the frontend in enabled browsers
 conversation:
+  intents:
+    # менять нужно entity_id до двоеточия, после двоеточия ничего менять не надо!
+    media_player.yandex_station: [.+]  # замените на вашу станцию
 
 # https://www.home-assistant.io/components/logger/
 logger:
@@ -274,22 +277,24 @@ ffmpeg:
       
 #### test from multisensor example https://github.com/bruhautomation/ESP-MQTT-JSON-Multisensor
 #### 
-light:  
-  - platform: mqtt                   # https://home-assistant.io/components/light.mqtt_json/
-    schema: json                     # new in 2019 ver.084 - https://www.home-assistant.io/components/light.mqtt/#json-schema---configuration
-    name: "SN1 LED"  
-    state_topic: "bathroom/sensornode1"  
-    command_topic: "bathroom/sensornode1/set"  
-    brightness: true  
+#light:  
+#  - platform: mqtt                   # https://home-assistant.io/components/light.mqtt_json/
+#    schema: json                     # new in 2019 ver.084 - https://www.home-assistant.io/components/light.mqtt/#json-schema---configuration
+#    name: "SN1 LED"  
+#    state_topic: "bathroom/sensornode1"  
+#    command_topic: "bathroom/sensornode1/set"  
+#    brightness: true  
 #    flash: true  
-    rgb: true  
-    optimistic: false  
-    qos: 0 
+#    rgb: true  
+#    optimistic: false  
+#    qos: 0 
 
 #### https://home-assistant.io/components/light.hyperion/
-  - platform: hyperion
-    host: 192.168.192.81
-    name: Pi0_ambilight
+#### https://www.home-assistant.io/integrations/hyperion/ in 2022
+#### disassembled from old LG TV
+#  - platform: hyperion
+#    host: 192.168.192.81
+#    name: Pi0_ambilight
 
 #### Example configuration.yaml entry for AlexaPi
 #### https://home-assistant.io/components/alexa/#i-want-to-build-custom-commands-to-use-with-echo

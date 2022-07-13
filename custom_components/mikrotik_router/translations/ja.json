@@ -1,0 +1,58 @@
+{
+    "config": {
+        "title": "Mikrotik Router",
+        "step": {
+            "user": {
+                "title": "Mikrotik Router",
+                "description": "Mikrotikルータ統合をセットアップします。",
+                "data": {
+                    "name": "統合名",
+                    "host": "ホスト",
+                    "port": "ポート",
+                    "username": "ユーザ名",
+                    "password": "パスワード",
+                    "ssl": "SSLを使用します"
+                }
+            }
+        },
+        "error": {
+            "name_exists": "名前は既に存在します。",
+            "cannot_connect": "Mikrotikに接続できません。",
+            "ssl_handshake_failure": "SSLハンドシェイクに失敗しました",
+            "connection_timeout": "Mikrotik接続がタイムアウトしました。",
+            "wrong_login": "ユーザ名またはパスワードが無効です。"
+        }
+    },
+    "options": {
+        "step": {
+            "basic_options": {
+                "data": {
+                    "scan_interval": "スキャン間隔（HAの再起動が必要）",
+                    "track_iface_clients": "クライアントのMACとインターフェイスのIPを表示します",
+                    "unit_of_measurement": "測定単位",
+                    "track_network_hosts_timeout": "ネットワーク デバイスのタイムアウト（秒）をトラッキングします",
+                    "zone": "Zone for device tracker"
+                },
+                "title": "基本オプション"
+            },
+            "sensor_select": {
+                "data": {
+                    "track_network_hosts": "ネットワーク デバイスをトラッキングします",
+                    "sensor_port_tracker": "ポートトラッカーセンサー",
+                    "sensor_port_traffic": "ポートトラフィックセンサー",
+                    "sensor_client_traffic": "クライアントトラフィックセンサー",
+                    "sensor_simple_queues": "単純キュースイッチ",
+                    "sensor_nat": "NAT スイッチ",
+                    "sensor_scripts": "スクリプトスイッチ",
+                    "sensor_environment": "環境変数センサー",
+                    "sensor_pppusers": "PPP users",
+                    "sensor_kidcontrol": "Kid control",
+                    "sensor_mangle": "Mangle switches",
+                    "sensor_ppp": "PPP users",
+                    "sensor_filter": "Filter switches"
+                },
+                "title": "センサーを選択"
+            }
+        }
+    }
+}

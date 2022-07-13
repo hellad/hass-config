@@ -16,8 +16,8 @@
     include_entities:
       - media_player.yandex_intents
 #      - media_player.lg_tv50_remote
-#      - media_player.yandex_station_94007890870c640d0acf  #station
-#      - media_player.yandex_station_210d8400a818973072efca94ef519c6a   # module
+#      - media_player.yandex_station  #station
+#      - media_player.yandex_module   # module
   entity_config:
     switch.aeon_labs_zw111_nano_dimmer_switch:
       name: corridor light

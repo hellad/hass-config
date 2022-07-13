@@ -1,0 +1,8 @@
+yandex_telegram_target:
+  name: Активная колонка
+  options:
+    - Спальня
+    - Кухня
+    - Модуль
+  initial: Спальня
+  icon: mdi:send

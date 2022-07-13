@@ -8,8 +8,8 @@
             {% elif is_state("input_select.inet_radio", "dune_101w") %} media_player.dune_101w_2
             {% elif is_state("input_select.inet_radio", "dune_hd") %} media_player.dune_4k_3
             {% elif is_state("input_select.inet_radio", "kitchen") %} media_player.kitchen
-            {% elif is_state("input_select.inet_radio", "yandex_station") %} media_player.yandex_station_94007890870c640d0acf
-            {% elif is_state("input_select.inet_radio", "yandex_module") %} media_player.yandex_station_210d8400a818973072efca94ef519c6a
+            {% elif is_state("input_select.inet_radio", "yandex_station") %} media_player.yandex_station
+            {% elif is_state("input_select.inet_radio", "yandex_module") %} media_player.yandex_module
             {% elif is_state("input_select.inet_radio", "bedroom") %} media_player.bedroom
             {% elif is_state("input_select.inet_radio", "home_theater") %} media_player.home_theater
             {% elif is_state("input_select.inet_radio", "home_theater_zone2") %} media_player.home_theater_zone2
@@ -24,8 +24,8 @@
             {% elif is_state("input_select.inet_radio", "dune_101w") %} media_player.dune_101w_2
             {% elif is_state("input_select.inet_radio", "dune_hd") %} media_player.dune_4k_3
             {% elif is_state("input_select.inet_radio", "kitchen") %} media_player.kitchen
-            {% elif is_state("input_select.inet_radio", "yandex_station") %} media_player.yandex_station_94007890870c640d0acf
-            {% elif is_state("input_select.inet_radio", "yandex_module") %} media_player.yandex_station_210d8400a818973072efca94ef519c6a
+            {% elif is_state("input_select.inet_radio", "yandex_station") %} media_player.yandex_station
+            {% elif is_state("input_select.inet_radio", "yandex_module") %} media_player.yandex_module
             {% elif is_state("input_select.inet_radio", "bedroom") %} media_player.bedroom
             {% elif is_state("input_select.inet_radio", "home_theater") %} media_player.home_theater
             {% elif is_state("input_select.inet_radio", "home_theater_zone2") %} media_player.home_theater_zone2
@@ -41,8 +41,8 @@
             {% elif is_state("input_select.inet_radio", "dune_101w") %} media_player.dune_101w_2
             {% elif is_state("input_select.inet_radio", "dune_hd") %} media_player.dune_4k_3
             {% elif is_state("input_select.inet_radio", "kitchen") %} media_player.kitchen
-            {% elif is_state("input_select.inet_radio", "yandex_station") %} media_player.yandex_station_94007890870c640d0acf
-            {% elif is_state("input_select.inet_radio", "yandex_module") %} media_player.yandex_station_210d8400a818973072efca94ef519c6a
+            {% elif is_state("input_select.inet_radio", "yandex_station") %} media_player.yandex_station
+            {% elif is_state("input_select.inet_radio", "yandex_module") %} media_player.yandex_module
             {% elif is_state("input_select.inet_radio", "bedroom") %} media_player.bedroom
             {% elif is_state("input_select.inet_radio", "home_theater") %} media_player.home_theater
             {% elif is_state("input_select.inet_radio", "home_theater_zone2") %} media_player.home_theater_zone2

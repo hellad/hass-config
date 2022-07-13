@@ -30,7 +30,7 @@ binary_sensor:
       zwave_corridor_light_no_current:                      # there is delay about 15 sec after switchin off light and update of sensor.aeon_labs_zw111_nano_dimmer_current value
         friendly_name: "zwave corridor light no current"
         value_template: >-
-          {%- if is_state('sensor.aeon_labs_zw111_nano_dimmer_current', '0.0') -%}
+          {%- if is_state('sensor.nano_dimmer_electric_consumption_a', '0.0') -%}
           true
           {%- else -%}
           false
@@ -81,21 +81,19 @@ group:
   zwave_nanodimmer_card:      
     name: Aeon Nano Dimmer 
     entities:  
-      - light.aeon_labs_zw111_nano_dimmer_level              #### for manual switching ON/OFF
-      - switch.aeon_labs_zw111_nano_dimmer_switch            #### for automated switching ON/OFF
+#      - light.aeon_labs_zw111_nano_dimmer_level              #### for manual switching ON/OFF
+#      - switch.aeon_labs_zw111_nano_dimmer_switch            #### for automated switching ON/OFF
       - input_number.corridor_brightness
-      - sensor.aeon_labs_zw111_nano_dimmer_current
-      - sensor.aeon_labs_zw111_nano_dimmer_voltage
-      - sensor.aeon_labs_zw111_nano_dimmer_power
-      - sensor.aeon_labs_zw111_nano_dimmer_energy
-      - sensor.aeon_labs_zw111_nano_dimmer_exporting
-      - sensor.aeon_labs_zw111_nano_dimmer_heat
-      - sensor.aeon_labs_zw111_nano_dimmer_interval
-      - sensor.aeon_labs_zw111_nano_dimmer_power_management
-      - sensor.aeon_labs_zw111_nano_dimmer_previous_reading
-      - sensor.aeon_labs_zw111_nano_dimmer_sourcenodeid
-      - sensor.aeon_labs_zw111_nano_dimmer_alarm_type
-      - zwave.aeon_labs_zw111_nano_dimmer
+      - sensor.nano_dimmer_electric_consumption_a
+      - sensor.nano_dimmer_electric_consumption_v
+      - sensor.nano_dimmer_electric_consumption_w
+      - sensor.nano_dimmer_electric_consumption_kwh
+      - switch.nano_dimmer                                    #### for automated switching ON/OFF
+      - light.nano_dimmer                                     #### for manual switching ON/OFF
+      - binary_sensor.nano_dimmer_heat_alarm_overheat_detected
+      - sensor.nano_dimmer_heat_alarm_heat_sensor_status
+      - sensor.nano_dimmer_power_management_over_current_status
+
 
 ################################################################################################
 #### Automations
@@ -143,7 +141,7 @@ automation:
 
     condition:
       - condition: state
-        entity_id: light.aeon_labs_zw111_nano_dimmer_level
+        entity_id: light.nano_dimmer
            # check the status of manual switching
         state: 'off'
                        # if not turned on manually then swich light on automaticaly when dark and to be switched off too.
@@ -153,14 +151,18 @@ automation:
     action:
 #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!    order of action does matter?!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #### https://community.home-assistant.io/t/aeotec-nano-dimmer-config-not-dimming/62201/16
-      - service: zwave.set_config_parameter
-        data_template:
-          node_id: 5                         #### aeon_labs_zw111_nano_dimmer
+      - service: zwave_js.set_config_parameter    #### https://www.home-assistant.io/integrations/zwave_js
+        target:
+          entity_id: switch.nano_dimmer      #### aeon_labs_zw111_nano_dimmer
+        data_template:      
           parameter: 132                     #### set max brightness level
           value: >-
-            {% set hour = states("sensor.time").split(':')[0] | int %}
-            {% set brightness = [16, 16, 16, 16, 16, 16, 50, 99, 99, 80, 80, 80, 80, 80, 99, 99, 99, 99, 99, 99, 50, 50, 16, 16] %}
+            {%- set hour = states("sensor.time").split(':')[0] | int -%}
+            {%- set brightness = [16, 16, 16, 16, 16, 16, 50, 99, 99, 80, 80, 80, 80, 80, 99, 99, 99, 99, 99, 99, 50, 50, 16, 16] -%}
             {{ brightness[hour] }}
+ #target:
+ # device_id: 82eb5b1b016a11e839e08480f3aa8275
+ 
  #### Don't turn on lights when sleep
       - condition: and
         conditions:
@@ -170,7 +172,7 @@ automation:
           - condition: time
             before: '23:59:59' 
       - service: homeassistant.turn_on
-        entity_id: switch.aeon_labs_zw111_nano_dimmer_switch
+        entity_id: switch.nano_dimmer 
 #### debug message
 #      - service: telegram_bot.send_message
 #        data_template:
@@ -189,11 +191,11 @@ automation:
       to: 'off'
     condition:
       - condition: state
-        entity_id: switch.aeon_labs_zw111_nano_dimmer_switch    #### was automatically switched
+        entity_id: switch.nano_dimmer     #### was automatically switched?
         state: 'on'
     action:
       - service: homeassistant.turn_off
-        entity_id: switch.aeon_labs_zw111_nano_dimmer_switch   #### switch off programmably
+        entity_id: switch.nano_dimmer    #### switch off programmably
 #### debug message
 #      - service: telegram_bot.send_message
 #        data_template:
@@ -208,11 +210,11 @@ automation:
     initial_state: on
     trigger:
       platform: state
-      entity_id: light.aeon_labs_zw111_nano_dimmer_level    #### binary_sensor.sensor
+      entity_id: light.nano_dimmer    #### binary_sensor.sensor
       to: 'on'
       for:
         minutes: 30             # 
-# trigger will not cause the actions to run until light.aeon_labs_zw111_nano_dimmer_level changes to on and stays that way for 30 minutes. 
+# trigger will not cause the actions to run until light.nano_dimmer changes to on and stays that way for 30 minutes. 
 # If it changes to on for 1 second then changes to off and stays off, the actions will not run after 30 minutes. 
 # If it changes to on, then changes back to off before 30 minutes, then changes back to on again, the 30 minutes starts over.
     condition:
@@ -224,7 +226,7 @@ automation:
           minutes: 30
     action:
       - service: homeassistant.turn_off
-        entity_id: light.aeon_labs_zw111_nano_dimmer_level   #### switch off manual switch
+        entity_id: light.nano_dimmer   #### switch off manual switch
 #### debug message
       - service: telegram_bot.send_message
         data_template:
@@ -236,21 +238,20 @@ automation:
 
 
 ###############################################################################################
-####  If slider changed then config max brightness
+####  If slider changed then reconfigure max brightness
 ###############################################################################################
   - alias: Manualy Adjust Corridor Brightness
     trigger:
       platform: state
       entity_id: input_number.corridor_brightness
     action:
-      - service: zwave.set_config_parameter
+      - service: zwave_js.set_config_parameter
+        target:
+          entity_id: switch.nano_dimmer
         data_template: {
-          node_id: 5,
           parameter: 132,      
           value:  "{{ states.input_number.corridor_brightness.state|int }}"
           }
-
-
 
 
 ################################################################################
@@ -320,13 +321,13 @@ automation:
 
     condition:
       - condition: state
-        entity_id: light.aeon_labs_zw111_nano_dimmer_level    #### binary_sensor for manually switched on light
+        entity_id: light.nano_dimmer    #### binary_sensor for manually switched on light
         state: 'on'
 #        for:
 #          minutes: 3
     action:
       - service: homeassistant.turn_off
-        entity_id: light.aeon_labs_zw111_nano_dimmer_level   #### switch off bynary_sensor of manually switched on light if no current in dimmer
+        entity_id: light.nano_dimmer   #### switch off manually switched light on if no current in dimmer for 3 minutes
 #### debug message
       - service: telegram_bot.send_message
         data_template:

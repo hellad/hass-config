@@ -1,0 +1,58 @@
+{
+    "config": {
+        "title": "Mikrotik Router",
+        "step": {
+            "user": {
+                "title": "Mikrotik Router",
+                "description": "إعداد دمج موجِّه (Mikrotik).",
+                "data": {
+                    "name": "اسم الدّمج",
+                    "host": "المُضيف",
+                    "port": "منفذ",
+                    "username": "اسم المستخدم",
+                    "password": "كلمة المرور",
+                    "ssl": "استعمل طبقة الوصلات الآمنة (SSL)"
+                }
+            }
+        },
+        "error": {
+            "name_exists": "الاسم موجود بالفعل.",
+            "cannot_connect": "لا يمكن الاتصال بـ (Mikrotik).",
+            "ssl_handshake_failure": "فشل تأكيد الاتصال (SSL)",
+            "connection_timeout": "مهلة اتصال (Mikrotik).",
+            "wrong_login": "خطأ في اسم المستخدم أو كلمة مرور."
+        }
+    },
+    "options": {
+        "step": {
+            "basic_options": {
+                "data": {
+                    "scan_interval": "الفاصل الزمني للمسح الضوئي (يتطلب إعادة تشغيل HA)",
+                    "track_iface_clients": "إظهار  عنوان التحكّم في الوسائط (MAC)  و بروتوكول الإنترنت (IP) للعميل على الواجهات",
+                    "unit_of_measurement": "وحدة قياس",
+                    "track_network_hosts_timeout": "مهلة تتبّع أجهزة الشبكة (بالثواني)",
+                    "zone": "Zone for device tracker"
+                },
+                "title": "الخيارات الأساسية"
+            },
+            "sensor_select": {
+                "data": {
+                    "track_network_hosts": "تتبّع أجهزة الشبكة",
+                    "sensor_port_tracker": "مُستشعرات تعقُب منفذ الشبكة",
+                    "sensor_port_traffic": "مُستشعرات حركة المرور عبر منفذ الشبكة",
+                    "sensor_client_traffic": "مُستشعرات حركة المرور على شبكات العميل",
+                    "sensor_simple_queues": "مُبدِّل الاِصْطِفاف البسيط",
+                    "sensor_nat": "مُبدِّلات ترجمة عنوان الشبكة",
+                    "sensor_scripts": "مُبدِّلات النصوص",
+                    "sensor_environment": "مُستشعرات متغير البيئة",
+                    "sensor_pppusers": "PPP users",
+                    "sensor_kidcontrol": "Kid control",
+                    "sensor_mangle": "Mangle switches",
+                    "sensor_ppp": "PPP users",
+                    "sensor_filter": "Filter switches"
+                },
+                "title": "حدد المُستشعرات"
+            }
+        }
+    }
+}

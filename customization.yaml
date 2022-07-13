@@ -1,37 +1,8 @@
 #### Customization for my Home
-    # sensor.owm_cloud_coverage:
-    #   icon: mdi:weather-partlycloudy
-    #   friendly_name: Облачность
-    # sensor.owm_condition:
-    #   icon: mdi:weather-sunny
-    #   friendly_name: Погода
-    # sensor.owm_humidity:
-    #   icon: mdi:water-percent
-    #   friendly_name: Влажн.Сеть
-    # sensor.owm_rain:
-    #   icon: mdi:weather-lightning-rainy
-    #   friendly_name: Дождь
-    # sensor.owm_snow:
-    #   friendly_name: Снег
-    #   hidden: true
-    # sensor.owm_temperature:
-    #   friendly_name: Темп.Сеть
-    # sensor.owm_wind_speed:
-    #   icon: mdi:weather-windy
-    #   friendly_name: Ветер
     sensor.yr_symbol:
       friendly_name: За окном
-    # sensor.28000008a43272:
-    #   friendly_name: Температура дома
     sensor.mqtt_temp_sensor:
       friendly_name: Темп.MQTT
-#    sensor.humidity:
-#      friendly_name: Влажн.MQTT
-    # sensor.hall_dht11_temperature:
-    #   friendly_name: Темп.дома
-    # sensor.hall_dht11_humidity:
-    #   friendly_name: Влажн.дома
-    #   icon: mdi:water-percent
     sensor.bathroom_mqtt_temp_sensor:
       friendly_name: Темп.в ванной
     sensor.bathroom_mqtt_humidity_sensor:
@@ -40,81 +11,19 @@
     sensor.bathroom_mqtt_pressure_sensor:
       friendly_name: Давление в ванной
       icon: mdi:gauge
-
-#      sensor.pws_feelslike_c:
-#      friendly_name: Температура по ощущениям
-#    sensor.pws_precip_1d_mm:
-#      friendly_name: Уровень осадков сегодня
-#    sensor.pws_precip_1d:
-#      friendly_name: Вероятность осадков сегодня    
-#    sensor.pws_relative_humidity:
-#      friendly_name: Относительная влажность
-#    sensor.pws_temp_c:
-#      friendly_name: Температура воздуха
-#    sensor.pws_temp_high_record_c:
-#      friendly_name: Рекорд макс. темп. в этот день
-#    sensor.pws_temp_high_1d_c:
-#      friendly_name: Макс. температура сегодня
-#    sensor.pws_temp_low_1d_c:
-#      friendly_name: Минимальная температура сегодня
-#    sensor.pws_temp_low_record_c:
-#      friendly_name: Рекорд мин. темп. в этот день
-#    sensor.pws_weather:
-#      friendly_name: Погода сегодня
-#    sensor.pws_weather_1d_metric:
-#      friendly_name: Прогноз погоды на сегодня
-#    sensor.pws_wind_kph:
-#      friendly_name: Скорость ветра
-#    sensor.pws_wind_1d_kph:
-#      friendly_name: Средняя скорость ветра сегодня
-#    sensor.pws_wind_string:
-#      friendly_name: Прогноз ск. ветра сегодня
-#    sensor.pws_visibility_km:
-#      friendly_name: Видимость
-#    sensor.pws_UV:
-#      friendly_name: Уровень ультрафиолета
-#    sensor.pws_solarradiation:
-#      friendly_name: Уровень солнечной радиации
-#    sensor.pws_pressure_mb:
-#      friendly_name: Давление
-#    sensor.pws_pressure_trend:
-#      friendly_name: Прогноз изменения давления +/-
-    
-    # camera.adcamera:
-    #   friendly_name: Комната
     camera.prokhor:
       friendly_name: Положение Прохора
       icon: mdi:webcam
     # camera.iss:
     #   friendly_name: МКС
-    #   icon: mdi:satellite-variant
-
-    # sensor.cpu_use:
-    #   icon: mdi:chip
-    #   friendly_name: Загрузка процессора малины
-    # sensor.ram_free:
-    #   icon: mdi:memory 
-    #   friendly_name: Свободная память
-    # sensor.disk_use_home:
-    #   friendly_name: Занято на диске в /home
-    # sensor.cpu_temp:
-    #   friendly_name: Температура процессора
-    #   icon: mdi:memory 
-    # sensor.alexapi:
-    #   friendly_name: Состояние Алексы
-    #   icon: mdi:amazon 
-    # sensor.hyperion:
-    #   friendly_name: Состояние подсветки ТВ
-    #   icon: mdi:led-strip
-
-      
+    #   icon: mdi:satellite-variant  
     media_player.kitchen:
       friendly_name: Сонос
     media_player.home_theater:
       friendly_name: Домашний кинотеатр
     media_player.vimu_dune_4k:
       friendly_name: Дюна 4
-    media_player.yandex_station_210d8400a818973072efca94ef519c6a:
+    media_player.yandex_module:
       friendly_name: Яндекс модуль
     # media_player.dune_hd_3d_player:
     #   friendly_name: Медиаплеер Dune HD 3D
@@ -198,6 +107,9 @@
     light.aeotec_zw111_nano_dimmer_level:
       friendly_name: Свет с диммером в корридоре
       emulated_hue: true
+    
+    light.nano_dimmer:
+      friendly_name: Люстра
     
     sensor.co2_sensor:
       #icon: mdi:calendar-clockperiodic-table-co2

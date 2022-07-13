@@ -89,7 +89,7 @@
     initial_state: True  # To set an automation to be disabled when Home Assistant starts set initial_state: to False.
     trigger:
       platform: numeric_state
-      entity_id: sensor.cgllc_cgdn1_5dcf_co2_density    # Xiaomi Air Monitor
+      entity_id: sensor.cgdn1_cloud_624826_density_3    # Xiaomi Air Monitor
       above: 800
 #    condition:
 #      condition: time

@@ -58,9 +58,9 @@
     name: Irina_location
     still_image_url: https://static-maps.yandex.ru/1.x/?l=map&pt={{ states.device_tracker.irina_g7.attributes.longitude }},{{ states.device_tracker.irina_g7.attributes.latitude }},pm2lbl&z=17&l=map
     
-  - platform: generic
-    name: AdHTC_2_location
-    still_image_url: https://static-maps.yandex.ru/1.x/?l=map&pt={{ states.device_tracker.adhtc_2.attributes.longitude }},{{ states.device_tracker.adhtc_2.attributes.latitude }},ya_ru&z=17&l=map
+#  - platform: generic
+#    name: AdHTC_2_location
+#    still_image_url: https://static-maps.yandex.ru/1.x/?l=map&pt={{ states.device_tracker.adhtc_2.attributes.longitude }},{{ states.device_tracker.adhtc_2.attributes.latitude }},ya_ru&z=17&l=map
     
 #    still_image_url: https://maps.googleapis.com/maps/api/staticmap?size=500x500&maptype=roadmap&markers=color:gray|label:W|{{ states.device_tracker.adlg4_iphone.attributes.latitude }},{{ states.device_tracker.adlg4_iphone.attributes.longitude }}&markers=color:red|label:HTC|{{ states.device_tracker.adhtc_adhtc.attributes.latitude }},{{ states.device_tracker.adhtc_adhtc.attributes.longitude }}&key=!secret GoogleMapsAPIkey
 #    limit_refetch_to_url_change: true

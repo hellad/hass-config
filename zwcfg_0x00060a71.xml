@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Driver xmlns="http://code.google.com/p/open-zwave/" version="3" home_id="0x00060a71" node_id="5" api_capabilities="0" controller_capabilities="0" poll_interval="60000" poll_interval_between="true" />

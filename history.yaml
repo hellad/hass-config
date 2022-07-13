@@ -68,7 +68,7 @@
       - sensor.last_boot_custom
       - sensor.usd_rub_rate
       - sensor.hass_uptime
-      - sensor.hyperion
+#      - sensor.hyperion
       - sensor.bathroom_relay_uptime
       - sensor.bathroom_relay_firmware_version
       
