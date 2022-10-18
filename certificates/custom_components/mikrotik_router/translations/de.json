@@ -1,0 +1,58 @@
+{
+    "config": {
+        "title": "Mikrotik Router",
+        "step": {
+            "user": {
+                "title": "Mikrotik Router",
+                "description": "Mikrotik-Router-Integration einstellen",
+                "data": {
+                    "name": "Name der Integration",
+                    "host": "Host",
+                    "port": "Port",
+                    "username": "Benutzername",
+                    "password": "Passwort",
+                    "ssl": "SSL benutzen"
+                }
+            }
+        },
+        "error": {
+            "name_exists": "Name existiert bereits",
+            "cannot_connect": "Verbindung zu Mikrotik nicht möglich.",
+            "ssl_handshake_failure": "SSL Vereinbarung-Fehler",
+            "connection_timeout": "Mikrotik-Verbindungstimeout.",
+            "wrong_login": "Ungültiger Benutzername oder Passwort."
+        }
+    },
+    "options": {
+        "step": {
+            "basic_options": {
+                "data": {
+                    "scan_interval": "Scan-Intervall (erfordert HA-Neustart)",
+                    "track_iface_clients": "Client MAC und IP auf dem Interface anzeigen",
+                    "unit_of_measurement": "Maßeinheit",
+                    "track_network_hosts_timeout": "Zeitlimit für Netzwerkgeräte verfolgen (Sekunden)",
+                    "zone": "Zone for device tracker"
+                },
+                "title": "Grundlegende Optionen"
+            },
+            "sensor_select": {
+                "data": {
+                    "track_network_hosts": "Verfolgen Sie Netzwerkgeräte",
+                    "sensor_port_tracker": "Hafentracker-Sensoren",
+                    "sensor_port_traffic": "Hafen-Verkehrssensoren",
+                    "sensor_client_traffic": "Kunden-Verkehrssensoren",
+                    "sensor_simple_queues": "Einfache Endschalter",
+                    "sensor_nat": "NAT-Schalter",
+                    "sensor_scripts": "Skript-Schalter",
+                    "sensor_environment": "Umweltvariable Sensoren",
+                    "sensor_pppusers": "PPP users",
+                    "sensor_kidcontrol": "Kid control",
+                    "sensor_mangle": "Mangle switches",
+                    "sensor_ppp": "PPP users",
+                    "sensor_filter": "Filter switches"
+                },
+                "title": "Sensoren auswählen"
+            }
+        }
+    }
+}

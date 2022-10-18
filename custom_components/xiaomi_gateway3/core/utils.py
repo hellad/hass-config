@@ -27,17 +27,17 @@ from .mini_miio import AsyncMiIO
 from .xiaomi_cloud import MiCloud
 
 SUPPORTED_MODELS = (
-    'lumi.gateway.mgl03', 'lumi.gateway.aqcn02', 'lumi.gateway.aqcn03'
+    'lumi.gateway.mgl03', 'lumi.gateway.aqcn02', 'lumi.gateway.aqcn03', 'lumi.gateway.mcn001'
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 
 @callback
-def remove_device(hass: HomeAssistant, mac: str):
+def remove_device(hass: HomeAssistant, device: XDevice):
     """Remove device by did from Hass"""
     registry = dr.async_get(hass)
-    device = registry.async_get_device({(DOMAIN, mac)}, None)
+    device = registry.async_get_device({(DOMAIN, device.unique_id)}, None)
     if device:
         registry.async_remove_device(device.id)
 
@@ -224,6 +224,19 @@ async def get_bindkey(cloud: MiCloud, did: str):
     if bindkey.endswith('FFFFFFFF'):
         return "Not needed"
     return bindkey
+
+
+async def enable_bslamp2_lan(host: str, token: str):
+    device = AsyncMiIO(host, token)
+    resp = await device.send("get_prop", ["lan_ctrl"])
+    if not resp:
+        return "Can't connect to lamp"
+    if resp.get("result") == ["1"]:
+        return "Already enabled"
+    resp = await device.send("set_ps", ["cfg_lan_ctrl", "1"])
+    if resp.get("result") == ["ok"]:
+        return "Enabled"
+    return "Can't enable LAN"
 
 
 NCP_URL = "https://master.dl.sourceforge.net/project/mgl03/zigbee/%s?viasf=1"

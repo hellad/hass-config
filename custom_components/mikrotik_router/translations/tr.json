@@ -1,9 +1,8 @@
 {
     "config": {
-        "title": "Mikrotik Router",
         "step": {
             "user": {
-                "title": "Mikrotik Router",
+                "title": "Mikrotik Router'ı Kur",
                 "description": "Mikrotik yönlendirici entegrasyonunu kur",
                 "data": {
                     "name": "Entegrasyon adı",
@@ -31,9 +30,10 @@
                     "track_iface_clients": "Müşteri MAC'ini ve IP'sini arayüzlerde göster",
                     "unit_of_measurement": "Ölçü birimi",
                     "track_network_hosts_timeout": "Ağ cihazı izleme zaman aşımı (saniyeler)",
-                    "zone": "Zone for device tracker"
+                    "zone": "Cihaz izleyici için alan"
                 },
-                "title": "Temel seçenekler"
+                "title": "Mikrotik Router seçenekleri (1\/2)",
+                "description": "Entegrasyonu yapılandır"
             },
             "sensor_select": {
                 "data": {
@@ -45,13 +45,14 @@
                     "sensor_nat": "NAT switchler",
                     "sensor_scripts": "Betik switchleri",
                     "sensor_environment": "Çevre değişkeni sensörleri",
-                    "sensor_pppusers": "PPP users",
-                    "sensor_kidcontrol": "Kid control",
-                    "sensor_mangle": "Mangle switches",
-                    "sensor_ppp": "PPP users",
-                    "sensor_filter": "Filter switches"
+                    "sensor_kidcontrol": "Çocuk denetimi",
+                    "sensor_mangle": "Mangle anahtarları",
+                    "sensor_ppp": "PPP kullanıcıları",
+                    "sensor_filter": "Filtre anahtarları",
+                    "sensor_client_captive": "Captive portal data"
                 },
-                "title": "Sensörleri seçin"
+                "title": "Mikrotik Router seçenekleri (2\/2)",
+                "description": "Sensör ve anahtarları etkinleştir"
             }
         }
     }

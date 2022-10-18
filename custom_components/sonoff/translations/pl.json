@@ -1,5 +1,8 @@
 {
   "config": {
+    "abort": {
+      "reauth_successful": "Ponowne uwierzytelnienie powiod\u0142o si\u0119"
+    },
     "error": {
       "exists": "To konto jest juz skonfigurowane",
       "template": "{error}"
@@ -20,7 +23,7 @@
         "data": {
           "mode": "Tryb (auto jest rekomendowany dla większości użytkowników)",
           "homes": "Domy (pozostaw nie zaznaczone dla \"obecnego\")",
-          "debug": "Strona debugowania (Konfiguracja > System > Kondycja systemu"
+          "debug": "Strona debugowania (Integracja > Menu > Znane problemy)"
         }
       }
     }

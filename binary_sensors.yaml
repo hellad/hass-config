@@ -69,6 +69,8 @@
     before_offset:  "-00:10"  # 10 minutes after sunrise
 
 #### washing machine working sensor
+#### 0.18A in idle cyckle
+#### 0.04A in stopped mode
   - platform: template
     sensors:
       stiralnaya_power:

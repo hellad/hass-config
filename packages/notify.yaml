@@ -1,8 +1,5 @@
 ###############################################################################
-#   @author         :   Mahasri Kalavala
-#   @date           :   04/15/2017
-#   @package        :   Scripts
-#   @description    :   All common scripts
+#   @description    :   All common scripts for notifications
 ###############################################################################
 homeassistant:
   customize:

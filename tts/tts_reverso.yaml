@@ -1,0 +1,6 @@
+# https://github.com/rt400/ReversoTTS-HA
+# https://www.youtube.com/watch?v=bDdn7lRqAko
+  - platform: reversotts
+    language: 'Alyona-Russian'
+    pitch: "100"
+    bitrate: "128k"

@@ -17,12 +17,46 @@ homeassistant:
 
   customize: !include customization.yaml
 
+  packages: !include_dir_named packages
+
+  auth_providers:
+    - type: homeassistant
+#    - type: legacy_api_password
+#      api_password: !secret ha_api_password   # Deprecated since 0.90 release. Configuration moved to Legacy API password auth provider.
+# https://www.home-assistant.io/docs/authentication/providers/#legacy-api-password
+# Where your client or other software supports it, you should use long lasting access token instead, 
+# as shown in the REST API and websocket API documentation.
+
 # whitelist_external_dirs (Optional): List of folders that can be used as sources for sending files.
 # https://www.home-assistant.io/docs/configuration/basic/
-  # - /tmp - /home/pi/test
-#  whitelist_external_dirs:
-#    - /www
-#    - /config
+# - /tmp - /home/pi/test  
+  whitelist_external_dirs :
+   - /config
+ #  - /www
+
+# https://www.home-assistant.io/integrations/default_config/
+#default_config:
+
+#### Enables configuration UI
+config:
+
+counter:
+
+#Сканирование доступных устройств в сети
+ssdp:
+
+# Включение официального интерфейса
+frontend:
+  themes: !include_dir_merge_named themes
+  
+  extra_module_url:
+    - /hacsfiles/custom-brand-icons/custom-brand-icons.js
+
+#### Enables the frontend.
+#### https://youtu.be/QEtX0uboxQA?t=908 
+#frontend: !include frontend.yaml
+#  themes: !include_dir_merge_named themes    # https://smarttone.ru/blog/home-assistant-vs-code-themes-first-automation/
+
 
 # should be mapped volumes in docker-compose config?  
 #media_dirs:
@@ -30,14 +64,7 @@ homeassistant:
 #    music: "/volume3/Music/"
 #    movies: "/volume3/Movies/"
 
-  packages: !include_dir_named packages
-#  auth_providers:
-#    - type: homeassistant
-#    - type: legacy_api_password
-#      api_password: !secret ha_api_password   # Deprecated since 0.90 release. Configuration moved to Legacy API password auth provider.
-# https://www.home-assistant.io/docs/authentication/providers/#legacy-api-password
-# Where your client or other software supports it, you should use long lasting access token instead, 
-# as shown in the REST API and websocket API documentation.
+
 
 #### https://www.home-assistant.io/components/api/
 api:
@@ -47,14 +74,6 @@ api:
 
 #### System Health component
 system_health:
-
-#### Enables the frontend.
-#### https://youtu.be/QEtX0uboxQA?t=908 
-frontend: !include frontend.yaml
-#  themes: !include_dir_merge_named themes    # https://smarttone.ru/blog/home-assistant-vs-code-themes-first-automation/
-
-#### Enables configuration UI
-config:
 
 #### https://www.home-assistant.io/components/mobile_app/
 #### The Mobile App component allows Home Assistant mobile apps to easily integrate with Home Assistant.
@@ -86,33 +105,35 @@ http:
 #### Discover some devices automatically
 discovery:
 
+#### Cloud
+cloud:
+
+#### Track the sun
+sun:
+
 #### Allows you to issue voice commands from the frontend in enabled browsers
 conversation:
   intents:
     # менять нужно entity_id до двоеточия, после двоеточия ничего менять не надо!
     media_player.yandex_station: [.+]  # замените на вашу станцию
 
-# https://www.home-assistant.io/components/logger/
+# https://www.home-assistant.io/integrations/logger/
 logger:
-   default: info
-   logs:
-      homeassistant.components.telegram_bot: debug
-      custom_components.sonoff: debug
-      custom_components.sonoff.switch: debug
-      custom_components.sonoff.light: debug
-      custom_components.sonoff.sensor: debug
-      custom_components.yandex_smart_home: debug
-      zwave.aeon_labs_zw100_multisensor_6: info
+  default: info
+  logs:
+    homeassistant.components.telegram_bot: debug
+    custom_components.sonoff: debug
+    custom_components.sonoff.switch: debug
+    custom_components.sonoff.light: debug
+    custom_components.sonoff.sensor: debug
+    custom_components.yandex_smart_home: debug
+    zwave.aeon_labs_zw100_multisensor_6: info
 #      zwave.aeon_labs_zw111_nano_dimmer: info
-      homeassistant.components.image_processing: debug
-      homeassistant.components.push.camera: debug
-      custom_components.garmin_connect: debug
-      custom_components.webrtc: debug
-
-#### Enables support for tracking state changes over time
-history: !include history.yaml
-
-recorder: !include recorder.yaml
+    homeassistant.components.image_processing: debug
+    homeassistant.components.push.camera: debug
+    custom_components.garmin_connect: debug
+    custom_components.webrtc: debug
+    custom_components.localtuya: debug
 
 #### View all events in a logbook
 logbook:
@@ -125,6 +146,22 @@ logbook:
       - sensor.time_date
 #      - sensor.home_assistant_errors
 #      - sensor.home_assistant_warnings
+
+#### Enables support for tracking state changes over time
+history: !include history.yaml
+
+recorder: !include recorder.yaml
+
+####  https://www.home-assistant.io/blog/#camera-streams-for-everyone
+#     https://www.home-assistant.io/components/stream/
+stream:
+
+# https://www.home-assistant.io/components/ffmpeg/
+ffmpeg:
+#  ffmpeg_bin: /usr/bin/ffmpeg      
+          
+# Медиа контент
+media_source:   
 
 #### Enables a map showing the location of tracked devices
 map:
@@ -143,17 +180,11 @@ zone:
     radius: 100
     icon: mdi:office-building
 
-#### Track the sun
-sun:
-
 #### Weather prediction
 sensor: !include_dir_merge_list sensors
 
 #### Text to speech
 tts: !include_dir_merge_list tts
-
-#### Cloud
-cloud:
 
 binary_sensor: !include binary_sensors.yaml
 
@@ -169,11 +200,21 @@ input_boolean: !include_dir_merge_named input_boolean
 
 input_number: !include input_number.yaml
 
+# https://www.home-assistant.io/integrations/input_button/
+input_button:
+
+# https://www.home-assistant.io/integrations/input_datetime/
+input_datetime:  
+
 ####   !include_dir_merge_named does not work with shell_commands !!!   ####
 #shell_command: !include_dir_merge_named shell_command
 shell_command: !include shell_commands.yaml
 
 input_select: !include_dir_merge_named input_select
+
+switch: !include_dir_merge_list switches
+
+scene: !include scenes.yaml
 
 ifttt:
   key: !secret ifttt_key
@@ -199,13 +240,10 @@ ifttt:
 #     qos: 1
 #     retain: true
 
-####  https://www.home-assistant.io/blog/#camera-streams-for-everyone
-#     https://www.home-assistant.io/components/stream/
-stream:
-    
-    
+
+
 #### Camera section  
-camera: !include cameras.yaml
+#camera: !include cameras.yaml
 
 #### https://www.home-assistant.io/components/person/
 #person:
@@ -271,10 +309,7 @@ notify:
     api_key: !secret telegram_bot_pooling_api_key
     chat_id: !secret telegram_bot_chat_id_family
 
-# https://www.home-assistant.io/components/ffmpeg/
-ffmpeg:
-#  ffmpeg_bin: /usr/bin/ffmpeg      
-      
+
 #### test from multisensor example https://github.com/bruhautomation/ESP-MQTT-JSON-Multisensor
 #### 
 #light:  
@@ -303,8 +338,6 @@ alexa:
 yandex_dialogs:
 intent_script: !include intents_yandex+alexa.yaml
 
-switch: !include_dir_merge_list switches
-
 panel_iframe:
   configurator:
     title: Configurator
@@ -332,14 +365,14 @@ panel_iframe:
 #### sonoff-bulb not working with 0.100+ https://github.com/peterbuga/HASS-sonoff-ewelink/issues/165
 #### https://github.com/AlexxIT/SonoffLAN
 #### bathroom and kitchen switches
-sonoff:
-  username: !secret ewelink_name                      #[email or phone number]
-  password: !secret ewelink_password                  #[password]
+#sonoff:
+#  username: !secret ewelink_name                      #[email or phone number]
+#  password: !secret ewelink_password                  #[password]
 #  scan_interval: 60                                   #(optional, lower values than 60 won't work anymore!)
 #  grace_period: 600                                   #(optional)
 #  api_region: 'eu'                                    #(optional)
 #  entity_prefix: True                                 #(optional)
-  debug: True                                        #(optional) this option createsa pseudo switch entity switch.sonoff_debug (notice it won't show up automatically in frontend 
+#  debug: True                                        #(optional) this option createsa pseudo switch entity switch.sonoff_debug (notice it won't show up automatically in frontend 
 #in lovelace you have to manually add it or toggle it from Developer tools > Services section). 
 #when you finish toggle the pseudo-switch OFF and a new (very long) persistent notification will show up.
 #  mode: local     # Legacy mode. Only downloads a list of devices from Cloud Servers. Works with local protocol. Only works with devices on 3rd firmware.
@@ -428,21 +461,13 @@ lovelace:
      type: module
    - url: /hacsfiles/vertical-stack-in-card/vertical-stack-in-card.js
      type: js 
-   - url: /hacsfiles/canvas-gauge-card/canvas-gauge-card.js
-     type: module
    - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
-     type: module
-   - url: /hacsfiles/simple-thermostat/simple-thermostat.js
-     type: module
-   - url: /hacsfiles/weather-card/weather-card.js
      type: module
    - url: /hacsfiles/lovelace-card-mod/card-mod.js
      type: module
    - url: /hacsfiles/stack-in-card/stack-in-card.js
      type: module
    - url: /hacsfiles/battery-state-card/battery-state-card.js
-     type: module
-   - url: /hacsfiles/air-visual-card/air-visual-card.js
      type: module
    - url: /hacsfiles/logbook-card/logbook-card.js
      type: module
@@ -452,7 +477,28 @@ lovelace:
      type: module
    - url: /hacsfiles/lovelace-tempometer-gauge-card/tempometer-gauge-card.js
      type: module
+   - url: /hacsfiles/flipdown-timer-card/flipdown-timer-card.js
+     type: module
+   - url:  /hacsfiles/vacuum-card/vacuum-card.js
+     type: module 
+   - url: /hacsfiles/light-entity-card/light-entity-card.js
+     type: module
+   - url: /hacsfiles/history-explorer-card/history-explorer-card.js
+     type: module 
+   - url: /hacsfiles/ha-sankey-chart/ha-sankey-chart.js
+     type: module      
+   - url: /hacsfiles/lovelace-mushroom/mushroom.js
+     type: module
       
+  dashboards:
+    lovelace-graph:
+      mode: yaml
+      filename: ui_graph.yaml
+      title: Графики
+      icon: mdi:chart-bell-curve-cumulative
+      show_in_sidebar: true
+      require_admin: true
+
 # https://www.home-assistant.io/integrations/webostv/
 # The full list of known endpoints is available at 
 # https://github.com/bendavid/aiopylgtv/blob/master/aiopylgtv/endpoints.py
@@ -507,4 +553,15 @@ xiaomi_miot:
       moist: '微湿'
       extra: '特干'
 
-media_source: 
+xiaomi_gateway3:
+  attributes_template: |
+    {% if attr in ('zigbee', 'ble', 'mesh') %}{{{
+      "device_name": device.info.name,
+      "device_fw_ver": device.fw_ver,
+      "device_model": device.model,
+      "device_market_model": device.info.model,
+      "gateway_name": gateway.info.name,
+      "gateway_fw_ver": gateway.fw_ver
+    }}}{% elif attr == 'gateway' %}{{{
+      "device_fw_ver": device.fw_ver,
+    }}}{% endif %}

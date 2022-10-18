@@ -1,0 +1,58 @@
+{
+    "config": {
+        "title": "Mikrotik Router",
+        "step": {
+            "user": {
+                "title": "Mikrotik Router",
+                "description": "Set up Mikrotik Router integration.",
+                "data": {
+                    "name": "Name of the integration",
+                    "host": "Host",
+                    "port": "Port",
+                    "username": "Username",
+                    "password": "Password",
+                    "ssl": "Use SSL"
+                }
+            }
+        },
+        "error": {
+            "name_exists": "Name already exists.",
+            "cannot_connect": "Cannot connect to Mikrotik.",
+            "ssl_handshake_failure": "SSL handshake failure",
+            "connection_timeout": "Mikrotik connection timeout.",
+            "wrong_login": "Invalid user name or password."
+        }
+    },
+    "options": {
+        "step": {
+            "basic_options": {
+                "data": {
+                    "scan_interval": "Scan interval (requires HA restart)",
+                    "track_iface_clients": "Show client MAC and IP on interfaces",
+                    "unit_of_measurement": "Unit of measurement",
+                    "track_network_hosts_timeout": "Track network devices timeout (seconds)",
+                    "zone": "Zone for device tracker"
+                },
+                "title": "Basic options"
+            },
+            "sensor_select": {
+                "data": {
+                    "track_network_hosts": "Track network devices",
+                    "sensor_port_tracker": "Port tracker sensors",
+                    "sensor_port_traffic": "Port traffic sensors",
+                    "sensor_client_traffic": "Client traffic sensors",
+                    "sensor_simple_queues": "Simple queues switches",
+                    "sensor_nat": "NAT switches",
+                    "sensor_scripts": "Scripts switches",
+                    "sensor_environment": "Environment variable sensors",
+                    "sensor_pppusers": "PPP users",
+                    "sensor_kidcontrol": "Kid control",
+                    "sensor_mangle": "Mangle switches",
+                    "sensor_ppp": "PPP users",
+                    "sensor_filter": "Filter switches"
+                },
+                "title": "Select sensors"
+            }
+        }
+    }
+}

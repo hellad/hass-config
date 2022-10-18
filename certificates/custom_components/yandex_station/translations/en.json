@@ -1,0 +1,62 @@
+{
+  "config": {
+    "abort": {
+      "account_updated": "Данные обновлены, перезапустите Home Assistant"
+    },
+    "error": {
+      "account.not_found": "Такого аккаунта нет",
+      "password.not_matched": "Неверный пароль",
+      "unauthorised": "Авторизация пока не пройдена",
+      "email.unsupported": "Авторизация по E-mail не поддерживается на этом аккаунте",
+      "redirect.unsupported": "Авторизация по паролю не может быть пройдена"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "method": "Способ авторизации"
+        }
+      },
+      "qr": {
+        "description": "У вас должен быть включен **Вход без пароля** в [профиле Яндекса](https://passport.yandex.ru/profile).\n\nОтсканируйте код в мобильном приложении **Яндекс**. Если включена двухфакторная авторизация - отсканируйте код в мобильном приложении **Яндекс.Ключ**. И затем нажмите **Подтвердить**.\n\nВ тёмной теме код читается плохо!\n![]({qr_url})\n"
+      },
+      "auth": {
+        "description": "Введите логин и пароль аккаунта на Яндексе. Если включена двухфакторная аутентификация - введите одноразовый пароль из приложения Яндекс.Ключ",
+        "data": {
+          "username": "Логин",
+          "password": "Пароль или одноразовый пароль"
+        }
+      },
+      "email": {
+        "data": {
+          "username": "Логин"
+        }
+      },
+      "email2": {
+        "description": "Ссылка отправлена на ящик `{email}`. Подтвердите её там, и затем нажмите **Подтвердить** здесь."
+      },
+      "cookies": {
+        "description": "1. Установите расширение [Copy Cookies](https://chrome.google.com/webstore/detail/copy-cookies/jcbpglbplpblnagieibnemmkiamekcdg) в Google Chrome, Yandex Browser или Opera\n2. Авторизуйтесь в [Yandex ID](https://passport.yandex.ru/profile) (не используйте режим инкогнито)\n3. Скопируйте сюда Cookies с помощью расширения",
+        "data": {
+          "cookies": "Cookies JSON"
+        }
+      },
+      "token": {
+        "description": "Вы можете перенести токен с другого сервера Home Assistant. Его можно найти в файле `/config/.storage/core.config_entries`. Других способов получить токен - нет",
+        "data": {
+          "token": "Токен"
+        }
+      },
+      "captcha": {
+        "description": "Введите код с картинки\n![]({captcha_url})",
+        "data": {
+          "captcha_answer": "Код"
+        }
+      },
+      "captcha2": {
+        "data": {
+          "password": "Пароль или одноразовый пароль"
+        }
+      }
+    }
+  }
+}

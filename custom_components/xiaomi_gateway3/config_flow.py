@@ -163,7 +163,7 @@ class OptionsFlowHandler(OptionsFlow):
                 if device["did"] == did
             )
 
-            if device["pid"] != "6":
+            if device["pid"] != 6:
                 device_info = (
                     f"Name: {device['name']}\n"
                     f"Model: {device['model']}\n"
@@ -191,6 +191,10 @@ class OptionsFlowHandler(OptionsFlow):
                     self.hass.data[DOMAIN]["cloud"],
                     device["localip"], device["token"],
                 )
+            elif device["model"] == "yeelink.light.bslamp2":
+                device_info += "\nLAN mode: " + await utils.enable_bslamp2_lan(
+                    device["localip"], device["token"]
+                )
 
         elif not self.hass.data[DOMAIN].get("devices"):
             device_info = "No devices in account"
@@ -200,9 +204,9 @@ class OptionsFlowHandler(OptionsFlow):
         devices = {}
         for device in self.hass.data[DOMAIN].get("devices", []):
             # 0 - wifi, 6 - ble, 8 - wifi+ble
-            if device["pid"] in ("0", "8"):
+            if device["pid"] in (0, 8):
                 info = device["localip"]
-            elif device["pid"] == "6":
+            elif device["pid"] == 6:
                 info = "BLE"
             else:
                 continue

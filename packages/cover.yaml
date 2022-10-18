@@ -1,0 +1,109 @@
+automation:
+  - alias: kitchen_blinds_clear_path
+    trigger:
+      - platform: event
+        event_type: yandex_intent
+        event_data:
+          text: Подоконник чистый
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.kitchen_blinds_path_unsafe
+                state: 'on'
+            sequence:
+              - service: input_boolean.turn_off
+                entity_id: input_boolean.kitchen_blinds_path_unsafe
+
+              - service: script.yandex_station_tts
+                data:
+                  target: '{{ trigger.event.data.get("entity_id", "last") }}'
+                  text: Хорошо. Теперь можно закрывать шторы
+
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.kitchen_blinds_path_unsafe
+                state: 'off'
+            sequence:
+              - service: script.yandex_station_tts
+                data:
+                  target: '{{ trigger.event.data.get("entity_id", "last") }}'
+                  text: Я и так об этом знаю
+
+  - alias: kitchen_blinds_update_path
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kitchen_blinds_block_contact
+        to:
+          - 'on'
+          - 'off'
+    action:
+      - service_template: >
+          input_boolean.turn_{{ 'on' if trigger.to_state.state == 'off' else 'off' }}
+        data_template:
+          entity_id: input_boolean.kitchen_blinds_path_unsafe
+
+cover:
+  - platform: template
+    covers:
+      kitchen_blinds:
+        friendly_name: Kitchen Blinds
+        device_class: curtain
+        optimistic: false
+        position_template: '{{ states.cover.zhalliuzi_curtain.attributes.current_position }}'
+        icon_template: >
+          {% if is_state('cover.kitchen_blinds', 'open') %}
+            mdi:window-open
+          {% else %}
+            mdi:window-closed
+          {% endif %}
+        set_cover_position:
+          service: script.kitchen_blinds_set_position
+          data:
+            position: '{{ position }}'
+        stop_cover:
+          service: cover.stop_cover
+          entity_id: cover.zhalliuzi_curtain
+
+script:
+  kitchen_blinds_set_position:
+    fields:
+      position:
+        name: Position
+        selector:
+          number:
+            min: 0
+            max: 100
+            step: 1
+    sequence:
+      - choose:
+          conditions:
+            - condition: template
+              value_template: '{{ position|int < 99 }}'
+
+            - condition: state
+              entity_id: input_boolean.room_curtains_path_unsafe
+              state: 'on'
+          sequence:
+            - service: cover.set_cover_position
+              entity_id: cover.zhalliuzi_curtain
+              data:
+                position: '{{ [position, 99]|max }}'
+
+            - condition: template
+              value_template: '{{ context.user_id == "f6e17c9bb85c47e7b4da0f6746499a96" }}'  # person.ad    
+
+            - service: script.yandex_station_tts
+              data:
+                target: '{{ trigger.event.data.get("entity_id", "last") }}'
+                text: Кажется что-то мешает закрыть шторы. Проверь окно, или скажи Алиса, Подоконник чистый и закрой снова
+        default:
+          - service: cover.set_cover_position
+            entity_id: cover.zhalliuzi_curtain
+            data:
+              position: '{{ position }}'
+
+input_boolean:
+  room_curtains_path_unsafe:
+    name: Room Curtains path unsafe
+    icon: mdi:steering-off

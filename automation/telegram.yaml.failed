@@ -1,0 +1,807 @@
+
+  - alias: 'Telegram bot reply with Google TTS Speak'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/speak'                            #### /speak
+    action:
+      - service: tts.google_translate_say
+        entity_id: media_player.kitchen   # Say to the sonos speaker device entity
+        data_template:
+          language: ru
+          message: >
+            Внимание, сообщаю прогноз погоды на сегодня: {{ states('sensor.dark_sky_summary_0d') }}
+      - delay: 0:0:8
+      - service: tts.google_translate_say # tts.alice_say
+        entity_id: media_player.kitchen   # Say to the sonos speaker device entity
+                                          # media_player.yandex_station
+                                          # media_player.bedroom
+                                          # media_player.home_theater
+                                          # media_player.home_theater_zone2
+                                          # 
+        data_template:
+          language: ru
+          message: >
+            А ещё температура за окном {{ states('sensor.dark_sky_temperature')|int }} градусов
+
+  - alias: 'Telegram bot inline reply with Google TTS Speak'
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: '/speak'                            #### /speak
+    action:
+      - service: tts.google_translate_say
+        entity_id: media_player.kitchen   # Say to the sonos speaker device entity
+        data_template:
+          language: ru
+          message: >
+            Внимание, сообщаю прогноз погоды на сегодня: {{ states('sensor.dark_sky_summary_0d') }}
+      - delay: 0:0:8
+      - service: tts.google_translate_say # tts.yandex_station_say
+        entity_id: media_player.yandex_station_mini   # Say to the sonos speaker device entity media_player.kitchen
+                                          # media_player.yandex_station
+                                          # media_player.bedroom
+                                          # media_player.home_theater
+                                          # media_player.home_theater_zone2
+                                          # media_player.yandex_station_mini
+        data_template:
+          language: ru
+          message: >
+            А ещё температура за окном {{ states('sensor.dark_sky_temperature')|int }} градусов
+
+
+####
+  - alias: 'Telegram bot say text via Google TTS'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/say'                            #### /say text
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Message from {{ trigger.event.data["user_id"] }} received : {{ trigger.event.data.args }}.
+#            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Message from {{ trigger.event.data["user_id"] }} received : {{ trigger.event.data.data }}.
+
+#### test attempt to use sonos speaker
+#      - service: script.sonos_tts
+
+      - service: tts.google_translate_say
+        entity_id: media_player.kitchen   # Say to the sonos speaker device entity
+
+#        entity_id: media_player.vlcmp   # Say to the media_player.adkodi device entity
+        data_template:
+          language: ru      # RU is more universal then en. It pronounce all text.
+          message: >
+            {% for state in trigger.event.data["args"] %} {{ state }} {% endfor %} 
+#{{ trigger.event.data.[args] }}
+
+  - alias: 'Telegram bot inline say text via Google TTS'
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        command: '/say'                            #### /say Текст
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} От {{ trigger.event.data["user_id"] }}  получено cообщение: {{ trigger.event.data.args }}.
+
+#### test attempt to use sonos speaker
+#      - service: script.sonos_tts
+
+      - service: tts.google_translate_say
+        entity_id: media_player.kitchen   # Say to the sonos speaker device entity
+        data_template:
+          language: ru      # RU is more universal then en. It pronounce all text.
+          message: >
+            {% for state in trigger.event.data["args"] %} {{ state }} {% endfor %} 
+
+
+
+  - id: Определение ID
+    alias: telegram_id
+    initial_state: true
+    trigger:
+      - platform: event
+        event_type: telegram_text
+    condition:
+      - condition: template
+        value_template: >-
+          {{ trigger.event.data.text in ["whoami", "Кто я?"] }}
+      # - condition: state
+      #   entity_id: switch.control_mode
+      #   state: 'on'
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: "{{ trigger.event.data.chat_id }}"
+          message: |
+            Твой ID {{ trigger.event.data.user_id }}
+
+# ## Запрос состояния
+#   - id: Кто я
+#     alias: telegram_whoami
+#     initial_state: true
+#     trigger:
+#       - platform: event
+#         event_type: telegram_text
+#     # condition:
+#     #   - condition: state
+#     #     entity_id: switch.control_mode
+#     #     state: 'on'
+#     action:
+#       - choose:
+#           - conditions:      
+#               - condition: template
+#                 value_template: >-
+#                   {{ trigger.event.data.text in ["Кто я?",] }}
+#               - condition: template
+#                 value_template: >
+#                     {{ trigger.event.data.user_id == (states('sensor.admin_tg_id')|int) }}
+#             sequence:
+#               - service: telegram_bot.send_message
+#                 data:
+#                   target: "{{ trigger.event.data.user_id }}"
+#                   message: | 
+#                         {{"\U0000270B"}} Привет, я тебя узнал, твой ID - {{ trigger.event.data.user_id }}, статус - Администратор, доступ - полный
+#           - conditions:      
+#               - condition: template
+#                 value_template: >-
+#                   {{ trigger.event.data.text in ["Кто я?",] }}
+#               - condition: template
+#                 value_template: >
+#                     {{ trigger.event.data.user_id == (states('sensor.dima_tg_id')|int) }}
+#             sequence:
+#               - service: telegram_bot.send_message
+#                 data:
+#                   target: "{{ trigger.event.data.user_id }}"
+#                   message: | 
+#                         {{"\U0000270B"}} Привет, я тебя узнал, твой ID - {{ trigger.event.data.user_id }}, статус - Пользователь, доступ - управление комнатой Детская Д
+
+
+  - alias: 'Telegram bot reply to yandex'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: "/yandex"                             #### /yandex
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  
+          message: "Выбор колонки:"
+          inline_keyboard:                  
+            - "Спальня:/be, Кухня:/ki"
+            - "Модуль:/mo "
+
+  - alias: 'Telegram bot reply to start'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: "/start"                             #### /start
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  
+          message: "Команды:"
+#          data:                     #### это похоже лишнее!!!
+
+#### example from https://github.com/OXOTH1K/homeassistant/blob/master/automations/telegram_menu.yaml
+#          keyboard:
+#            - "Гостиная, Кухня, Ванная"
+#            - '{{"\U0001F4F7"}}, {{"\U0001F4F9"}}'          
+          inline_keyboard:                  
+            - "Домофон однократно:/oo, Проверка:/ping"
+            - "Домофон беззвучно:/mo, Дача:/photod, "
+#              - 'Check:/ping, Reset:/rst, Status:/status'
+#              - 'Say:/speak, Speak:/say Test, Snapshot:/photo'
+#### Смотри package domofon.yaml
+           
+#    action:
+#      - service: notify.telegram_direct_mega
+#        data_template:
+#          title: 'Привет от домашнего помощника!'
+#          message: >
+#             Какую команду исполнить?
+#          data:
+#            keyboard:
+#              - '/ping, /rst, /status'
+#              - '/acon, /acoff, /photo'
+
+#### пример использования на https://github.com/home-assistant/home-assistant/issues/7670
+  - alias: 'Telegram bot reply pong to command ping'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/ping'                              #### /ping
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Pong, Message from {{ trigger.event.data["user_id"] }}.
+    
+  - alias: 'Telegram bot inline reply pong to ping'
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: "/ping"                              #### /ping
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Есть контакт! В ответ пользователю № {{ trigger.event.data["user_id"] }}.
+
+    
+#### рабочий вариант ответа, но не постоянного сообщения            
+#  - alias: 'Telegram bot inline reply pong to ping'
+#    trigger:
+#      platform: event
+#      event_type: telegram_callback
+#      event_data:
+#        data: "/ping"                              #### /ping
+#    action:
+#      - service: telegram_bot.answer_callback_query
+#        data_template:
+#          callback_query_id: '{{ trigger.event.data.id }}'
+#          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+#          message: >-
+#            Callback received from {{ trigger.event.data.from_first }}.
+#            Message id: {{ trigger.event.data.message.message_id }}.
+#            Data: {{ trigger.event.data.data }}
+#            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Pong, Message from {{ trigger.event.data["user_id"] }}.
+
+#### https://www.home-assistant.io/components/telegram_bot/
+  - alias: 'Telegram bot send photo'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/photo'                             #### /photo
+    action:
+      - service: telegram_bot.send_photo
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+#          {"url":"http://localhost:8123{{ states.camera.dafang3.attributes.entity_picture}}","target":"!secret telegram_bot_chat_id_beeline", "keyboard":["/ping, /speak", "/photo"]}
+#          {"url":"https://hellad.ddns.us:88{{ states.camera.adcamera.attributes.entity_picture}}","target":"!secret telegram_bot_chat_id_beeline", "keyboard":["/ping, /speak", "/photo"]}  #does not work with SSL
+#          file: "/tmp/camera.png"
+          url: !secret HLS_dafang_still_url       #### https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/blob/master/integration/homeassistant/homeassistant.md
+#          file: "/home/homeassistant/.homeassistant/www/camera.png"
+          disable_notification: false
+          verify_ssl: false
+          username: !secret dafang_user
+          password: !secret dafang_password
+
+  - alias: 'Telegram bot send dacha photo'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/photod'                             #### /photod
+    action:
+      - service: shell_command.snapshot_dome          # file www/snapshots/snapshot_dome.jpg
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Photo should be sent to  {{ trigger.event.data["user_id"] }}.
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 2
+          milliseconds: 0
+      - service: telegram_bot.send_photo
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          file: "www/snapshots/snapshot_dome.jpg"
+
+  - alias: 'Telegram bot inline send dacha photo'
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: '/photod'                             #### /photod
+    action:
+      - service: shell_command.snapshot_dome          # file www/snapshots/snapshot_dome.jpg
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 2
+          milliseconds: 0
+      - service: telegram_bot.send_photo
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  
+          file: "www/snapshots/snapshot_dome.jpg"
+
+  - alias: 'Telegram bot send balcony photo'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/photob'                             #### /photob
+    action:
+      - service: shell_command.snapshot_bullet          # file www/snapshots/snapshot_bullet.jpg
+
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Photo should be sent to  {{ trigger.event.data["user_id"] }}.
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 2
+          milliseconds: 0
+      - service: telegram_bot.send_photo
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          file: "www/snapshots/snapshot_bullet.jpg"
+
+  - alias: 'Telegram bot send kitchen photo'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/photok'                             #### /photok
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Photo should be sent to  {{ trigger.event.data["user_id"] }}.
+      - service: telegram_bot.send_photo
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          url: !secret dahua_dome_camera_still_image_url
+#          file: "/home/homeassistant/.homeassistant/www/camera.png"
+          verify_ssl: false
+          username: !secret dahua_user
+          password: !secret dahua_password
+
+
+# #### https://www.home-assistant.io/components/telegram_bot/
+# ##   send map with Irina location
+#   - alias: 'Telegram bot send Irina location'
+#     trigger:
+#       platform: event
+#       event_type: telegram_command
+#       event_data:
+#         command: '/imap'                             #### /imap
+#     action:
+#       - service: telegram_bot.send_photo
+#         data_template:
+#           target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+#           url: https://static-maps.yandex.ru/1.x/?l=map&pt={{ states.device_tracker.irina_g7.attributes.longitude }},{{ states.device_tracker.irina_g7.attributes.latitude }},pm2lbl&z=17&l=map     
+#           disable_notification: false
+#           verify_ssl: false
+
+# #### https://www.home-assistant.io/components/telegram_bot/
+# ##   send map with OnePlus location
+#   - alias: 'Telegram bot send Andrey location'
+#     trigger:
+#       platform: event
+#       event_type: telegram_command
+#       event_data:
+#         command: '/amap'                             #### /amap
+#     action:
+#       - service: telegram_bot.send_photo
+#         data_template:
+#           target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+#           url: https://static-maps.yandex.ru/1.x/?l=map&pt={{ states.device_tracker.adhtc_2.attributes.longitude }},{{ states.device_tracker.adhtc_2.attributes.latitude }},ya_ru&z=17&l=map     
+#           disable_notification: false
+#           verify_ssl: false
+
+# #### https://www.home-assistant.io/components/telegram_bot/
+# ##   send map with iphone location
+#   - alias: 'Telegram bot send Iphone location'
+#     trigger:
+#       platform: event
+#       event_type: telegram_command
+#       event_data:
+#         command: '/xsmap'                             #### /xsmap
+#     action:
+#       - service: telegram_bot.send_photo
+#         data_template:
+#           target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+#           url: https://static-maps.yandex.ru/1.x/?l=map&pt={{ states.device_tracker.adlg4_iphone_2.attributes.longitude }},{{ states.device_tracker.adlg4_iphone_2.attributes.latitude }},pm2rdm&z=17&l=map     
+#           disable_notification: false
+#           verify_ssl: false
+
+# #### https://www.home-assistant.io/components/telegram_bot/
+# ##   send map with Prokhor location
+#   - alias: 'Telegram bot send Prokhor location'
+#     trigger:
+#       platform: event
+#       event_type: telegram_command
+#       event_data:
+#         command: '/prmap'                             #### /prmap
+#     action:
+#       - service: telegram_bot.send_photo
+#         data_template:
+#           target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+#           url: https://static-maps.yandex.ru/1.x/?l=map&pt={{ states.device_tracker.mi4prime_xiaomi.attributes.longitude }},{{ states.device_tracker.mi4prime_xiaomi.attributes.latitude }},pm2blywl&z=17&l=map     
+#           disable_notification: false
+#           verify_ssl: false
+
+############################### 
+#This automation replies to a # 
+#telegram message with various# 
+#status details for the system# 
+###############################
+  - alias: 'Telegram reply with Status' 
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/status'                            #### /status
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >-
+            Система работает ;) ! С момента старта прошло  {{states.sensor.hass_uptime.state}} сек. 
+            Irina is at {{ states.device_tracker.irina.state|replace("_"," ") }} .
+            Andrey is at {{ states.device_tracker.andrey.state|replace("_"," ") }} .
+            Pavel is at {{ states.device_tracker.pavel.state|replace("_"," ") }} ,
+            and Prokhor is at {{ states.device_tracker.prohor.state|replace("_"," ") }}.
+            Температура и влажность дома: {{ states('sensor.aeon_labs_zw100_multisensor_6_temperature') }}C {{ states('sensor.aeon_labs_zw100_multisensor_6_relative_humidity') }}%. 
+            Состояние кондиционера: Power {{ states.switch.fujitsu.state }}, current mode {{ states.input_select.bedroom_aircon_mode.state }}-{{ states.input_select.bedroom_aircon_fan.state }}-{{ states.input_number.bedroom_aircon_temperature.state|int }} .
+            Свет в корридоре: Power {{ states.sensor.aeon_labs_zw111_nano_dimmer_power.state }}, Volt {{ states.sensor.aeon_labs_zw111_nano_dimmer_voltage.state }}, Luminance {{ states.sensor.aeon_labs_zw100_multisensor_6_luminance.state  }}, Energy  {{ states.sensor.aeon_labs_zw111_nano_dimmer_energy.state }}
+
+            
+  # - alias: 'Telegram bot restart HASS'
+  #   trigger:
+  #     platform: event
+  #     event_type: telegram_command
+  #     event_data:
+  #       command: '/rst'                              #### /rst
+  #   action:
+  #     - service: shell_command.hass_restart
+  #     - service: telegram_bot.send_message
+  #       data_template:
+  #         target: '{{ trigger.event.data.user_id }}'
+  #         message: >
+  #           Home assistant restarted via telegram command.
+
+  # - alias: 'Telegram bot turn off RasPi'
+  #   trigger:
+  #     platform: event
+  #     event_type: telegram_command
+  #     event_data:
+  #       command: '/end'                             #### /end
+  #   action:
+  #     - service: shell_command.end
+  #     - service: telegram_bot.send_message
+  #       data_template:
+  #         target: '{{ trigger.event.data.user_id }}'
+  #         message: >
+  #           RaspberryPi turned off via telegram command.
+
+
+  # - alias: 'Telegram bot reboot RasPi'
+  #   trigger:
+  #     platform: event
+  #     event_type: telegram_command
+  #     event_data:
+  #       command: '/rbt'                             #### /rbt
+  #   action:
+  #     - service: shell_command.reboot
+  #     - service: telegram_bot.send_message
+  #       data_template:
+  #         target: '{{ trigger.event.data.user_id }}'
+  #         message: >
+  #           RaspberryPi restarted via telegram command.
+
+#################################################################################
+#	objects to be used for aircon control
+#       switch.fujitsu,input_select.bedroom_aircon_power,input_select.bedroom_aircon_mode,
+#	input_select.bedroom_aircon_fan,input_number.bedroom_aircon_temperature
+#################################################################################
+
+  - alias: 'Telegram bot turn-off AirConditioner'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/acoff'                          #### /acoff
+    action:
+#### надо изменить статусы переключателей в web gui и потом вызывать скрипт с их новыми значениями!
+#      - service: shell_command.set_ac_off
+#      - service: shell_command.ac_off          # /home/homeassistant/.homeassistant/shell_command/acon.sh
+#### try to change status of dedicated switch to turn on aircon
+      - service: switch.turn_off
+        data: 
+          entity_id: switch.fujitsu
+      - delay: 0:0:1
+      - service: tts.google_translate_say
+        entity_id: media_player.kitchen   # Say to the media_player.vlcmp device entity
+        data_template:
+          language: ru
+          message: >
+            Внимание! Выполнена команда выключения кондиционера
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Air conditioner turned off via telegram command.
+
+  - alias: 'Telegram bot turn-on AirConditioner'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/acon'                           #### /acon
+    action:
+#### надо изменить статусы переключателей в web gui и потом вызывать скрипт с их новыми значениями!
+#      - service: shell_command.set_ac_on
+#      - service: shell_command.ac_on       #don't use set_ac_on!?
+#### try to change status of dedicated switch to turn on aircon
+      - service: switch.turn_on
+        data:
+          entity_id: switch.fujitsu
+      - delay: 0:0:1
+      - service: tts.google_translate_say
+        entity_id: media_player.kitchen   # Say to the media_player.vlcmp device entity
+        data_template:
+          language: ru
+          message: >
+            Внимение! Выполнется команда включения кондиционера
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Air conditioner turned on via telegram command.
+########  End of telegram automation rules
+            
+#### test PIR multi sensor node in the kitchen
+#   - alias: Notify with LED when there is movement in kitchen
+#     trigger:
+#       platform: state
+#       entity_id: sensor.sn1_pir
+#       to: 'motion detected'
+#     action:
+# #      - service: notify.telegram_group
+# #        data_template:
+# #          message: "Обнаружено движение в кухне"
+#       - service: light.turn_on
+#         entity_id: light.sn1_led
+
+#### test PIR multi sensor node in the kitchen
+  # - alias: Turn off LED when there is no movement in kitchen
+  #   trigger:
+  #     platform: state
+  #     entity_id: sensor.sn1_pir
+  #     to: 'standby'
+  #   action:
+  #     - service: light.turn_off
+  #       entity_id: light.sn1_led
+
+
+#### test new AM312 small PIR sensor
+  # - alias: Notify when there is movement in bathroom
+  #   initial_state: false
+  #   trigger:
+  #     platform: state
+  #     entity_id: binary_sensor.bathroom_motion_sensor
+  #     to: 'on'
+
+#### try to set 1 minute delay for reaction on sensor's changes
+# https://community.home-assistant.io/t/automation-with-door-sensor-and-pir-sensor/22056/4
+    # condition:
+    #   - condition: template
+    #     value_template: '{{(as_timestamp(now())-as_timestamp(states.binary_sensor.bathroom_motion_sensor.last_updated)) | int > 60 }}'
+
+    # action:
+#      service: notify.telegram_direct_mega
+#      data_template:
+#        title: 'Привет от домашнего помощника!'
+#        message: >
+#          Обнаружено движение в ванной
+
+      # - service: notify.telegram_group
+      #   data_template:
+      #     message: "Обнаружено движение в ванной"
+
+
+####https://github.com/AlexxIT/YandexStation#%D0%BF%D1%80%D0%BE%D0%B8%D0%B3%D1%80%D1%8B%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BC%D0%B5%D0%B4%D0%B8%D0%B0-%D0%BF%D0%BE-%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%D0%BC
+# Плейлист Я.Музыки https://music.yandex.ru/users/music.partners/playlists/2050 https://music.yandex.ru/users/Deberdeevy/playlists/1003
+# Альбом  Я.Музыки https://music.yandex.ru/album/2150009
+# Песня https://music.yandex.ru/album/2150009/track/19174962
+# Исполнитель Я.Музыки https://music.yandex.ru/artist/41114 https://music.yandex.ru/artist/5763226
+# YouTube https://www.youtube.com/watch?v=9lWufLCozSw
+# Кинопоиск  https://www.kinopoisk.ru/film/819101/ - не работает
+# Кинопоиск HD https://hd.kinopoisk.ru/film/4fabed06d035b5e1b87b75607927c8e5/ - не работает
+
+#### See also yandex_station_automation.yaml line 33 for command ./станция !!!
+#### syntax /station <URL>
+  - alias: 'Telegram bot start play on Yandex.Station'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/station'
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}}  Message from {{ trigger.event.data["user_id"] }}.Content id: {{ trigger.event.data['args']|join(' ') }}. Content type question + {{ trigger.event.data.chat_id }} - not used.
+      - service: media_player.play_media
+        entity_id: media_player.yandex_station
+        data_template:
+          media_content_id: "{{ trigger.event.data['args']|join(' ') }}"
+          media_content_type: "question:{{ trigger.event.data.chat_id }}"
+
+#### play on yandex station mini 2 in kitchen
+  - alias: 'Telegram bot start play on Yandex.Mini'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/mini'
+    action:
+      - service: media_player.play_media
+        entity_id: media_player.yandex_station_mini
+        data_template:
+          media_content_id: "{{ trigger.event.data['args']|join(' ') }}"
+          media_content_type: "question:{{ trigger.event.data.chat_id }}"
+
+
+  - alias: 'Telegram bot start play on Yandex.Module'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/module'
+    action:
+      service: media_player.play_media
+      entity_id: media_player.yandex_module
+      data_template:
+        media_content_id: "{{ trigger.event.data['args']|join(' ') }}"
+        media_content_type: "question:{{ trigger.event.data.chat_id }}"
+
+# В логе ХА после команды моему боту. почему то воспринимает как telegram_text
+# из-за названия команды на русском? если изменить на /station , то работает штатно
+
+
+# правило ниже перенаправляет текст, полученный ботом, на яндекс станцию!!!
+# бот участвует в семейной группе и это ломает всю переписку
+#  - alias: 'Telegram bot talk with Alice on station'
+#    trigger:
+#      platform: event
+#      event_type: telegram_text
+#    action:
+#      service: media_player.play_media
+#      entity_id: media_player.yandex_station  # замените на вашу станцию
+#      data:
+#        media_content_id: "{{ trigger.event.data.text }}"
+#        media_content_type: "question:{{ trigger.event.data.chat_id }}"
+
+  - alias: 'Response from Yandex to Telegram bot command' 
+    trigger:
+      platform: event
+      event_type: yandex_station_response
+    action:
+      service: telegram_bot.send_message
+      data_template:
+        target: "{{ trigger.event.data.request_id }}"
+        message: "{{ trigger.event.data.text }}"
+          
+  - alias: 'Yandex speaker selection by Telegram bot command'
+    trigger:
+      platform: event
+      event_type: telegram_text
+    action:
+      - choose:
+        - conditions: '{{ is_state("input_select.yandex_telegram_target", "Спальня") }}'
+          sequence:
+            - service: media_player.play_media
+              entity_id: media_player.yandex_station # Спальня
+              data_template:
+                media_content_id: "{{ trigger.event.data.text }}"
+                media_content_type: "question:{{ trigger.event.data.chat_id }}"
+        - conditions: '{{ is_state("input_select.yandex_telegram_target", "Кухня") }}'
+          sequence:
+            - service: media_player.play_media
+              entity_id: media_player.yandex_station_mini # Кухня
+              data_template:
+                media_content_id: "{{ trigger.event.data.text }}"
+                media_content_type: "question:{{ trigger.event.data.chat_id }}"
+        - conditions: '{{ is_state("input_select.yandex_telegram_target", "Модуль") }}'
+          sequence:
+            - service: media_player.play_media
+              entity_id: media_player.yandex_module # Модуль на кухне
+              data_template:
+                media_content_id: "{{ trigger.event.data.text }}"
+                media_content_type: "question:{{ trigger.event.data.chat_id }}"
+        default:
+          - service: media_player.play_media
+            entity_id: media_player.yandex_station # Спальня
+            data_template:
+              media_content_id: "{{ trigger.event.data.text }}"
+              media_content_type: "question:{{ trigger.event.data.chat_id }}"
+
+  - alias: 'Telegram bot inlinecommand react to yandex in bedroom'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: "/be"
+    action:
+        service: input_select.select_option
+        entity_id: input_select.yandex_telegram_target
+        data:
+          option: Спальня
+
+  - alias: 'Telegram bot inline react to yandex in bedroom'
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: "/be"                              #### /be
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Выбрана яндекс станция в спальне.
+
+      - service: input_select.select_option
+        entity_id: input_select.yandex_telegram_target
+        data:
+          option: Спальня
+
+  - alias: 'Telegram bot command react to yandex in kitchen'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/ki'
+    action:
+        service: input_select.select_option
+        entity_id: input_select.yandex_telegram_target
+        data:
+          option: Кухня
+
+  - alias: 'Telegram bot inline react to yandex in kitchen'
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: "/ki"                              #### /ki
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'  
+          message: >
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Выбрана яндекс станция мини на кухне.
+
+      - service: input_select.select_option
+        entity_id: input_select.yandex_telegram_target
+        data:
+          option: Кухня
+
+  -alias: 'Telegram bot command react to yandex module'
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/mo'
+    action:
+        service: input_select.select_option
+        entity_id: input_select.yandex_telegram_target
+        data:
+         option: Модуль
+       
+      

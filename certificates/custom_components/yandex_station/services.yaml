@@ -1,0 +1,70 @@
+reload:
+  name: Reload
+  description: Reload Yandex Station notify services.
+
+send_command:
+  description: Send command to Yandex.Station.
+  fields:
+    command:
+      description: "Command: sendText, rewind, play, stop, prev, next, playMusic, setVolume"
+      example: 'sendText'
+    text:
+      description: For sendText command
+      example: Повтори за мной "Тестовое уведомление"
+    position:
+      description: For rewind command
+      example: 120
+    id:
+      description: For playMusic command
+      example: '2'
+    type:
+      description: For playMusic command (artist, track, album or playlist)
+      example: 'artist'
+    volume:
+      description: For setVolume command
+      example: 0.5
+
+mute:
+  name: Mute humidifier
+  description: 
+  target:
+    entity:
+      integration: yandex_station
+      domain: humidifier
+  fields:
+    state:
+      name: State
+      description: Set state
+      required: true
+      selector:
+        boolean:
+
+ionization:
+  name: Turn on ionization
+  description: 
+  target:
+    entity:
+      integration: yandex_station
+      domain: humidifier
+  fields:
+    state:
+      name: State
+      description: Set state
+      required: true
+      selector:
+        boolean:
+
+backlight:
+  name: Turn on backlight
+  description: 
+  target:
+    entity:
+      integration: yandex_station
+      domain: humidifier
+  fields:
+    state:
+      name: State
+      description: Set state
+      required: true
+      selector:
+        boolean:

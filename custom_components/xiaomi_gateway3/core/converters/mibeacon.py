@@ -322,6 +322,46 @@ class MiBeaconConv(Converter):
                 payload.update({'action': 'start', 'counter': data[1]})
             else:
                 payload.update({'action': 'finish', 'score': data[1]})
+                
+        elif eid == 0x4E0C:  # 19980
+            # wireless button XMWXKG01YL
+            value = int.from_bytes(data, 'little')
+            if value == 1:
+                payload.update({'action': 'button_1_single'})
+            if value == 2:
+                payload.update({'action': 'button_2_single'})
+            if value == 3:
+                payload.update({'action': 'button_both_single'})
+
+        elif eid == 0x4E0D:  # 19981
+            # wireless button XMWXKG01YL
+            value = int.from_bytes(data, 'little')
+            if value == 1:
+                payload.update({'action': 'button_1_double'})
+            if value == 2:
+                payload.update({'action': 'button_2_double'})
+
+        elif eid == 0x4E0E:  # 19982
+            # wireless button XMWXKG01YL
+            value = int.from_bytes(data, 'little')
+            if value == 1:
+                payload.update({'action': 'button_1_hold'})
+            if value == 2:
+                payload.update({'action': 'button_2_hold'})
+          
+        elif eid == 0x4818:  # 18456
+            # Linptech motion sensor version 2
+            payload['idle_time'] = int.from_bytes(data, 'little')
+
+        elif eid == 0x4A08:  # 18952
+            # Linptech motion sensor version 2
+            value = struct.unpack('<f', data)[0]
+            payload.update({'motion': True, 'illuminance': value})
+
+        elif eid == 0x4C03:  # 19459
+            # Linptech motion sensor version 2
+            payload['battery'] = data[0]
+
 
 
 MiBeacon = MiBeaconConv('mibeacon')

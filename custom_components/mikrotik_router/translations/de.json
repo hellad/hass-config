@@ -1,9 +1,8 @@
 {
     "config": {
-        "title": "Mikrotik Router",
         "step": {
             "user": {
-                "title": "Mikrotik Router",
+                "title": "Mikrotik-Router einrichten",
                 "description": "Mikrotik-Router-Integration einstellen",
                 "data": {
                     "name": "Name der Integration",
@@ -31,9 +30,10 @@
                     "track_iface_clients": "Client MAC und IP auf dem Interface anzeigen",
                     "unit_of_measurement": "Maßeinheit",
                     "track_network_hosts_timeout": "Zeitlimit für Netzwerkgeräte verfolgen (Sekunden)",
-                    "zone": "Zone for device tracker"
+                    "zone": "Zone für Gerätetracker"
                 },
-                "title": "Grundlegende Optionen"
+                "title": "Mikrotik-Router-Optionen (1\/2)",
+                "description": "Integration konfigurieren"
             },
             "sensor_select": {
                 "data": {
@@ -44,14 +44,15 @@
                     "sensor_simple_queues": "Einfache Endschalter",
                     "sensor_nat": "NAT-Schalter",
                     "sensor_scripts": "Skript-Schalter",
-                    "sensor_environment": "Umweltvariable Sensoren",
-                    "sensor_pppusers": "PPP users",
-                    "sensor_kidcontrol": "Kid control",
-                    "sensor_mangle": "Mangle switches",
-                    "sensor_ppp": "PPP users",
-                    "sensor_filter": "Filter switches"
+                    "sensor_environment": "Umwelt variable Sensoren",
+                    "sensor_kidcontrol": "Kinderkontrolle",
+                    "sensor_mangle": "Mangle-Schalter",
+                    "sensor_ppp": "PPP-Nutzer",
+                    "sensor_filter": "Schalter filtern",
+                    "sensor_client_captive": "Captive portal data"
                 },
-                "title": "Sensoren auswählen"
+                "title": "Mikrotik-Router-Optionen (2\/2)",
+                "description": "Sensoren und Schalter aktivieren"
             }
         }
     }

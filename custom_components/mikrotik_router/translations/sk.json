@@ -1,9 +1,8 @@
 {
     "config": {
-        "title": "Mikrotik Router",
         "step": {
             "user": {
-                "title": "Mikrotik Router",
+                "title": "Nastaviť Mikrotik Router",
                 "description": "Nastaviť integráciu Mikrotik Router.",
                 "data": {
                     "name": "Názov integrácie",
@@ -31,9 +30,10 @@
                     "track_iface_clients": "Zobraziť klientske MAC a IP na rozhraniach",
                     "unit_of_measurement": "Merná jednotka",
                     "track_network_hosts_timeout": "Časový limit sledovania sieťových zariadení (sekundy)",
-                    "zone": "Zone for device tracker"
+                    "zone": "Zóna pre sledované zariadenia"
                 },
-                "title": "Základné možnosti"
+                "title": "Možnosti Mikrotik Router (1\/2)",
+                "description": "Nakonfigurovať integráciu"
             },
             "sensor_select": {
                 "data": {
@@ -45,13 +45,14 @@
                     "sensor_nat": "Prepínače NAT",
                     "sensor_scripts": "Prepínače skriptov",
                     "sensor_environment": "Snímače prostredia",
-                    "sensor_pppusers": "PPP users",
-                    "sensor_kidcontrol": "Kid control",
-                    "sensor_mangle": "Mangle switches",
-                    "sensor_ppp": "PPP users",
-                    "sensor_filter": "Filter switches"
+                    "sensor_kidcontrol": "Detská kontrola",
+                    "sensor_mangle": "Mangle prepínače",
+                    "sensor_ppp": "PPP používatelia",
+                    "sensor_filter": "Prepínače filtrov",
+                    "sensor_client_captive": "Captive portal data"
                 },
-                "title": "Vybrať senzory"
+                "title": "Možnosti Mikrotik Router (2\/2)",
+                "description": "Povoliť senzory a spínače"
             }
         }
     }

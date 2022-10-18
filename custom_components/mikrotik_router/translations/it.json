@@ -1,10 +1,9 @@
 {
     "config": {
-        "title": "Mikrotik Router",
         "step": {
             "user": {
-                "title": "Mikrotik Router",
-                "description": "Imposta integrazione Router Mikrotik",
+                "title": "Configurare il Mikrotik Router",
+                "description": "Imposta integrazione Mikrotik Router",
                 "data": {
                     "name": "Nome integrazione",
                     "host": "Host",
@@ -31,9 +30,10 @@
                     "track_iface_clients": "Mostra client MAC e IP sulle interfacce",
                     "unit_of_measurement": "Unità di misura",
                     "track_network_hosts_timeout": "Traccia timeout dei dispositivi di rete (secondi)",
-                    "zone": "Zone for device tracker"
+                    "zone": "Zona per localizzatore dispositivo"
                 },
-                "title": "Opzioni di base"
+                "title": "Opzioni Mikrotik Router (1\/2)",
+                "description": "Configura integrazione"
             },
             "sensor_select": {
                 "data": {
@@ -45,13 +45,14 @@
                     "sensor_nat": "Commutatori NAT",
                     "sensor_scripts": "Commutatori di script",
                     "sensor_environment": "Sensori di variabili ambientali",
-                    "sensor_pppusers": "PPP users",
-                    "sensor_kidcontrol": "Kid control",
-                    "sensor_mangle": "Mangle switches",
-                    "sensor_ppp": "PPP users",
-                    "sensor_filter": "Filter switches"
+                    "sensor_kidcontrol": "Controllo bambini",
+                    "sensor_mangle": "Interruttori a manganello",
+                    "sensor_ppp": "Utenti PPP",
+                    "sensor_filter": "Interruttori del filtro",
+                    "sensor_client_captive": "Captive portal data"
                 },
-                "title": "Seleziona i sensori"
+                "title": "Opzioni Mikrotik Router (2\/2)",
+                "description": "Abilita sensori e interruttori"
             }
         }
     }

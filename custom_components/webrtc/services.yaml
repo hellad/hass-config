@@ -17,7 +17,7 @@ create_link:
 
     entity:
       description: Camera entity
-      example: camera.hls_dafang
+      example: camera.generic_stream
       selector:
         entity:
           domain: camera
@@ -42,28 +42,28 @@ create_link:
           max: 100000
           unit_of_measurement: seconds
 
-# dash_cast:
-#   name: DashCast
-#   description: Cast stream to Chromecast device via DashCast application
-#   fields:
-#     entity_id:
-#       description: Media player entity
-#       example: media_player.mibox4
-#       required: true
-#       selector:
-#         entity:
-#           integration: cast
-#           domain: media_player
+dash_cast:
+  name: DashCast
+  description: Cast stream to Chromecast device via DashCast application
+  fields:
+    entity_id:
+      description: Media player entity
+      example: media_player.mibox4
+      required: true
+      selector:
+        entity:
+          integration: cast
+          domain: media_player
 
-#     url:
-#       description: Link to RTSP-stream
-#       example: rtsp://rtsp:12345678@192.168.1.123:554/av_stream/ch0
-#       selector:
-#         text:
+    url:
+      description: Link to RTSP-stream
+      example: rtsp://rtsp:12345678@192.168.1.123:554/av_stream/ch0
+      selector:
+        text:
 
-#     entity:
-#       description: Camera entity
-#       example: camera.generic_stream
-#       selector:
-#         entity:
-#           domain: camera
+    entity:
+      description: Camera entity
+      example: camera.generic_stream
+      selector:
+        entity:
+          domain: camera

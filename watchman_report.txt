@@ -1,0 +1,196 @@
+-== Watchman Report ==- 
+
+-== Missing 1 service(s) from 50 found in your config:
++--------------------------------+---------+--------------------------------------------------------------+
+| Service ID                     | State   | Location                                                     |
++--------------------------------+---------+--------------------------------------------------------------+
+| script.yandex_station_tts      | missing | packages/cover.yaml:18,28,96                                 |
++--------------------------------+---------+--------------------------------------------------------------+
+
+-== Missing 113 entity(ies) from 388 found in your config:
++--------------------------------+---------+--------------------------------------------------------------+
+| Entity ID                      | State   | Location                                                     |
++--------------------------------+---------+--------------------------------------------------------------+
+| fan.mode                       | missing | configuration.yaml:503                                       |
+| group.family_bithday           | unknown | groups.yaml:8                                                |
+| ('family_bithday')             |         |                                                              |
+| group.kitchen_sensors_card     | unknown | groups.yaml:11                                               |
+| ('Kitchen Sensors')            |         |                                                              |
+| group.zwave_nanodimmer_card    | missing | groups.yaml:12                                               |
+| group.zwave_multisensor_card   | missing | groups.yaml:13                                               |
+| group.sonoff_bathroom_mirror_c | unknown | groups.yaml:15                                               |
+| ard ('Зеркало')                |         |                                                              |
+| group.DarkSky ('Погода')       | unknown | groups.yaml:40                                               |
+| group.weblink_sources          | unknown | groups.yaml:53                                               |
+| ('Полезные ссылки')            |         |                                                              |
+| group.strava ('Последняя       | unknown | groups.yaml:72                                               |
+| поездка в Strava')             |         |                                                              |
+| camera.iphone_locations        | missing | groups.yaml:87                                               |
+| camera.adhtc_location          | missing | groups.yaml:88                                               |
+| sensor.co2_sensor ('Углекислый | unknown | groups.yaml:170                                              |
+| газ')                          |         |                                                              |
+| sensor.mqtt_temp_sensor        | unavail | groups.yaml:175                                              |
+| ('Темп.MQTT')                  |         |                                                              |
+| binary_sensor.bathroom_motion_ | unknown | groups.yaml:180                                              |
+| sensor ('Bathroom motion       |         |                                                              |
+| sensor')                       |         |                                                              |
+| sensor.last_motion_bathroom_se | unknown | groups.yaml:181                                              |
+| nsor ('Ванная-последнее        |         |                                                              |
+| движение')                     |         |                                                              |
+| sensor.cert_expiry_timestamp_h | unknown | groups.yaml:196                                              |
+| ellad_myds_me ('Cert Expiry    |         |                                                              |
+| Timestamp (hellad.myds.me)')   |         |                                                              |
+| group.family_members ('Члены   | unknown | groups.yaml:197                                              |
+| семьи')                        |         |                                                              |
+| device_tracker.andrey          | missing | groups.yaml:207,271                                          |
+| device_tracker.irina           | missing | groups.yaml:208,272                                          |
+| device_tracker.pavel           | missing | groups.yaml:209,273                                          |
+| device_tracker.prohor          | missing | groups.yaml:210,274                                          |
+| device_tracker.router          | missing | groups.yaml:211                                              |
+| device_tracker.ScopioPC1       | missing | groups.yaml:212                                              |
+| device_tracker.sonos_one       | missing | groups.yaml:213                                              |
+| device_tracker.PowerNode2i     | missing | groups.yaml:214                                              |
+| device_tracker.Ya_Station      | missing | groups.yaml:215                                              |
+| device_tracker.ya_module       | missing | groups.yaml:216                                              |
+| device_tracker.Dune_101W       | missing | groups.yaml:217                                              |
+| device_tracker.Gigaset_phone   | missing | groups.yaml:218                                              |
+| device_tracker.LG_TV65_WiFi    | missing | groups.yaml:219                                              |
+| device_tracker.Denon_AVC_X3700 | missing | groups.yaml:220                                              |
+| H                              |         |                                                              |
+| sensor.alarm_time              | unavail | groups.yaml:233                                              |
+| ('AlarmClockSensor')           |         |                                                              |
+| media_player.yandex_module     | unavail | groups.yaml:258                                              |
+| ('Яндекс модуль')              |         |                                                              |
+| sensor.strava_last_date ('Дата | unavail | groups.yaml:301                                              |
+| и время')                      |         |                                                              |
+| sensor.strava_last_name ('Имя  | unknown | groups.yaml:302                                              |
+| последней поездки')            |         |                                                              |
+| sensor.strava_last_moving_time | unavail | groups.yaml:303                                              |
+| ('Время движения')             |         |                                                              |
+| sensor.strava_last_total_time  | unavail | groups.yaml:304                                              |
+| ('Общее время')                |         |                                                              |
+| sensor.strava_last_distance    | unavail | groups.yaml:305                                              |
+| ('Дистанция')                  |         |                                                              |
+| sensor.strava_last_elevation   | unavail | groups.yaml:306                                              |
+| ('Суммарный подъём')           |         |                                                              |
+| sensor.strava_last_average_spe | unavail | groups.yaml:307                                              |
+| ed ('Средняя скорость')        |         |                                                              |
+| sensor.strava_last_max_speed   | unavail | groups.yaml:308                                              |
+| ('Максимальная скорость')      |         |                                                              |
+| sensor.strava_last_average_hea | unknown | groups.yaml:309                                              |
+| rtrate ('Средний пульс')       |         |                                                              |
+| sensor.strava_last_max_heartra | unknown | groups.yaml:310                                              |
+| te ('Максимальный пульс')      |         |                                                              |
+| sensor.strava_last_kudos       | unknown | groups.yaml:311                                              |
+| ('Количество лайков')          |         |                                                              |
+| sensor.strava_last_visibility  | unknown | groups.yaml:312                                              |
+| ('Кому видно')                 |         |                                                              |
+| light.sn1_led                  | missing | groups.yaml:321                                              |
+| group.all_automations          | missing | history.yaml:50                                              |
+| group.all_devices              | missing | history.yaml:51                                              |
+| group.all_switches             | missing | history.yaml:52                                              |
+| group.all_scripts              | missing | history.yaml:53                                              |
+| sensor.cgllc_cgdn1_5dcf_temper | missing | alexa.yaml:16,24                                             |
+| ature                          |         |                                                              |
+| sensor.cgllc_cgdn1_5dcf_enviro | missing | alexa.yaml:25                                                |
+| nment                          |         |                                                              |
+| sensor.yr_symbol               | missing | customization.yaml:2                                         |
+| media_player.vimu_dune_4k      | unavail | customization.yaml:24                                        |
+| ('Дюна 4')                     |         |                                                              |
+| light.aeotec_zw111_nano_dimmer | missing | customization.yaml:107                                       |
+| _level                         |         |                                                              |
+| switch.aeon_labs_zw111_nano_di | missing | google_assistant.yaml:20                                     |
+| mmer_switch                    |         |                                                              |
+| switch.bathroom_light          | missing | google_assistant.yaml:26                                     |
+| sensor.alexapi                 | missing | recorder.yaml:56                                             |
+| sensor.zwave_last_motion_multi | missing | recorder.yaml:79                                             |
+| sensor                         |         |                                                              |
+| media_player.lg_webos_tv_88a1  | missing | customize.yaml:1                                             |
+| media_player.dune_hd_3d_player | missing | scripts/inetradio_script.yaml:7,23,40                        |
+| media_player.bedroom_lg_tv     | missing | scripts/inetradio_script.yaml:16,32,49                       |
+| media_player.xiao_ai           | missing | custom_components/xiaomi_miot_raw/services.yaml:6,23,46      |
+| switch.212a01_abcd             | missing | custom_components/xiaomi_miot_raw/services.yaml:80           |
+| light.yeelight_living_e92c     | missing | custom_components/xiaomi_miot/services.yaml:6                |
+| climate.xiaomi_mc5_374e        | missing | custom_components/xiaomi_miot/services.yaml:35,58,81         |
+| media_player.xiaoai_x08c       | missing | custom_components/xiaomi_miot/services.yaml:116,156          |
+| sensor.xiaomi_lock             | missing | custom_components/xiaomi_miot/services.yaml:192              |
+| sensor.lywsd03mmc_temperature  | missing | custom_components/xiaomi_miot/services.yaml:267              |
+| sensor.xiaomi_device           | missing | custom_components/xiaomi_miot/services.yaml:282              |
+| camera.generic_stream          | missing | custom_components/webrtc/services.yaml:20,66                 |
+| media_player.mibox4            | missing | custom_components/webrtc/services.yaml:51                    |
+| script.execute                 | missing | esphome/domofon_packages/base.yaml:14,15                     |
+| binary_sensor.is_off           | missing | esphome/domofon_packages/binary_sensor.yaml:41               |
+| binary_sensor.is_on            | missing | esphome/domofon_packages/binary_sensor.yaml:58,78            |
+| light.is_on                    | missing | esphome/domofon_packages/number.yaml:16                      |
+| light.control                  | missing | esphome/domofon_packages/number.yaml:18                      |
+| binary_sensor.lr_work          | missing | packages/automation_day.yaml:29                              |
+| binary_sensor.dd_holiday       | unknown | packages/automation_day.yaml:30,55,61,118                    |
+| ('dd_holiday')                 |         |                                                              |
+| binary_sensor.control          | unknown | packages/control.yaml:19                                     |
+| ('control')                    |         |                                                              |
+| switch.sonoff_bathroom_fan     | missing | packages/my_sonoff_devices.yaml:75,77                        |
+| light.sonoff_100010913a        | unavail | packages/my_sonoff_devices.yaml:184                          |
+| ('Light')                      |         |                                                              |
+| binary_sensor.zwave_motion_sen | missing | packages/my_sonoff_devices.yaml:484,523                      |
+| sor                            |         |                                                              |
+| switch.manual_entrance_light   | unknown | packages/my_sonoff_devices.yaml:553,575                      |
+| ('Manual Entrance Light')      |         |                                                              |
+| switch.manual_storeroom_light  | unknown | packages/my_sonoff_devices.yaml:597,619                      |
+| ('Manual Storeroom Light')     |         |                                                              |
+| binary_sensor.zwave_corridor_l | missing | packages/zwave_package.yaml:326                              |
+| ight_no_current                |         |                                                              |
+| input_boolean.kitchen_blinds_p | missing | packages/cover.yaml:12,16,25,44                              |
+| ath_unsafe                     |         |                                                              |
+| binary_sensor.kitchen_blinds_b | missing | packages/cover.yaml:36                                       |
+| lock_contact                   |         |                                                              |
+| input_boolean.turn_            | missing | packages/cover.yaml:42                                       |
+| sensor.strava_access_token     | unknown | sensors/strava.yaml:36                                       |
+| ('Strava Access Token')        |         |                                                              |
+| sensor.strava_last_activity    | unknown | sensors/strava.yaml:48,50,54,56,60,62,89,91,118,120,124,126, |
+| ('Strava Last Activity')       |         | 130,132,136,138,142,143,148,149,155,159,160,165              |
+| input_number.bedroom_aircon_fa | missing | automation/bedroom_aircon_temp.yaml:135                      |
+| n                              |         |                                                              |
+| sensor.facebox_detection       | unavail | automation/facebox.yaml:53,66,79,105,118                     |
+| ('Facebox detection')          |         |                                                              |
+| sensor.facebox_push_detection  | missing | automation/facebox.yaml:92                                   |
+| sensor.sn1_pir                 | missing | automation/automations.yaml:135                              |
+| device_tracker.iphone7         | missing | automation/automations.yaml:254                              |
+| device_tracker.oneplus9pro_2   | missing | automation/automations.yaml:326,345                          |
+| media_player.vlcmp             | missing | automation/triggerattributes.yaml:8                          |
+| sensor.aeon_labs_zw100_multise | missing | automation/telegram.yaml:400                                 |
+| nsor_6_temperature             |         |                                                              |
+| sensor.aeon_labs_zw100_multise | missing | automation/telegram.yaml:400                                 |
+| nsor_6_relative_humidity       |         |                                                              |
+| sensor.corridor2switch_status  | unknown | .storage/lovelace.lovelace_tests:40                          |
+| ('Corridor@GswitchMQTT         |         |                                                              |
+| status')                       |         |                                                              |
+| binary_sensor.sn1_pir ('SN1    | unknown | .storage/lovelace:46                                         |
+| PIR')                          |         |                                                              |
+| switch.balcony_light_left      | unknown | .storage/lovelace:142                                        |
+| ('Balcony Light Left')         |         |                                                              |
+| switch.balcony_light_right     | unknown | .storage/lovelace:145                                        |
+| ('Balcony Light Right')        |         |                                                              |
+| sensor.senseair_co2_value      | unknown | .storage/lovelace:382,909                                    |
+| ('SenseAir CO2 Value')         |         |                                                              |
+| sensor.cgdn1_cloud_624826_off  | unknown | .storage/lovelace:518                                        |
+| ('Qingping Air Monitor Lite    |         |                                                              |
+| Settings screen off')          |         |                                                              |
+| media_player.yandex_station_94 | missing | .storage/lovelace:748                                        |
+| 007890870c640d0acf             |         |                                                              |
+| media_player.yandex_station_m0 | missing | .storage/lovelace:798                                        |
+| 0t8c500rkshb                   |         |                                                              |
+| button.scan_clients_nas ('Scan | unavail | .storage/lovelace:803                                        |
+| Clients (nas)')                |         |                                                              |
+| sensor.plex_nas ('Plex (nas)') | unavail | .storage/lovelace:810                                        |
+| sensor.nas_library_video_dlia_ | unavail | .storage/lovelace:812                                        |
+| testov ('nas Library - Видео   |         |                                                              |
+| для тестов')                   |         |                                                              |
+| sensor.nas_library_skachannoe  | unavail | .storage/lovelace:816                                        |
+| ('nas Library - Скачанное')    |         |                                                              |
+| sensor.epson_l6170_series      | unavail | .storage/lovelace:995                                        |
+| ('EPSON L6170 Series')         |         |                                                              |
++--------------------------------+---------+--------------------------------------------------------------+
+
+-== Report created on 19 Jul 2022 23:18:26
+-== Parsed 114 files in 0.93s., ignored 0 files 
+-== Generated in: 0.06s. Validated in: 0.00s.

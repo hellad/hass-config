@@ -32,7 +32,6 @@ Converter may have different types:
 
 - Converter - default, don't change/convert value
 - BoolConv - converts int to bool on decode and bool to int on encode
-- ConstConv - set constant value on any input
 - MapConv - translate value using mapping: `{0: "disarmed", 1: "armed_home"}`
 - MathConv - support multiply, round value and min/max borders
 - BrightnessConv - converts `0..<max>` to `0..255`, support set `max` value
@@ -133,6 +132,7 @@ DEVICES = [{
 }, {
     "lumi.gateway.aqcn02": ["Aqara", "Hub E1 CN", "ZHWG16LM"],
     "lumi.gateway.aqcn03": ["Aqara", "Hub E1 EU", "HE1-G01"],
+    "lumi.gateway.mcn001": ["Xiaomi", "Smart Hub V2", "DMWG03LM"],
     "support": 3,  # @AlexxIT
     "spec": [
         MapConv("pair", mi="8.0.2109", map={60: True, 0: False},
@@ -344,6 +344,16 @@ DEVICES += [{
         Battery, BatteryOrig
     ],
 }, {
+    # motion sensor E1 with illuminance
+    "lumi.motion.acn001": ["Aqara", "Motion Sensor E1", "RTCGQ15LM"],
+    "spec": [
+        EventConv("motion", "binary_sensor", mi="2.e.1", value=True),
+        Converter("illuminance", "sensor", mi="2.p.1"),
+        BatteryConv("battery", "sensor", mi="3.p.2"),  # voltage, mV
+        MapConv("battery_low", "binary_sensor", mi="3.p.1", map=BATTERY_LOW,
+                enabled=False)
+    ],
+}, {
     # water leak sensor
     "lumi.sensor_wleak.aq1": ["Aqara", "Water Leak Sensor", "SJCGQ11LM"],
     "spec": [
@@ -425,6 +435,12 @@ DEVICES += [{
         # other sensors
         Converter("battery", "sensor", mi="8.0.2001"),
         LockActionConv("key_id", "sensor", mi="13.1.85"),
+        LockActionConv("method", mi="13.15.85", map={
+            1: "fingerprint", 2: "password"
+        }),
+        LockActionConv("error", mi="13.4.85", map={
+            1: "Wrong password", 2: "Wrong fingerprint"
+        }),
         # BoolConv("lock", "binary_sensor", mi="13.20.85")
         Action,
     ],
@@ -516,7 +532,7 @@ DEVICES += [{
     "lumi.motion.agl04": ["Aqara", "Precision Motion Sensor EU", "RTCGQ13LM"],
     # "support": 5,  # @zvldz
     "spec": [
-        ConstConv("motion", "binary_sensor", mi="4.e.1", value=True),
+        EventConv("motion", "binary_sensor", mi="4.e.1", value=True),
         BatteryConv("battery", "sensor", mi="3.p.1"),  # voltage, mV
         MapConv("sensitivity", "select", mi="8.p.1", map={
             1: "low", 2: "medium", 3: "high"
@@ -570,6 +586,8 @@ DEVICES += [{
     ],
 }, {
     "lumi.remote.acn003": ["Aqara", "Single Wall Button E1 CN", "WXKG16LM"],
+    # https://github.com/niceboygithub/AqaraGateway/pull/118/files
+    "lumi.remote.acn007": ["Aqara", "Single Wall Button E1", "WXKG20LM"],
     "spec": [
         Action,
         ButtonMIConv("button", mi="2.e.1", value=1),  # single
@@ -888,6 +906,17 @@ DEVICES += [{
             1: "single_click", 2: "multi_click"
         }, enabled=False)
     ]
+}, {
+    "lumi.sensor_smoke.acn03": ["Aqara", "Smoke Sensor", "JY-GZ-01AQ"],
+    "spec": [
+        BoolConv("smoke", "binary_sensor", mi="2.p.1"),
+        BoolConv("problem", "binary_sensor", mi="2.p.2", enabled=False),
+        Converter("smoke_density", "sensor", mi="2.p.3"),
+        MapConv("battery_low", "binary_sensor", mi="3.p.1", map=BATTERY_LOW,
+                enabled=False),
+        Converter("battery_voltage", "sensor", mi="3.p.2", enabled=False),
+        BoolConv("led", "switch", mi="5.p.1", enabled=False),  # uint8
+    ]
 }]
 
 ###############################################################################
@@ -1000,6 +1029,23 @@ DEVICES += [{
         ZOnOffConv("channel_2", "light", ep=2, bind=True),
         ZTuyaPowerOn,
         ZTuyaPlugModeConv("mode", "select", enabled=False),
+    ],
+}, {
+    "RH3052": ["Tuya", "TH sensor", "TT001ZAV20"],
+    "support": 3,
+    "spec": [
+        ZTemperatureConv("temperature", "sensor"),
+        ZHumidityConv("humidity", "sensor"),
+        # value always 100%
+        # ZBatteryConv("battery", "sensor"),
+    ],
+}, {
+    "RH3040": ["Tuya", "Motion Sensor", "TYZPIR-02"],
+    "support": 5,
+    "ttl": 6 * 60 * 60,
+    "spec": [
+        ZIASZoneConv("occupancy", "binary_sensor"),
+        ZBatteryConv("battery", "sensor", report="1h 12h 0"),
     ],
 }, {
     # very simple relays
@@ -1209,6 +1255,37 @@ DEVICES += [{
     ],
     "ttl": "725m"  # battery every 4 hour
 }, {
+    # https://github.com/AlexxIT/XiaomiGateway3/issues/776
+    3685: ["Xiaomi", "Face Recognition Smart Door Lock X", "XMZNMS06LM"],
+    "spec": [
+        MiBeacon,
+        Converter("action", "sensor"),
+        Converter("battery", "sensor"),
+        Converter("contact", "binary_sensor"),
+        Converter("lock", "binary_sensor"),
+    ],
+}, {
+    6473: ["Xiaomi", "Wireless Button (Double)", "XMWXKG01YL"],
+    "spec": [MiBeacon, BLEAction, Button1, Button2, ButtonBoth, BLEBattery],
+    "ttl": "16m",  # battery every 5 min
+}, {
+    10987: ["Linptech", "Linptech Motion Sensor v2", "hs1bb"],
+    "spec": [
+        MiBeacon, BLEMotion, BLEIlluminance, BLEBattery,
+        Converter("idle_time", "sensor", enabled=False),
+    ],
+}, {
+    # https://github.com/AlexxIT/XiaomiGateway3/issues/657
+    2444: ["Xiaomi", "Door Lock", "XMZNMST02YD"],
+    "spec": [
+        MiBeacon,
+        Converter("action", "sensor"),
+        Converter("battery", "sensor"),
+        Converter("lock", "binary_sensor"),
+        Converter("opening", "binary_sensor"),
+    ],
+    "ttl": "6h"
+}, {
     # BLE devices can be supported witout spec. New spec will be added
     # "on the fly" when device sends them. But better to rewrite right spec for
     # each device
@@ -1218,10 +1295,10 @@ DEVICES += [{
     982: ["Xiaomi", "Qingping Door Sensor", "CGH1"],
     1034: ["Xiaomi", "Mosquito Repellent", "WX08ZM"],
     1161: ["Xiaomi", "Toothbrush T500", "MES601"],
+    2054: ["Xiaomi", "Toothbrush T700", "MES604"],
     1433: ["Xiaomi", "Door Lock", "MJZNMS03LM"],
     1694: ["Aqara", "Door Lock N100 (Bluetooth)", "ZNMS16LM"],
     1695: ["Aqara", "Door Lock N200", "ZNMS17LM"],
-    2444: ["Xiaomi", "Door Lock", "XMZNMST02YD"],
     2480: ["Xiaomi", "Safe Box", "BGX-5/X1-3001"],
     3051: ["Aqara", "Door Lock D100", "ZNMS20LM"],
     3343: ["Loock", "Door Lock Classic 2X Pro", "loock.lock.cc2xpro"],
@@ -1287,6 +1364,7 @@ DEVICES += [{
 }, {
     # brightness 1..100, color_temp 2700..6500
     3416: ["PTX", "Mesh Downlight", "090615.light.mlig01"],
+    4924: ["PTX", "Mesh Downlight", "090615.light.mlig02"],
     "spec": [
         Converter("light", "light", mi="2.p.1"),
         BrightnessConv("brightness", mi="2.p.2", parent="light", max=100),
@@ -1374,6 +1452,29 @@ DEVICES += [{
         BoolConv("wireless_1", "switch", mi="8.p.2", enabled=False),
         BoolConv("wireless_2", "switch", mi="8.p.3", enabled=False),
         BoolConv("wireless_3", "switch", mi="8.p.4", enabled=False),
+    ],
+}, {
+    5937: ["Xiaomi", "Mesh Triple Wall Switch", "DHKG05"],
+    "spec": [
+        Converter("channel_1", "switch", mi="2.p.1"),
+        Converter("channel_2", "switch", mi="3.p.1"),
+        Converter("channel_3", "switch", mi="4.p.1"),
+        Converter("led", "switch", mi="10.p.1", enabled=False),
+        BoolConv("wireless_1", "switch", mi="2.p.2", enabled=False),
+        BoolConv("wireless_2", "switch", mi="3.p.2", enabled=False),
+        BoolConv("wireless_3", "switch", mi="4.p.2", enabled=False),
+        Converter("action", "sensor", enabled=False),
+        ButtonMIConv("button_1", mi="5.e.1", value=1),  # single
+        ButtonMIConv("button_2", mi="6.e.1", value=1),  # single
+        ButtonMIConv("button_3", mi="7.e.1", value=1),  # single
+        Converter("anti_flick", "switch", mi="9.p.1"),
+    ],
+}, {
+    8255: ["ZNSN", "Mesh Wall Switch ML3", "zm3d"],
+    "spec": [
+        Converter("channel_1", "switch", mi="2.p.1"),
+        Converter("channel_2", "switch", mi="3.p.1"),
+        Converter("channel_3", "switch", mi="4.p.1"),
     ],
 }, {
     2715: ["Xiaomi", "Mesh Single Wall Switch", "ZNKG01HL"],
@@ -1468,13 +1569,39 @@ DEVICES += [{
             0: "auto", 1: "battery", 2: "usb"
         }, enabled=False)
     ],
+    "ttl": "1440m"
 }, {
+    4737: ["Xiaomi", "Smart Charging Table Lamp", "MJTD04YL"],
+    "spec": [
+        Converter("light", "light", mi="2.p.1"),
+        BrightnessConv("brightness", mi="2.p.2", parent="light", max=100),
+        ColorTempKelvin("color_temp", mi="2.p.3", parent="light"),
+        Converter("battery", "sensor", mi="4.p.1"),
+        MapConv("battery_charging", "binary_sensor", mi="4.p.2", map={
+             1: True, 2: False ,3: False,
+        }, enabled=False),
+    ],
+    "ttl": "7d",
+},{
     # urn:miot-spec-v2:device:light:0000A001:yeelink-nl2:1:0000C81D 米家智能光感夜灯
     4736: ["Xiaomi", "Mesh Night Light", "MJYD05YL"],
     "spec": [
         Converter("switch", "light", mi="2.p.1"),  # bool
         BoolConv("light", "binary_sensor", mi="3.p.1")  # uint8 0-Dark 1-Bright
     ],
+}, {
+    # urn:miot-spec-v2:device:outlet:0000A002:qmi-psv3:1:0000C816小米智能插线板2 5位插孔
+    4896: ["Xiaomi", "Mesh Power Strip 2", "XMZNCXB01QM"],
+    "spec": [
+        Converter("switch", "switch", mi="2.p.1"),  # bool
+        Converter("mode", "switch", mi="2.p.2"),  # int8
+        MathConv("chip_temperature", "sensor", mi="2.p.3", round=2,
+                 enabled=False),  # float
+        MathConv("energy", "sensor", mi="3.p.1", multiply=0.001, round=2),
+        MathConv("power", "sensor", mi="3.p.2", round=2),  # float
+        MathConv("voltage", "sensor", mi="3.p.3"),  # float
+        MathConv("current", "sensor", mi="3.p.4"),  # float
+    ]
 }, {
     3129: ["Xiaomi", "Smart Curtain Motor", "MJSGCLBL01LM"],
     "spec": [
@@ -1492,6 +1619,90 @@ DEVICES += [{
             1: True, 2: False, 3: False,
         }, enabled=False),
         BoolConv("light", "binary_sensor", mi="3.p.11")
+    ],
+}, {
+    3789: ["PTX", "Mesh Double Wall Switch", "090615.switch.meshk2"],
+    "spec": [
+        Converter("channel_1", "switch", mi="2.p.1"),
+        Converter("channel_2", "switch", mi="3.p.1"),
+    ],
+}, {
+    3788: ["PTX", "Mesh Triple Wall Switch", "090615.switch.meshk3"],
+    "spec": [
+        Converter("channel_1", "switch", mi="2.p.1"),
+        Converter("channel_2", "switch", mi="3.p.1"),
+        Converter("channel_3", "switch", mi="4.p.1"),
+    ],
+}, {
+    6379: ["Xiaomi", "Mesh Wall Switch (Neutral Wire)", "XMQBKG01LM"],
+    "spec": [
+        Converter("switch", "switch", mi="2.p.1"),
+        Converter("led", "switch", mi="7.p.1", enabled=False),
+        BoolConv("wireless", "switch", mi="2.p.2", enabled=False),
+        Converter("action", "sensor", enabled=False),
+        ButtonMIConv("button", mi="6.e.1", value=1),
+        MapConv("device_fault", mi="2.p.3", map={
+            0: "nofaults", 1: "overtemperature", 2: "overload",
+            3: "overtemperature-overload"
+        }),
+    ],
+}, {
+    6380: ["Xiaomi", "Mesh Double Wall Switch (Neutral Wire)", "XMQBKG02LM"],
+    "spec": [
+        Converter("channel_1", "switch", mi="2.p.1"),
+        Converter("channel_2", "switch", mi="3.p.1"),
+        Converter("led", "switch", mi="5.p.1", enabled=False),
+        BoolConv("wireless_1", "switch", mi="2.p.2", enabled=False),
+        BoolConv("wireless_2", "switch", mi="3.p.2", enabled=False),
+        Converter("action", "sensor", enabled=False),
+        ButtonMIConv("button_1", mi="6.e.1", value=1),
+        ButtonMIConv("button_2", mi="7.e.1", value=1),
+        MapConv("device_fault_1", mi="2.p.3", map={
+            0: "nofaults", 1: "overtemperature", 2: "overload",
+            3: "overtemperature-overload"
+        }),
+        MapConv("device_fault_2", mi="3.p.3", map={
+            0: "nofaults", 1: "overtemperature", 2: "overload",
+            3: "overtemperature-overload"
+        }),
+    ],
+}, {
+    6381: ["Xiaomi", "Mesh Triple Wall Switch (Neutral Wire)", "XMQBKG03LM"],
+    "spec": [
+        Converter("channel_1", "switch", mi="2.p.1"),
+        Converter("channel_2", "switch", mi="3.p.1"),
+        Converter("channel_3", "switch", mi="4.p.1"),
+        Converter("led", "switch", mi="9.p.1", enabled=False),
+        BoolConv("wireless_1", "switch", mi="2.p.2", enabled=False),
+        BoolConv("wireless_2", "switch", mi="3.p.2", enabled=False),
+        BoolConv("wireless_3", "switch", mi="4.p.2", enabled=False),
+        Converter("action", "sensor", enabled=False),
+        ButtonMIConv("button_1", mi="6.e.1", value=1),
+        ButtonMIConv("button_2", mi="7.e.1", value=1),
+        ButtonMIConv("button_3", mi="8.e.1", value=1),
+        MapConv("device_fault_1", mi="2.p.3", map={
+            0: "nofaults", 1: "overtemperature", 2: "overload",
+            3: "overtemperature-overload"
+        }),
+        MapConv("device_fault_2", mi="3.p.3", map={
+            0: "nofaults", 1: "overtemperature", 2: "overload",
+            3: "overtemperature-overload"
+        }),
+        MapConv("device_fault_3", mi="4.p.3", map={
+            0: "nofaults", 1: "overtemperature", 2: "overload",
+            3: "overtemperature-overload"
+        }),
+    ],
+}, {
+    5195: ["YKGC", "LS Smart Curtain Motor", "LSCL"],
+    "spec": [
+        MapConv("motor", "cover", mi="2.p.1", map={
+            0: "stop", 1: "open", 2: "close"
+        }),
+        Converter("target_position", mi="2.p.6"),
+        CurtainPosConv("position", mi="2.p.2", parent="motor"),
+        Converter("motor_reverse", "switch", mi="2.p.5", enabled=False),
+        BoolConv("on", "switch", mi="2.p.9"),
     ],
 }, {
     "default": "mesh",  # default Mesh device
