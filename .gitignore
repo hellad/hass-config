@@ -42,6 +42,8 @@ plex.conf
 webostv.conf
 settings.conf.bak
 OZW_Log.txt
+.sonoff.json
+.yandex_station.json
 home-assistant.log*
 custom_components/sonoff/devices.json
 .sonoff.json
