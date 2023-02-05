@@ -50,7 +50,7 @@ cover:
         friendly_name: Kitchen Blinds
         device_class: curtain
         optimistic: false
-        position_template: '{{ states.cover.zhalliuzi_curtain.attributes.current_position }}'
+        position_template: '{{ states.cover.am43la_sheng_dian_ji_nuo_hua_zigbee_curtain.attributes.current_position }}'
         icon_template: >
           {% if is_state('cover.kitchen_blinds', 'open') %}
             mdi:window-open
@@ -63,7 +63,7 @@ cover:
             position: '{{ position }}'
         stop_cover:
           service: cover.stop_cover
-          entity_id: cover.zhalliuzi_curtain
+          entity_id: cover.am43la_sheng_dian_ji_nuo_hua_zigbee_curtain
 
 script:
   kitchen_blinds_set_position:
@@ -86,7 +86,7 @@ script:
               state: 'on'
           sequence:
             - service: cover.set_cover_position
-              entity_id: cover.zhalliuzi_curtain
+              entity_id: cover.am43la_sheng_dian_ji_nuo_hua_zigbee_curtain
               data:
                 position: '{{ [position, 99]|max }}'
 
@@ -99,7 +99,7 @@ script:
                 text: Кажется что-то мешает закрыть шторы. Проверь окно, или скажи Алиса, Подоконник чистый и закрой снова
         default:
           - service: cover.set_cover_position
-            entity_id: cover.zhalliuzi_curtain
+            entity_id: cover.am43la_sheng_dian_ji_nuo_hua_zigbee_curtain
             data:
               position: '{{ position }}'
 

@@ -2,6 +2,8 @@
 # https://github.com/Anonym-tsk/smart-domofon/tree/master/ge1mer
 
 ############# User configuration #############
+#### https://esphome.io/components/api.html
+api:
 
 substitutions:
   # Ge1mer board

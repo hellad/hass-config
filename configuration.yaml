@@ -66,13 +66,15 @@ frontend:
 
 
 
-#### https://www.home-assistant.io/components/api/
+#### https://www.home-assistant.io/components/api/  native API
+#### https://esphome.io/components/api.html
 api:
 
 #### Show links to resources in log and frontend
 #introduction:
 
 #### System Health component
+#### API для предоставления информации о системе и ее компонентах
 system_health:
 
 #### https://www.home-assistant.io/components/mobile_app/
@@ -219,28 +221,6 @@ scene: !include scenes.yaml
 ifttt:
   key: !secret ifttt_key
 
-# mqtt:
-#   broker: 192.168.192.25         #### run on the same host as HASS?
-#   port: 1883
-#   keepalive: 60
-#   client_id: home-assistant-1
-#   username: !secret mqtt_broker_username
-#   password: !secret mqtt_broker_password
-#   #discovery: true                 #### https://www.home-assistant.io/docs/mqtt/discovery/
-#   discovery_prefix: homeassistant
-#   protocol: 3.1
-#   birth_message:
-#     topic: "homeassistant/LWT"
-#     payload: "Online"
-#     qos: 1
-#     retain: true
-#   will_message:
-#     topic: "homeassistant/LWT"
-#     payload: "Offline"
-#     qos: 1
-#     retain: true
-
-
 
 #### Camera section  
 #camera: !include cameras.yaml
@@ -353,6 +333,7 @@ panel_iframe:
     title: Portainer
     icon: mdi:wrench
     url: http://192.168.192.25:9000/
+
 
 #### https://github.com/peterbuga/HASS-sonoff-ewelink
 #### https://github.com/peterbuga/HASS-sonoff-ewelink/tree/sonoff-bulb for LED support
@@ -565,3 +546,4 @@ xiaomi_gateway3:
     }}}{% elif attr == 'gateway' %}{{{
       "device_fw_ver": device.fw_ver,
     }}}{% endif %}
+

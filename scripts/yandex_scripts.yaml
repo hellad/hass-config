@@ -72,4 +72,50 @@
           media_content_id: update
           media_content_type: shopping_list
 
-
+####  https://github.com/balsis/homeassistant/blob/3ecbbacf7aae5c6a4491e06cf86ee0128a69a734/includes/packages/kitchen_and_hall.yaml
+  alice_dark_dialog:
+    sequence:
+      - service: media_player.play_media
+        entity_id: media_player.yandex_station_mini
+        data:
+          media_content_id: тут кто-то тусит в темноте? 
+          media_content_type: dialog:умный дом:свет
+      - wait_for_trigger:
+          platform: event
+          event_type: yandex_intent
+          event_data:
+            session: { dialog: свет }
+        timeout:
+          seconds: 10
+      - choose:
+          - conditions: "{{ wait.trigger.event.data.text in ['да','конечно','тут'] }}"
+            sequence:
+              - event: yandex_intent_response
+                event_data:
+                  text: Включить вам свет?
+                  session: { dialog: свет2 }
+                  end_session: False
+              - wait_for_trigger:
+                  platform: event
+                  event_type: yandex_intent
+                  event_data:
+                    session: { dialog: свет2 }
+                timeout:
+                  seconds: 10
+              - choose:
+                  - conditions: "{{ wait.trigger.event.data.text in ['да','конечно','давай'] }}"
+                    sequence:
+                      - event: yandex_intent_response
+                        event_data:
+                          text: Включаю бра слева.
+                      - service: homeassistant.turn_on
+                        target:
+                          entity_id: switch.sonoff_10008884b8_1  #бра слева
+                default:
+                  - event: yandex_intent_response
+                    event_data:
+                      text: Ну нет, так нет
+        default:
+          - event: yandex_intent_response
+            event_data:
+              tts: <speaker effect="megaphone">ЭЙ!

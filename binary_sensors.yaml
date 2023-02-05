@@ -17,8 +17,8 @@
 #    payload_not_available: "offline"
     qos: 0
     device_class: motion
-#    value_template: "{{ value_json.Switch2}}"   # Names are case sensitive!
-### tele/bathroom/SENSOR = {"Time":"1970-01-04T08:45:49","Switch2":"OFF","BME680":{"Temperature":30.9,"Humidity":21.3,"Pressure":736.8,"Gas":353.91},"PressureUnit":"mmHg","TempUnit":"C"}
+#    value_template: "{{ value_json.Switch1}}"   # Names are case sensitive!
+### tele/bathroom/SENSOR = {"Time":"2022-11-03T15:25:37","Switch1":"OFF","BME680":{"Temperature":32.1,"Humidity":23.3,"DewPoint":8.5,"Pressure":744.4,"Gas":3087.56},"PressureUnit":"mmHg","TempUnit":"C"}
 
   - platform: mqtt
     name: "SN1 PIR"                                      #### 192.168.192.38
@@ -59,7 +59,7 @@
 
 #https://www.home-assistant.io/docs/automation/trigger/#sunset--sunrise-trigger
 # https://www.home-assistant.io/integrations/tod/
-# 
+# sensor to be used in conditions of different automations
 #binary_sensor:
   - platform: tod
     name: Darkness

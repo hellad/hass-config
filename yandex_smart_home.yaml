@@ -4,7 +4,11 @@
   notifier:
     - oauth_token: AQAAAAA0ufAqAAT7ozWaEMZAAkXjv2eVPxRejQw #https://oauth.yandex.ru/authorize?response_type=token&client_id=c473ca268cd749d3a8371351a8f2bcbd
       skill_id: dcf1e439-96a9-4e1a-a6ea-7b895d0c429a      # AD_HASS
-      user_id: ad4f04076d4a4021a61a17f7a4e6ffeb            # yandex
+      user_id: ad4f04076d4a4021a61a17f7a4e6ffeb            # yandex, не  ad
+
+    - oauth_token: AQAAAAA0ufAqAAT7ozWaEMZAAkXjv2eVPxRejQw #https://oauth.yandex.ru/authorize?response_type=token&client_id=c473ca268cd749d3a8371351a8f2bcbd
+      skill_id: dcf1e439-96a9-4e1a-a6ea-7b895d0c429a      # AD_HASS
+      user_id: f6e17c9bb85c47e7b4da0f6746499a96         # ad, не yandex
 
 #  filter:
 #    include_domains:

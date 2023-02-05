@@ -1,0 +1,15 @@
+# https://github.com/danieldotnl/ha-multiscrape/wiki/Scraping-guide
+# https://www.home-assistant.io/integrations/scrape
+sensor:
+  - platform: scrape
+    name: Electricity price night
+    resource: https://www.mosenergosbyt.ru/individuals/tariffs-n-payments/tariffs-msk/kvartiry-i-doma-s-elektroplitami-bez-elektrootopitelnyh-ustanovok.php
+    select: "body > div.overflow__wrapper > div.wrapper.content.with-sidebar > section > div > div > div:nth-child(1) > div.d-table.margin-bottom > div:nth-child(4) > div.d-table-cell.d-table-num-left"
+    unit_of_measurement: "Rub/kWh"
+    
+  - platform: scrape
+    name: Electricity price day
+    resource: https://www.mosenergosbyt.ru/individuals/tariffs-n-payments/tariffs-msk/kvartiry-i-doma-s-elektroplitami-bez-elektrootopitelnyh-ustanovok.php
+    select: "body > div.overflow__wrapper > div.wrapper.content.with-sidebar > section > div > div > div:nth-child(1) > div.d-table.margin-bottom > div:nth-child(5) > div.d-table-cell.d-table-num-left"
+    unit_of_measurement: "Rub/kWh"    
+    

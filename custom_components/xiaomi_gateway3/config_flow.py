@@ -2,16 +2,15 @@ import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, OptionsFlow, ConfigEntry
 from homeassistant.core import callback
+from homeassistant.data_entry_flow import FlowHandler
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 from . import DOMAIN
 from .core import utils
+from .core.const import PID_BLE, PID_WIFI, PID_WIFI_BLE
 from .core.xiaomi_cloud import MiCloud
 
-ACTIONS = {
-    "cloud": "Add Mi Cloud Account",
-    "token": "Add Gateway using Token"
-}
+ACTIONS = {"cloud": "Add Mi Cloud Account", "token": "Add Gateway using Token"}
 
 SERVERS = {
     "cn": "China",
@@ -19,7 +18,7 @@ SERVERS = {
     "i2": "India",
     "ru": "Russia",
     "sg": "Singapore",
-    "us": "United States"
+    "us": "United States",
 }
 
 OPT_DEBUG = {
@@ -27,6 +26,37 @@ OPT_DEBUG = {
     "mqtt": "MQTT logs",
     "zigbee": "Zigbee logs",
 }
+
+
+def form(
+    flow: FlowHandler,
+    step_id: str,
+    schema: dict,
+    defaults: dict = None,
+    template: dict = None,
+    error: str = None,
+):
+    """Suppport:
+    - overwrite schema defaults from dict (user_input or entry.options)
+    - set base error code (translations > config > error > code)
+    - set custom error via placeholders ("template": "{error}")
+    """
+    if defaults:
+        for key in schema:
+            if key.schema in defaults:
+                key.default = vol.default_factory(defaults[key.schema])
+
+    if template and "error" in template:
+        error = {"base": "template"}
+    elif error:
+        error = {"base": error}
+
+    return flow.async_show_form(
+        step_id=step_id,
+        data_schema=vol.Schema(schema),
+        description_placeholders=template,
+        errors=error,
+    )
 
 
 class FlowHandler(ConfigFlow, domain=DOMAIN):
@@ -41,60 +71,65 @@ class FlowHandler(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_token()
             else:
                 device = next(
-                    device for device in self.hass.data[DOMAIN]["devices"]
+                    device
+                    for device in self.hass.data[DOMAIN]["devices"]
                     if device["did"] == user_input["action"]
                 )
                 return self.async_show_form(
                     step_id="token",
-                    data_schema=vol.Schema({
-                        vol.Required("host", default=device["localip"]): str,
-                        vol.Required("token", default=device["token"]): str,
-                        vol.Required("telnet_cmd"): str,
-                    }),
+                    data_schema=vol.Schema(
+                        {
+                            vol.Required("host", default=device["localip"]): str,
+                            vol.Required("token", default=device["token"]): str,
+                        }
+                    ),
                 )
 
         if DOMAIN in self.hass.data and "devices" in self.hass.data[DOMAIN]:
             for device in self.hass.data[DOMAIN]["devices"]:
-                if (device["model"] in utils.SUPPORTED_MODELS and
-                        device["did"] not in ACTIONS):
+                if (
+                    device["model"] in utils.SUPPORTED_MODELS
+                    and device["did"] not in ACTIONS
+                ):
                     name = f"Add {device['name']} ({device['localip']})"
                     ACTIONS[device["did"]] = name
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({
-                vol.Required("action", default="cloud"): vol.In(ACTIONS)
-            })
+            data_schema=vol.Schema(
+                {vol.Required("action", default="cloud"): vol.In(ACTIONS)}
+            ),
         )
 
-    async def async_step_cloud(self, user_input=None, error=None):
-        if user_input:
-            if not user_input["servers"]:
-                return await self.async_step_cloud(error="no_servers")
-
-            session = async_create_clientsession(self.hass)
-            cloud = MiCloud(session)
-            if await cloud.login(
-                    user_input["username"], user_input["password"]
-            ):
-                user_input.update(cloud.auth)
-                return self.async_create_entry(
-                    title=user_input["username"], data=user_input
-                )
-
-            else:
-                return await self.async_step_cloud(error="cant_login")
-
-        return self.async_show_form(
-            step_id="cloud",
-            data_schema=vol.Schema({
+    async def async_step_cloud(self, data=None):
+        kwargs = {
+            "step_id": "cloud",
+            "schema": {
                 vol.Required("username"): str,
                 vol.Required("password"): str,
-                vol.Required("servers", default=["cn"]):
-                    cv.multi_select(SERVERS)
-            }),
-            errors={"base": error} if error else None
-        )
+                vol.Required("servers", default=["cn"]): cv.multi_select(SERVERS),
+            },
+            "defaults": data,
+            "template": {"verify": ""},
+        }
+
+        if data:
+            if data["servers"]:
+                session = async_create_clientsession(self.hass)
+                cloud = MiCloud(session)
+                if await cloud.login(data["username"], data["password"]):
+                    data.update(cloud.auth)
+                    return self.async_create_entry(title=data["username"], data=data)
+
+                elif cloud.verify:
+                    kwargs["error"] = "verify"
+                    kwargs["template"]["verify"] = f"\n[Verify url]({cloud.verify})"
+                else:
+                    kwargs["error"] = "cant_login"
+            else:
+                kwargs["error"] = "no_servers"
+
+        return form(self, **kwargs)
 
     async def async_step_token(self, user_input=None, error=None):
         """GUI > Configuration > Integrations > Plus > Xiaomi Gateway 3"""
@@ -103,45 +138,23 @@ class FlowHandler(ConfigFlow, domain=DOMAIN):
             if error:
                 return await self.async_step_token(error=error)
 
-            return self.async_create_entry(
-                title=user_input["host"], data=user_input
-            )
+            return self.async_create_entry(title=user_input["host"], data=user_input)
 
         return self.async_show_form(
             step_id="token",
-            data_schema=vol.Schema({
-                vol.Required("host"): str,
-                vol.Required("token"): str,
-                vol.Required("telnet_cmd"): str,
-            }),
-            errors={"base": error} if error else None
+            data_schema=vol.Schema(
+                {
+                    vol.Required("host"): str,
+                    vol.Required("token"): str,
+                }
+            ),
+            errors={"base": error} if error else None,
         )
 
     @staticmethod
     @callback
     def async_get_options_flow(entry: ConfigEntry):
         return OptionsFlowHandler(entry)
-
-
-TITLE = "Xiaomi Gateway 3"
-
-ZHA_NOTIFICATION = """For **ZHA**, goto:
-
-Configuration > Integrations > Add Integration > Zigbee Home Automation:
-
-- Radio Type: **EZSP**
-- Path: `socket://{0}:8888`
-
-For **zigbee2mqtt**, goto:
-
-Supervisor > Zigbee2mqtt > Configuration:
-
-```
-serial:
-  port: 'tcp://{0}:8888'
-  adapter: ezsp
-```
-"""
 
 
 # noinspection PyUnusedLocal
@@ -159,11 +172,12 @@ class OptionsFlowHandler(OptionsFlow):
         if user_input is not None:
             did = user_input["did"]
             device = next(
-                device for device in self.hass.data[DOMAIN]["devices"]
+                device
+                for device in self.hass.data[DOMAIN]["devices"]
                 if device["did"] == did
             )
 
-            if device["pid"] != 6:
+            if device["pid"] != PID_BLE:
                 device_info = (
                     f"Name: {device['name']}\n"
                     f"Model: {device['model']}\n"
@@ -172,9 +186,7 @@ class OptionsFlowHandler(OptionsFlow):
                     f"Token: {device['token']}"
                 )
             else:
-                bindkey = await utils.get_bindkey(
-                    self.hass.data[DOMAIN]["cloud"], did
-                )
+                bindkey = await utils.get_bindkey(self.hass.data[DOMAIN]["cloud"], did)
                 device_info = (
                     f"Name: {device['name']}\n"
                     f"Model: {device['model']}\n"
@@ -189,10 +201,15 @@ class OptionsFlowHandler(OptionsFlow):
             elif ".vacuum." in device["model"]:
                 device_info += "\nRooms: " + await utils.get_room_mapping(
                     self.hass.data[DOMAIN]["cloud"],
-                    device["localip"], device["token"],
+                    device["localip"],
+                    device["token"],
                 )
             elif device["model"] == "yeelink.light.bslamp2":
                 device_info += "\nLAN mode: " + await utils.enable_bslamp2_lan(
+                    device["localip"], device["token"]
+                )
+            elif device["model"].startswith("yeelink.light."):
+                device_info += "\nRemotes: " + await utils.get_ble_remotes(
                     device["localip"], device["token"]
                 )
 
@@ -203,10 +220,9 @@ class OptionsFlowHandler(OptionsFlow):
 
         devices = {}
         for device in self.hass.data[DOMAIN].get("devices", []):
-            # 0 - wifi, 6 - ble, 8 - wifi+ble
-            if device["pid"] in (0, 8):
+            if device["pid"] in (PID_WIFI, PID_WIFI_BLE):
                 info = device["localip"]
-            elif device["pid"] == 6:
+            elif device["pid"] == PID_BLE:
                 info = "BLE"
             else:
                 continue
@@ -214,59 +230,34 @@ class OptionsFlowHandler(OptionsFlow):
 
         return self.async_show_form(
             step_id="cloud",
-            data_schema=vol.Schema({
-                vol.Required("did"): vol.In(devices)
-            }),
-            description_placeholders={
-                "device_info": device_info
-            }
+            data_schema=vol.Schema({vol.Required("did"): vol.In(devices)}),
+            description_placeholders={"device_info": device_info},
         )
 
     async def async_step_user(self, user_input=None):
         if user_input:
-            old_mode = self.entry.options.get("zha", False)
-            new_mode = user_input["zha"]
-            if new_mode != old_mode:
-                host = user_input["host"]
-
-                # change zigbee firmware if needed
-                if not await utils.update_zigbee_firmware(
-                        self.hass, host, new_mode
-                ):
-                    raise Exception("Can't update zigbee firmware")
-
-                if new_mode is True:
-                    self.hass.components.persistent_notification.async_create(
-                        ZHA_NOTIFICATION.format(host), TITLE
-                    )
-
-            return self.async_create_entry(title='', data=user_input)
+            return self.async_create_entry(title="", data=user_input)
 
         host = self.entry.options["host"]
         token = self.entry.options["token"]
-        telnet_cmd = self.entry.options.get("telnet_cmd", "")
         ble = self.entry.options.get("ble", True)
         stats = self.entry.options.get("stats", False)
         debug = self.entry.options.get("debug", [])
-        buzzer = self.entry.options.get("buzzer", False)
         memory = self.entry.options.get("memory", False)
-        zha = self.entry.options.get("zha", False)
 
         # filter only supported items
         debug = [k for k in debug if k in OPT_DEBUG]
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({
-                vol.Required("host", default=host): str,
-                vol.Required("token", default=token): str,
-                vol.Optional("telnet_cmd", default=telnet_cmd): str,
-                vol.Required("ble", default=ble): bool,
-                vol.Optional("stats", default=stats): bool,
-                vol.Optional("debug", default=debug):
-                    cv.multi_select(OPT_DEBUG),
-                vol.Optional("buzzer", default=buzzer): bool,
-                vol.Optional("memory", default=memory): bool,
-                vol.Optional("zha", default=zha): bool,
-            }),
+            data_schema=vol.Schema(
+                {
+                    vol.Required("host", default=host): str,
+                    vol.Required("token", default=token): str,
+                    vol.Required("ble", default=ble): bool,
+                    vol.Optional("stats", default=stats): bool,
+                    vol.Optional("debug", default=debug): cv.multi_select(OPT_DEBUG),
+                    vol.Optional("memory", default=memory): bool,
+                }
+            ),
         )

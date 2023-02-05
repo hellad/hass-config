@@ -113,15 +113,11 @@ mqtt:
 # https://github.com/kvazis/training/tree/master/lessons/articles/aqara%20fp2%20part%202
 # https://www.youtube.com/watch?v=N1wwuuwd1D8
 template:
-     
   - binary_sensor:
-
       - name: '0x54ef4410005849df_motion'
         state: >
           {{not is_state("sensor.0x54ef4410005849df_presence_event", "leave")}}
         device_class: motion
-
-
 
 automation:
   # Automation for sending MQTT message on input select change

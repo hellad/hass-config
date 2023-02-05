@@ -182,7 +182,10 @@ def get_entity_state(hass, entry, friendly_names=False):
     if entity and entity.attributes.get("friendly_name", None):
         if friendly_names:
             name = entity.name
-    state = "missing" if not entity else entity.state.replace("unavailable", "unavail")
+    # fix for #75, some integrations return non-string states
+    state = (
+        "missing" if not entity else str(entity.state).replace("unavailable", "unavail")
+    )
     return state, name
 
 
@@ -232,7 +235,7 @@ def parse(hass, folders, ignored_files, root=None):
     """Parse a yaml or json file for entities/services"""
     files_parsed = 0
     entity_pattern = re.compile(
-        r"(?:(?<=\s)|(?<=^)|(?<=\")|(?<=\'))([A-Za-z_0-9]*\s*:)?(?:\s*)?"
+        r"(?:(?<=\s)|(?<=^)|(?<=\")|(?<=\'))([A-Za-z_0-9]*\s*:)?(?:\s*)?(?:states.)?"
         r"((air_quality|alarm_control_panel|alert|automation|binary_sensor|button|calendar|camera|"
         r"climate|counter|device_tracker|fan|group|humidifier|input_boolean|input_datetime|"
         r"input_number|input_select|light|lock|media_player|number|person|plant|proximity|remote|"
@@ -269,6 +272,12 @@ def parse(hass, folders, ignored_files, root=None):
             _LOGGER.debug("%s parsed", yaml_file)
         except OSError as exception:
             _LOGGER.error("Unable to parse %s: %s", yaml_file, exception)
+        except UnicodeDecodeError as exception:
+            _LOGGER.error(
+                "Unable to parse %s: %s. Use UTF-8 encoding to avoid this error",
+                yaml_file,
+                exception,
+            )
 
     # remove ignored entities and services from resulting lists
     ignored_items = get_config(hass, CONF_IGNORED_ITEMS, [])

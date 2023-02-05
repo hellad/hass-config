@@ -1,0 +1,38 @@
+# https://github.com/danieldotnl/ha-multiscrape/wiki/Scraping-guide
+# https://www.home-assistant.io/integrations/scrape
+
+multiscrape:
+  - resource: 'https://www.mosenergosbyt.ru/individuals/tariffs-n-payments/tariffs-msk/kvartiry-i-doma-s-elektroplitami-bez-elektrootopitelnyh-ustanovok.php'
+    scan_interval: 3000
+  #  form_submit:
+  #    submit_once: True
+  #    resource: 'https://thesitewiththeform.com'
+  #    select: ".unique-css-selector-for-the-form"
+  #    input:
+  #      username: abc@def.com
+  #      password: '12345678'
+    sensor:
+      - select: 'body > div.overflow__wrapper > div.wrapper.content.with-sidebar > section > div > div > div:nth-child(1) > div.d-table.margin-bottom > div:nth-child(4) > div.d-table-cell.d-table-num-left'
+      #post-35 > div > table:nth-child(15) > tbody > tr:nth-child(4) > td:nth-child(3)
+        name: Electricity_price_night
+        unit_of_measurement: "Rub/kWh" 
+        unique_id: electricity_price_at_night
+        
+      - select: 'body > div.overflow__wrapper > div.wrapper.content.with-sidebar > section > div > div > div:nth-child(1) > div.d-table.margin-bottom > div:nth-child(5) > div.d-table-cell.d-table-num-left'
+      #post-35 > div > table:nth-child(15) > tbody > tr:nth-child(5) > td:nth-child(3)
+        name: Electricity_price_day       
+        unit_of_measurement: "Rub/kWh" 
+        unique_id: electricity_price_at_day
+
+#### try to convert comma separated number to the dot separated on
+template:
+  - sensor:
+      - name: Electricity_tariff_day
+        unit_of_measurement: "Rub/kWh"
+        unique_id: electricity_tariff_at_day
+        state: '{{ states.sensor.electricity_price_at_day.state |replace(",",".") }}'
+
+      - name: Electricity_tariff_night
+        unit_of_measurement: "Rub/kWh"
+        unique_id: electricity_tariff_at_night
+        state: '{{ states.sensor.electricity_price_at_night.state |replace(",",".") }}'

@@ -1,0 +1,36 @@
+- id: '1671395674273'
+  alias: TurnOFF_HeaterRelay2@Bytovka
+  description: выключить второе реле sonoff в бытовке после прогрева до 3С
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.wemosd1mini_bme280_temperature_2
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    above: 3
+  condition: []
+  action:
+  - service: homeassistant.turn_off
+    data: {}
+    target:
+      entity_id: switch.sonoff2gangs_relay
+  mode: single
+- id: '1671395880337'
+  alias: TurnON_HeaterRelay2@Bytovka
+  description: включить реле2 sonoff в бытовке когда температура ниже 1С
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.wemosd1mini_bme280_temperature_2
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    below: 1
+  condition: []
+  action:
+  - service: homeassistant.turn_on
+    data: {}
+    target:
+      entity_id: switch.sonoff2gangs_relay
+  mode: single

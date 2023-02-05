@@ -97,9 +97,9 @@
 #      after: '8:00:00'
 #      before: '23:30:00'
     action:
-      - service: persistent_notification.create
-        data:
-          message: "Bedroom CO2 sensor value is higher than 800. Углекислый газ в спальне выше 800."
+#      - service: persistent_notification.create
+#        data:
+#          message: "Bedroom CO2 sensor value is higher than 800. Углекислый газ в спальне выше 800."
 #      - service: notify.telegram_group
 #        data_template:
 #          message: "Bedroom CO2 sensor value is higher than 800. Углекислый газ в спальне выше 800."
@@ -127,7 +127,8 @@
 #	Check CO2 sensor value in children room and show notification
 #
 ################################################################################
-  - alias: Check CO2 value and show notification
+  - id: Оповещение_co2_в_детской
+    alias: Check CO2 value in children room and show notification
     initial_state: True  # To set an automation to be disabled when Home Assistant starts set initial_state: to False.
     trigger:
       platform: numeric_state
@@ -135,31 +136,31 @@
       above: 800
 
     action:
-      - service: persistent_notification.create
-        data:
-          message: "Children room CO2 sensor value is higher than 800. Углекислый газ в детской выше 800."
+#      - service: persistent_notification.create
+#        data:
+#          message: "Children room CO2 sensor value is higher than 800. Углекислый газ в детской выше 800."
 #      - service: notify.telegram_group
 #        data_template:
 #          message: "Children room CO2 sensor value is higher than 800. Углекислый газ в детской выше 800."
-      - service: notify.telegram_group
+
+      - service: telegram_bot.send_message
         data_template:
-#          target: [!secret telegram_bot_chat_id_prohor, !secret telegram_bot_chat_id_megafon]
+          target: !secret telegram_bot_chat_id_prohor
           message: "Внимание пора проветрить в детской, углекислый газ больше 800."
 
-      - condition: and
-        conditions:
-          - condition: time
-      # At least one of the following is required.
-            after: '8:30:00'
-          - condition: time
-            before: '23:30:00'
+      # - condition: and
+      #   conditions:
+      #     - condition: time
+      # # At least one of the following is required.
+      #       after: '8:30:00'
+      #     - condition: time
+      #       before: '23:30:00'
 
-      - service: tts.google_translate_say
-        entity_id: media_player.kitchen   # Say to the sonos media_player device 
-#        entity_id: media_player.vlcmp   # Say to the media_player.vlcmp device entity
-        data_template:
-          message: > 
-            Внимание пора проветрить в детской, углекислый газ больше 800.
+      # - service: tts.google_translate_say
+      #   entity_id: media_player.kitchen   # Say to the sonos media_player device 
+      #   data_template:
+      #     message: > 
+      #       Внимание пора проветрить в детской, углекислый газ больше 800.
 
 
 ################################################################################
@@ -362,7 +363,7 @@
     initial_state: true
     trigger:
       platform: zone
-      entity_id: device_tracker.oneplus9pro_2
+      entity_id: device_tracker.le2121_2
       zone: zone.home
       # Event is either enter or leave
       event: enter  # or "leave"
@@ -381,7 +382,7 @@
     initial_state: true
     trigger:
       platform: zone
-      entity_id: device_tracker.oneplus9pro_2
+      entity_id: device_tracker.le2121_2
       zone: zone.office
       # Event is either enter or leave
       event: enter  # or "leave"

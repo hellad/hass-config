@@ -1,3 +1,16 @@
+- alias: system_ya_response
+  initial_state: true
+  trigger:
+    - platform: event
+      event_type: yandex_station_response
+    - platform: event
+      event_type: yandex_speaker
+  action:
+    - service: notify.mobile_app_le2121
+      data:
+        message: "{{trigger.event.data.name}}: {{ trigger.event.data.value }}"
+
+
 #### https://github.com/AlexxIT/YandexDialogs
 - trigger:
     platform: event

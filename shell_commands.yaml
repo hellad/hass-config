@@ -99,3 +99,4 @@
   snapshot_dome_delete: rm www/snapshots/snapshot_dome.jpg
   # выполняется до 20 секунд!
   snapshot_dome: curl  --digest --user admin:adhome619  -o www/snapshots/snapshot_dome.jpg 'http://192.168.33.230/cgi-bin/snapshot.cgi'
+#  snapshot_dome: http://192.168.33.230/onvifsnapshot/media_service/snapshot?channel=1&subtype=0

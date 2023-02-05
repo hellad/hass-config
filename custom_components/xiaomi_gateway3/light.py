@@ -11,7 +11,7 @@ from .core.device import XDevice
 from .core.entity import XEntity
 from .core.gateway import XGateway
 
-CONF_DEFAULT_TRANSITION = 'default_transition'
+CONF_DEFAULT_TRANSITION = "default_transition"
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -35,14 +35,12 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class XiaomiLight(XEntity, LightEntity, RestoreEntity):
     _attr_is_on = None
 
-    def __init__(self, gateway: 'XGateway', device: XDevice, conv: Converter):
+    def __init__(self, gateway: "XGateway", device: XDevice, conv: Converter):
         super().__init__(gateway, device, conv)
 
         for conv in device.converters:
             if conv.attr == ATTR_BRIGHTNESS:
-                self._attr_supported_features |= (
-                        SUPPORT_BRIGHTNESS | SUPPORT_TRANSITION
-                )
+                self._attr_supported_features |= SUPPORT_BRIGHTNESS | SUPPORT_TRANSITION
             elif conv.attr == ATTR_COLOR_TEMP:
                 self._attr_supported_features |= SUPPORT_COLOR_TEMP
                 if hasattr(conv, "minm") and hasattr(conv, "maxm"):
@@ -142,7 +140,7 @@ class XiaomiMeshLight(XiaomiMeshBase):
 
 # noinspection PyAbstractClass
 class XiaomiMeshGroup(XiaomiMeshBase):
-    def __init__(self, gateway: 'XGateway', device: XDevice, conv: Converter):
+    def __init__(self, gateway: "XGateway", device: XDevice, conv: Converter):
         super().__init__(gateway, device, conv)
 
         if not device.extra["childs"]:
@@ -159,7 +157,8 @@ class XiaomiMeshGroup(XiaomiMeshBase):
             return
         for did in self.device.extra["childs"]:
             child = self.gw.devices[did]
-            child.entities.pop(self.attr)
+            # None - fix https://github.com/AlexxIT/XiaomiGateway3/issues/905
+            child.entities.pop(self.attr, None)
 
     async def async_update(self):
         # To update a group - request an update of its children

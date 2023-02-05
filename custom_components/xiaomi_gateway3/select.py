@@ -3,7 +3,7 @@ from homeassistant.core import callback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from . import DOMAIN
-from .core import utils
+from .core import utils, ezsp
 from .core.converters import Converter
 from .core.device import XDevice, RE_DID
 from .core.entity import XEntity
@@ -31,7 +31,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class XiaomiSelectBase(XEntity, SelectEntity):
     _attr_current_option: str = None
 
-    def __init__(self, gateway: 'XGateway', device: XDevice, conv: Converter):
+    def __init__(self, gateway: "XGateway", device: XDevice, conv: Converter):
         super().__init__(gateway, device, conv)
 
         if hasattr(conv, "map"):
@@ -56,25 +56,45 @@ class XiaomiSelect(XiaomiSelectBase, RestoreEntity):
         await self.device_read(self.subscribed_attrs)
 
 
+CMD_PAIR = "pair"
+CMD_BIND = "bind"
+CMD_OTA = "ota"
+CMD_CONFIG = "config"
+CMD_PARENTSCAN = "parentscan"
+CMD_FWLOCK = "firmwarelock"
+CMD_REBOOT = "reboot"
+CMD_FTP = "ftp"
+CMD_FLASHZB = "flashzb"
+
+
 # noinspection PyAbstractClass
 class CommandSelect(XEntity, SelectEntity):
     _attr_current_option = None
     _attr_device_class = "command"
 
-    def __init__(self, gateway: 'XGateway', device: XDevice, conv: Converter):
+    def __init__(self, gateway: "XGateway", device: XDevice, conv: Converter):
         super().__init__(gateway, device, conv)
         if device.model == "lumi.gateway.mgl03":
             self._attr_options = [
-                "pair", "bind", "ota", "config", "parentscan", "firmwarelock",
-                "reboot", "ftp"
+                CMD_PAIR,
+                CMD_BIND,
+                CMD_OTA,
+                CMD_CONFIG,
+                CMD_PARENTSCAN,
+                CMD_FLASHZB,
+                CMD_FWLOCK,
+                CMD_REBOOT,
+                CMD_FTP,
             ]
-        elif device.model.startswith("lumi.gateway.aqcn0"):
+        else:
             self._attr_options = [
-                "pair", "bind", "ota", "config", "parentscan", "reboot", "ftp"
-            ]
-        elif device.model.startswith("lumi.gateway.mcn001"):
-            self._attr_options = [
-                "pair", "bind", "ota", "config", "parentscan", "reboot", "ftp"
+                CMD_PAIR,
+                CMD_BIND,
+                CMD_OTA,
+                CMD_CONFIG,
+                CMD_PARENTSCAN,
+                CMD_REBOOT,
+                CMD_FTP,
             ]
 
     @callback
@@ -86,17 +106,17 @@ class CommandSelect(XEntity, SelectEntity):
         # clear select.data
         self.device.update({"data": None})
 
-        if option == "pair":
+        if option == CMD_PAIR:
             await self.device_send({"pair": True})
-        elif option in ("bind", "config", "ota"):
+        elif option in (CMD_BIND, CMD_CONFIG, CMD_OTA, CMD_FLASHZB):
             self.device.update({"command": option})
-        elif option == "firmwarelock":
+        elif option == CMD_FWLOCK:
             lock = await self.gw.gw3_read_lock()
             self.device.update({"command": option, "lock": lock})
-        elif option in ("ftp", "reboot"):
+        elif option in (CMD_FTP, CMD_REBOOT):
             ok = await self.gw.telnet_send(option)
             self.device.update({"command": option, "ok": ok})
-        elif option == "parentscan":
+        elif option == CMD_PARENTSCAN:
             await self.gw.z3_run_parent_scan()
             self.device.update({"command": option, "ok": True})
 
@@ -115,6 +135,8 @@ OPT_NO_FIRMWARE = "no_firmware"
 OPT_BIND = "bind"
 OPT_UNBIND = "unbind"
 OPT_NO_DEVICES = "no_devices"
+OPT_ORIGINAL = "original"
+OPT_CUSTOM = "custom"
 
 
 # noinspection PyAbstractClass,PyUnusedLocal
@@ -145,9 +167,7 @@ class DataSelect(XEntity, SelectEntity):
 
     def set_devices(self, feature: str):
         """Set options list with devices list."""
-        devices = [
-            f"{d.mac}: {d.name}" for d in self.gw.filter_devices(feature)
-        ]
+        devices = [f"{d.mac}: {d.name}" for d in self.gw.filter_devices(feature)]
         if devices:
             self.set_options(None, devices)
         else:
@@ -192,7 +212,7 @@ class DataSelect(XEntity, SelectEntity):
         if value:
             self.set_options(OPT_JOIN, [OPT_JOIN, OPT_CANCEL])
             # change select.command
-            self.device.update({"command": "pair"})
+            self.device.update({"command": CMD_PAIR})
         else:
             # clear select.command
             self.device.update({"command": None})
@@ -271,17 +291,23 @@ class DataSelect(XEntity, SelectEntity):
     def step_command_firmwarelock(self, value: dict):
         lock = value["lock"]
         if lock is None:
-            self.set_options(
-                OPT_UNKNOWN, [OPT_UNKNOWN, OPT_ENABLED, OPT_DISABLED]
-            )
+            self.set_options(OPT_UNKNOWN, [OPT_UNKNOWN, OPT_ENABLED, OPT_DISABLED])
         else:
             self.set_options(
-                OPT_ENABLED if lock else OPT_DISABLED,
-                [OPT_ENABLED, OPT_DISABLED]
+                OPT_ENABLED if lock else OPT_DISABLED, [OPT_ENABLED, OPT_DISABLED]
             )
 
     async def step_user_firmwarelock(self, option: str):
         ok = await self.gw.gw3_send_lock(option == OPT_ENABLED)
+        self.set_end(OPT_OK if ok else OPT_ERROR)
+
+    def step_command_flashzb(self, value: dict):
+        self.set_options(None, [OPT_ORIGINAL, OPT_CUSTOM])
+
+    async def step_user_flashzb(self, option: str):
+        ok = await ezsp.update_zigbee_firmware(
+            self.hass, self.gw.host, option == OPT_CUSTOM
+        )
         self.set_end(OPT_OK if ok else OPT_ERROR)
 
     def step_command_reboot(self, value: dict):

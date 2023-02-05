@@ -17,28 +17,30 @@ sensor:
 #### чтобы не выключалось зеркало по датчику движения, если было включено вручную
 #### использовать в условии автоматизации
   - platform: mqtt
-    state_topic: "mirror/tele/SENSOR"
+    state_topic: "tele/mirror/SENSOR"
     name: "BathRoom mirror relay touch sensor"              #### sensor.bathroom_mirror_relay_touch_sensor
     value_template: '{{ value_json.Switch1 }}'  
 #    initial_state: on
 
 
   - platform: mqtt
-    state_topic: "mirror/tele/STATE"
+    state_topic: "tele/mirror/STATE"
     name: "BathRoom relay uptime"                    #### sensor.bathroom_relay_uptime
     value_template: '{{ value_json.Uptime }}'  
 
 
   - platform: mqtt
-    state_topic: "mirror/stat/RESULT"
+    state_topic: "tele/mirror/STATE"
     name: "BathRoom relay last result"               #### sensor.bathroom_relay_last_result
     value_template: '{{ value_json.POWER }}'
 
 #### 
   - platform: mqtt
     name: "Bathroom relay firmware version"          #### sensor.bathroom_relay_firmware_version
-    state_topic: "homeassistant/switch/0F3C4B_RL_1/config"
-    value_template: "{{value_json['device'].sw_version }}"
+#    state_topic: "homeassistant/switch/0F3C4B_RL_1/config"
+#    value_template: "{{value_json['device'].sw_version }}"
+    state_topic: "tasmota/discovery/BCDDC20F3C4B/config"
+    value_template: "{{value_json.sw }}"
     qos: 0
     availability_topic: "mirror/tele/LWT"
     payload_available: "Online"
@@ -68,20 +70,21 @@ sensor:
 #### Template sensor to control vent fan in bathroom
 #### was it switched on manually or automaticaly
 #### sensor.bathroom_fan_switched_on_manually
+#### если нет высокой влажности и включен вентилятор, значит вручную, а не автоматически по условию.
 template:
   - trigger:
       - platform: state
         entity_id:
-          - switch.sonoff_bathroom_fan
+          - switch.ventiliator
           - sensor.wet_bathroom
       - platform: homeassistant
         event: start
   - sensor:
       - name: "bathroom_fan_switched_on_manually"
         state: >
-          {% if is_state('switch.sonoff_bathroom_fan', 'off') %}
+          {% if is_state('switch.ventiliator', 'off') %}
             off
-          {% elif is_state('switch.sonoff_bathroom_fan', 'on') and is_state('sensor.wet_bathroom', 'off') %}
+          {% elif is_state('switch.ventiliator', 'on') and is_state('sensor.wet_bathroom', 'off') %}
             on
           {% else %}
             failed
@@ -96,10 +99,10 @@ template:
 switch:
   - platform: mqtt
     name: "Bathroom Mirror Light"
-    state_topic: "mirror/tele/STATE"
+    state_topic: "tele/mirror/STATE"
     value_template: "{{ value_json.POWER }}"
-    command_topic: "mirror/cmnd/POWER"
-    availability_topic: "mirror/tele/LWT"
+    command_topic: "cmnd/mirror/POWER"
+    availability_topic: "tele/mirror/LWT"
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
@@ -110,8 +113,8 @@ switch:
 # switch.balcony_light_right
   - platform: mqtt
     name: "Balcony Light Right"
-    state_topic: "stat/balcony/POWER1"
-    value_template: "{{ value_json.POWER }}"
+    state_topic: "stat/balcony/STATE"
+    value_template: "{{ value_json.POWER1 }}"
     command_topic: "cmnd/balcony/POWER1"
     availability_topic: "tele/balcony/LWT"
     qos: 1
@@ -125,7 +128,7 @@ switch:
   - platform: mqtt
     name: "Balcony Light Left"
     state_topic: "stat/balcony/POWER2"
-    value_template: "{{ value_json.POWER }}"
+    value_template: "{{ value_json.POWER2 }}"
     command_topic: "cmnd/balcony/POWER2"
     availability_topic: "tele/balcony/LWT"
     qos: 1
@@ -178,8 +181,8 @@ group:
   Sonoff_bathroom_switch_card:
     name: Bathroom switch
     entities:
-      - switch.sonoff_bathroom_fan  #### vent fan (renamed in GUI)
-      - switch.sonoff_bathroom_lamp  #### lamp (renamed in GUI)
+      - switch.ventiliator  #### vent fan (renamed in GUI)
+      - light.bathroom_switch_1  #### lamp (renamed in GUI)
       - sensor.wet_bathroom
 
       
@@ -197,9 +200,9 @@ automation:
 # https://www.home-assistant.io/docs/configuration/state_object/
   - trigger:
       platform: numeric_state
-      entity_id: switch.sonoff_bathroom_fan
+      entity_id: switch.ventiliator
       value_template: >-
-        {% if states.switch.sonoff_bathroom_fan.context.user_id and states.switch.sonoff_bathroom_fan.state == 'on' %}
+        {% if states.switch.ventiliator.context.user_id and states.switch.ventiliator.state == 'on' %}
         1{% else %}0{% endif %}
       above: 0
     action:
@@ -209,9 +212,9 @@ automation:
 
   - trigger:
       platform: numeric_state
-      entity_id: switch.sonoff_bathroom_fan
+      entity_id: switch.ventiliator
       value_template: >-
-        {% if states.switch.sonoff_bathroom_fan.context.id == states.automation.switch_bathroom_fan_on.context.id and states.switch.sonoff_bathroom_fan.state == 'on' %}
+        {% if states.switch.ventiliator.context.id == states.automation.switch_bathroom_fan_on.context.id and states.switch.ventiliator.state == 'on' %}
         1{% else %}0{% endif %}
       above: 0
     action:
@@ -225,7 +228,7 @@ automation:
 #      minutes: "*"
 #    action:
 #      service: homeassistant.toggle
-#      entity_id: switch.sonoff_bathroom_fan
+#      entity_id: switch.ventiliator
 
 ################################################################################
 #	 Turn Bathroom Mirror Light On when movement detected ( INACTIVE! )
@@ -265,13 +268,13 @@ automation:
         to: 'on'
     condition:
       - condition: state
-        entity_id: switch.sonoff_bathroom_lamp
+        entity_id: light.lampa_v_vanoi   #light.bathroom_switch_1
            # check the status of manual switching before turn it on
         state: 'off'
         
     action:
       - service: homeassistant.turn_on
-        entity_id: switch.sonoff_bathroom_lamp   #### switch on programmably
+        entity_id: light.lampa_v_vanoi #light.bathroom_switch_1   #### switch on programmably
 #### debug message
 #      - service: telegram_bot.send_message
 #        data_template:
@@ -297,9 +300,9 @@ automation:
         
     action:
       - service: homeassistant.turn_on
-        entity_id: switch.sonoff_bathroom_fan   #### switch fan on programmably
+        entity_id: switch.ventiliator      #switch.bathroom_switch_2   #### switch fan on programmably
       - service: homeassistant.turn_on
-        entity_id: switch.bathroom_mirror_light   #### switch mirror drier on programmably
+        entity_id: switch.mirror_2   #### switch mirror drier on programmably
 #### debug message
 #      - service: telegram_bot.send_message
 #        data_template:
@@ -336,7 +339,7 @@ automation:
         state: 'OFF'
     action:
       - service: homeassistant.turn_off
-        entity_id: switch.bathroom_mirror_light   #### switch mirror off programmably
+        entity_id: switch.mirror_2   #### switch mirror off programmably
 #### debug message
       - service: telegram_bot.send_message
         data_template:
@@ -371,7 +374,7 @@ automation:
 #        state: 'on'
     action:
       - service: homeassistant.turn_off
-        entity_id: switch.sonoff_bathroom_lamp   #### switch off light programmably
+        entity_id: light.lampa_v_vanoi     #light.bathroom_switch_1   #### switch off light programmably
 
 
 ################################################################################
@@ -392,10 +395,12 @@ automation:
 #        state: 'off'                                             # 
     action:
       - service: homeassistant.turn_off
-        entity_id: switch.sonoff_bathroom_fan   #### switch FAN off programmably
+        entity_id: switch.ventiliator       #switch.bathroom_switch_2   #### switch FAN off programmably
       - service: homeassistant.turn_off
         entity_id: switch.bathroom_mirror_light        #### switch off programmably mirror drier
-
+      - service: persistent_notification.create       #### debug message
+        data:
+          message: "Вентилятор выключен автоматизацией switch_bathroom_fan_off"
 ################################################################################
 #	 Switch Enforced Bathroom Mirror Light Off
 #    if was turned on manually and has not turned off after 1 minute without movements
@@ -418,7 +423,7 @@ automation:
 #          minutes: 1
           seconds: 60
       - condition: state
-        entity_id: switch.bathroom_mirror_light
+        entity_id: switch.mirror_2
         state: 'on'
       - condition: state
         entity_id: sensor.bathroom_mirror_relay_touch_sensor
@@ -426,7 +431,7 @@ automation:
         state: 'ON'
     action:
       - service: homeassistant.turn_off
-        entity_id: switch.bathroom_mirror_light   #### switch mirror off enforced programmably
+        entity_id: switch.mirror_2   #### switch mirror off enforced programmably
 #### debug message
       - service: telegram_bot.send_message
         data_template:
@@ -462,7 +467,7 @@ automation:
         for:
           minutes: 10    #### 10 minutes ago fan was turned on
 #      - condition: state
-#        entity_id: switch.sonoff_bathroom_fan    #### fan switch
+#        entity_id: switch.ventiliator    #### fan switch
 #        state: 'on'
       - condition: state
         entity_id: sensor.wet_bathroom
@@ -470,7 +475,7 @@ automation:
         state: 'off'
     action:
       - service: homeassistant.turn_off
-        entity_id: switch.sonoff_bathroom_fan   #### switch fan off enforced programmably
+        entity_id: switch.ventiliator         #switch.bathroom_switch_2   #### switch fan off enforced programmably
         
 #### debug message
       - service: telegram_bot.send_message

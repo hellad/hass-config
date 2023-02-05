@@ -176,7 +176,7 @@
 #### пример использования на https://github.com/home-assistant/home-assistant/issues/7670
   - id: Телеграм команда ping
     initial_state: true
-    alias: 'Telegram bot reply pong to command ping'
+    alias: 'Telegram bot reply pong to command /ping'
     trigger:
       platform: event
       event_type: telegram_command
@@ -238,21 +238,33 @@
       event_data:
         command: '/photod'                             #### /photod
     action:
-      - service: shell_command.snapshot_dome          # file www/snapshots/snapshot_dome.jpg
+      - service: shell_command.snapshot_dome_delete
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 2   
+      - service: shell_command.snapshot_dome          
       - service: telegram_bot.send_message
         data_template:
           target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
           message: >
-            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Photo should be sent to  {{ trigger.event.data["user_id"] }}.
+            {{now().strftime("%H:%M:%S %Y-%m-%d")}} Photo should be sent in 10 seconds to  {{ trigger.event.data["user_id"] }}.
       - delay:
           hours: 0
           minutes: 0
-          seconds: 2
+          seconds: 10
           milliseconds: 0
       - service: telegram_bot.send_photo
         data_template:
           target: '{{ trigger.event.data.user_id }}'  #  !secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon
+#          url: !secret dahua_dome_camera_still_image_url  #why don't work?
+          
           file: "www/snapshots/snapshot_dome.jpg"
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 10
+      - service: shell_command.snapshot_dome_delete
 
 #############
   - id: Телеграм кнопка photod
@@ -264,16 +276,18 @@
         event_data:
           data: '/photod'                             #### /photod
     action:
-      - service: shell_command.snapshot_dome          # file www/snapshots/snapshot_dome.jpg
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 2
-          milliseconds: 0
+#      - service: shell_command.snapshot_dome          # file www/snapshots/snapshot_dome.jpg
+#      - delay:
+#          hours: 0
+#          minutes: 0
+#          seconds: 2
+#          milliseconds: 0
       - service: telegram_bot.send_photo
         data_template:
           target: '{{ trigger.event.data.user_id }}'  
-          file: "www/snapshots/snapshot_dome.jpg"
+          url: !secret dahua_dome_camera_still_image_url
+
+#          file: "www/snapshots/snapshot_dome.jpg"
 ##### info in HASS event:
 # Event 0 fired 19:34:
 # {
