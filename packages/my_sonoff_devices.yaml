@@ -6,11 +6,11 @@
 ################################################################################
 sensor:
   - platform: mqtt
-    state_topic: "mirror/tele/STATE"
+    state_topic: "tele/mirror/STATE"
     name: "BathRoom Relay Wifi Signal"                #### sensor.bathroom_relay_wifi_signal
     unit_of_measurement: "%"
     value_template: "{{value_json['Wifi'].RSSI }}"    #### https://github.com/arendst/Sonoff-Tasmota/wiki/Home-Assistant-%E2%80%90-Manual-Config#tip-wifi-rssi-signal-strength
-    availability_topic: "mirror/tele/LWT"
+    availability_topic: "tele/mirror/LWT"
     payload_available: "Online"
     payload_not_available: "Offline"
 
@@ -42,7 +42,7 @@ sensor:
     state_topic: "tasmota/discovery/BCDDC20F3C4B/config"
     value_template: "{{value_json.sw }}"
     qos: 0
-    availability_topic: "mirror/tele/LWT"
+    availability_topic: "tele/mirror/LWT"
     payload_available: "Online"
     payload_not_available: "Offline"
 
@@ -54,13 +54,13 @@ sensor:
       wet_bathroom:
         friendly_name: "Wet bathroom"
         value_template: >-
-          {% if states('sensor.bathroom_mqtt_humidity_sensor') | int > 55 %}
+          {% if states('sensor.bathroom_bme680_humidity_2') | int > 55 %}
             on
           {% else %}
             off
           {% endif %}
         icon_template: >-
-          {% if states('sensor.bathroom_mqtt_humidity_sensor') | int > 55 %}
+          {% if states('sensor.bathroom_bme680_humidity_2') | int > 55 %}
             mdi:weather-rainy
           {% else %}
             mdi:hair-dryer-outline
@@ -141,9 +141,9 @@ switch:
 # switch.manual_entrance_light
   - platform: mqtt
     name: "Manual Entrance Light"
-    state_topic: "stat/corridor/POWER2"       #### should be same as command topic?
+    state_topic: "stat/corridor/POWER2"       #### бывает Power2. switch.CorridorEntranceLight
     value_template: "{{ value_json.POWER }}"
-    command_topic: "cmnd/corridor-manual/POWER2"
+    command_topic: "cmnd/corridor/POWER2"
     availability_topic: "tele/corridor/LWT"
     qos: 1
     payload_on: "ON"
@@ -157,7 +157,7 @@ switch:
     name: "Manual Storeroom Light"
     state_topic: "stat/corridor/POWER1"
     value_template: "{{ value_json.POWER }}"
-    command_topic: "cmnd/corridor-manual/POWER1"
+    command_topic: "cmnd/corridor/POWER1"
     availability_topic: "tele/corridor/LWT"
     qos: 1
     payload_on: "ON"
@@ -182,7 +182,7 @@ group:
     name: Bathroom switch
     entities:
       - switch.ventiliator  #### vent fan (renamed in GUI)
-      - light.bathroom_switch_1  #### lamp (renamed in GUI)
+      - light.bathroom_switch_1  #### lamp (renamed in GUI) light.lampa_v_vanoi
       - sensor.wet_bathroom
 
       
@@ -196,6 +196,15 @@ group:
       
       
 automation:
+
+# automation:  # https://community.home-assistant.io/t/setting-initial-state-for-binary-sensor/111652/2
+  - trigger:
+      platform: homeassistant
+      event: start
+    action:
+      - service: homeassistant.update_entity
+        entity_id: sensor.wet_bathroom
+
 # https://gist.github.com/AlexxIT/99ff662fe26e1db9afe27f2a4dd492e8
 # https://www.home-assistant.io/docs/configuration/state_object/
   - trigger:
@@ -290,7 +299,7 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.wet_bathroom
-        from: 'off'
+#        from: 'off'
         to: 'on'
     condition:
       - condition: state
@@ -534,12 +543,12 @@ automation:
           minutes: 5    #### 5 minutes without movements
 #          seconds: 30
       - condition: state
-        entity_id: switch.mqtt_6e0052_rl_2    #### corridor entrance ligh switch tasmota
+        entity_id: switch.corridortasmota2    #### corridor entrance ligh switch tasmota
         state: 'on'
 
     action:
       - service: homeassistant.turn_off
-        entity_id: switch.mqtt_6e0052_rl_2   #### switch light off enforced programmably
+        entity_id: switch.corridortasmota2   #### switch light off enforced programmably
 #### debug message
       - service: telegram_bot.send_message
         data_template:
@@ -600,12 +609,12 @@ automation:
         to: 'on'
     condition:       
       - condition: state
-        entity_id: switch.mqtt_6e0052_rl_2     #### switch.corridortasmota_2
+        entity_id: switch.corridortasmota2     #### CorridorEntranceLight
            # check the status of work - was not turned on before
         state: 'off'
     action:
       - service: homeassistant.turn_on
-        entity_id: switch.mqtt_6e0052_rl_2   #### switch entrance light programmably switch.corridortasmota_2 ?
+        entity_id: switch.corridortasmota2   #### switch entrance light programmably  ?
 
 
 ################################################################################
@@ -622,12 +631,12 @@ automation:
         to: 'off'
     condition:       
       - condition: state
-        entity_id: switch.mqtt_6e0052_rl_2    #### switch.corridortasmota_2
+        entity_id: switch.corridortasmota2    #### switch.corridortasmota_2
            # check the status of work - was not turned on before
         state: 'on'
     action:
       - service: homeassistant.turn_off
-        entity_id: switch.mqtt_6e0052_rl_2   #### switch entrance light programmably switch.corridortasmota_2 ?
+        entity_id: switch.corridortasmota2   #### switch entrance light programmably switch.corridortasmota_2 ?
 
 #switch.corridortasmota
 ################################################################################

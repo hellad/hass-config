@@ -1,0 +1,34 @@
+#reminder:
+    homeassistant:
+      customize:    
+        automation.calendar_reminder:
+          friendly_name: Календарь, напоминания
+          icon: mdi:calendar-clock
+
+    automation: 
+      - alias: calendar_reminder
+        description: Календарь - напоминания
+        initial_state: true
+        trigger:
+          - platform: calendar
+            # Possible values: start, end
+            event: start
+            # The calendar entity_id
+            entity_id: calendar.reminders
+            # Optional time offset to fire a set time before or after event start/end
+#            offset: -00:15:00
+#        condition:
+#          - condition: state
+#            entity_id: switch.control_mode
+#            state: 'on'
+        action:  
+          - service: telegram_bot.send_message
+            data_template:
+              target:
+                  - !secret telegram_bot_chat_id_megafon
+              message: |
+                {{"\U0001F567"}} {{ now().strftime('%H:%M:%S')}}
+                {{"\U0001F4C5"}} {{ trigger.calendar_event.summary }}
+                {{"\U00002709"}} {{ trigger.calendar_event.description }}
+
+        

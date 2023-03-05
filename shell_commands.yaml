@@ -92,9 +92,9 @@
   
 
 #####################################################################
-#### dahua bullet camera snapshot
+#### dahua bullet and dome cameras snapshot
   #snapshot_bullet: curl --digest --user admin:adhome619  -o www/snapshots/bullet_snapshot.jpg 'http://192.168.192.41/cgi-bin/snapshot.cgi'
-  #snapshot_bullet: curl --digest --user admin:adhome619  -o www/snapshots/snapshot_bullet.jpg 'http://192.168.192.55/cgi-bin/snapshot.cgi?channel=2'
+  snapshot_bullet: curl --digest --user admin:adhome619  -o www/snapshots/snapshot_bullet.jpg 'http://192.168.192.55/cgi-bin/snapshot.cgi?channel=2'
   #snapshot_dome: curl  --digest --user admin:adhome619  -o www/snapshots/snapshot_dome.jpg 'http://192.168.192.55/cgi-bin/snapshot.cgi?channel=1'
   snapshot_dome_delete: rm www/snapshots/snapshot_dome.jpg
   # выполняется до 20 секунд!

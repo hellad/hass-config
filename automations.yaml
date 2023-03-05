@@ -34,3 +34,12 @@
     target:
       entity_id: switch.sonoff2gangs_relay
   mode: single
+- id: '1677911671780'
+  alias: Low battery level detection & notification for all battery sensors
+  description: notify_me script used
+  use_blueprint:
+    path: gmlupatelli/low_battery_notification.yaml
+    input:
+      actions:
+      - service: script.notify_me
+        data: {}

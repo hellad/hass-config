@@ -40,14 +40,14 @@
  
 
 ################################################################################
-#	Check bath.mqtt.humidity sensor value and show notification
+#	Check sensor.bathroom_bme680_humidity_2 sensor value and show notification
 #
 ################################################################################
-  - alias: Check bath.mqtt.humidity sensor value and show notification
+  - alias: Check bathroom humidity sensor value and show notification
     initial_state: True  # To set an automation to be disabled when Home Assistant starts set initial_state: to False.
     trigger:
       platform: numeric_state
-      entity_id: sensor.bathroom_mqtt_humidity_sensor    # topic bathroom/humidity
+      entity_id: sensor.bathroom_bme680_humidity_2    # topic bathroom/humidity
       above: 55
 #    condition:
 #      condition: time
@@ -57,10 +57,10 @@
     action:
 #      - service: persistent_notification.create
 #        data:
-#          message: "Bathroom humidity MQTT sensor value is higher than 55%. Влажность в ванной выше 55%."
+#          message: "Bathroom humidity sensor value is higher than 55%. Влажность в ванной выше 55%."
       - service: notify.telegram_group
         data_template:
-          message: "Bathroom humidity MQTT sensor value is higher than 55%. Влажность в ванной выше 55%."
+          message: "Bathroom humidity sensor value is higher than 55%. Влажность в ванной выше 55%."
       - service: notify.telegram_group
         data_template:
 #          target: [!secret telegram_bot_chat_id_beeline, !secret telegram_bot_chat_id_megafon]
@@ -195,14 +195,14 @@
 ################################################################################
 #	 Save timestamps of last motion detected by sensors
 #	 https://community.home-assistant.io/t/time-last-seen-motion/18095/6
-#	Store timestamp for Motion Sensor bathroom
+#	Store timestamp of bathroom Motion Sensor 
 ################################################################################
   - alias: Store Bathroom Motion Sensor
     initial_state: true
     trigger:
       - platform: state
         entity_id: binary_sensor.bathroom_motion_sensor
-        from: 'off'
+  #      from: 'off'   # also from unknown?
         to: 'on'
     action:
       - service: mqtt.publish

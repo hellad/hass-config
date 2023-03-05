@@ -128,7 +128,7 @@ automation:
 #  https://www.home-assistant.io/docs/scripts/conditions/
 #########################################################################################
   - alias: zwave motion turn on corridor dimmer
-    initial_state: on
+    initial_state: off                              #### leave only manual switching
     trigger:
       platform: state
       entity_id: binary_sensor.zwave_motion_sensor    #### binary_sensor.sensor
@@ -184,7 +184,7 @@ automation:
 ########################        turn off corridor dimmer  #####################################
 ###############################################################################################
   - alias: zwave motion turn off corridor dimmer
-    initial_state: on
+    initial_state: off                             #### Leave only manual switching
     trigger:
       platform: state
       entity_id: binary_sensor.zwave_motion_sensor    #### binary_sensor.sensor
@@ -207,7 +207,7 @@ automation:
 ########        turn off corridor dimmer  when 30 minutes no motion  #####################################
 ###############################################################################################
   - alias: zwave corridor light off
-    initial_state: on
+    initial_state: off
     trigger:
       platform: state
       entity_id: light.nano_dimmer    #### binary_sensor.sensor

@@ -170,10 +170,23 @@
         value_template: >-
           {{ as_timestamp(states.binary_sensor.sn1_pir.last_changed) | timestamp_custom("%Y-%m-%d %X") }} 
           
-  - platform: mqtt
-    name: "Last Motion bathroom Sensor"          # sensor.last_motion_bathroom_sensor
-    state_topic: "bathroom/motion/on_time"
+#  - platform: mqtt
+#    name: "Last Motion bathroom Sensor"          # sensor.last_motion_bathroom_sensor
+#    state_topic: "bathroom/motion/on_time"       # does not work
+# https://www.home-assistant.io/integrations/sensor.mqtt/#new_format
+# Example configuration.yaml entry
+#mqtt:
+#  sensor:
+#    - name: "Last Motion bathroom Sensor"          # sensor.last_motion_bathroom_sensor
+#      state_topic: "bathroom/motion/on_time"
 
+  - platform: template
+    sensors: 
+      last_motion_batroom_sensor:
+        friendly_name: "Last Motion bathroom Sensor"                   # sensor.last_motion_bathroom_sensor
+        value_template: >-
+          {{ as_timestamp(states.binary_sensor.bathroom_motion_sensor.last_changed) | timestamp_custom("%Y-%m-%d %X") }} 
+          
 
 # https://community.home-assistant.io/t/android-ip-webcam-as-a-camera-plus-sensors/10566/133
 # You can change the ‘scan_interval’ in the ip_webcam configuration in HA, it is default to 10 sec., 
